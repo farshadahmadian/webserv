@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/13 14:39:53 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/06/14 12:28:36 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,11 +21,11 @@ VPATH		=	src
 SRC			=	main.cpp \
 				Http.cpp \
 				Server.cpp \
-				Location.cpp
+				Location.cpp 
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
-				./src/Location.hpp
+				./src/Location.hpp \
 
 INCLUDE		=	-I./include/
 
