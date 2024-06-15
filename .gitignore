@@ -1,1 +1,7 @@
 *.md
+*.ignore
+*.txt
+*.vscode
+objs
+webserv
+*.DS_Store

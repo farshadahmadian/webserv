@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
+#    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/14 12:28:36 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/06/15 11:42:40 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,8 @@ VPATH		=	src
 SRC			=	main.cpp \
 				Http.cpp \
 				Server.cpp \
-				Location.cpp 
+				Location.cpp \
+				test.cpp
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
