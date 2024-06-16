@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/15 11:42:40 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/06/15 13:04:57 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,18 +17,20 @@ NAME		=	webserv
 # @-Wshadow - warns about variable declarations that shadow a variable declared in an outer scope.
 CXXFLAGS	=	-std=c++98 -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
 
-VPATH		=	src
+VPATH		=	src src/test
 SRC			=	main.cpp \
 				Http.cpp \
 				Server.cpp \
 				Location.cpp \
-				test.cpp
+				test.cpp \
+				helper.cpp
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
 				./src/Location.hpp \
+				./src/test/test.hpp
 
-INCLUDE		=	-I./include/
+INCLUDE		=	-I./include/ -I./src/test
 
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)
