@@ -6,3 +6,4 @@ objs
 webserv
 *.DS_Store
 *.out
+*.pdf

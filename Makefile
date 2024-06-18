@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/16 11:37:19 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/06/18 11:36:16 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,24 +15,24 @@ NAME		=	webserv
 # @-Wconversion - prevent implicit cast when accuracy is lost.
 # @-Wsign-conversion - prevent implicit change of sign.
 # @-Wshadow - warns about variable declarations that shadow a variable declared in an outer scope.
-CXXFLAGS	=	-std=c++98 -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
+CXXFLAGS	=	-std=c++98 -g -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
 
-VPATH		=	src src/test src/socket
+VPATH		=	src src/sockets/socket src/sockets/listening-socket
 SRC			=	main.cpp \
 				Http.cpp \
 				Server.cpp \
 				Location.cpp \
-				test.cpp \
-				helper.cpp \
-				StreamSocket.cpp
+				Socket.cpp \
+				ListeningSocket.cpp \
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
 				./src/Location.hpp \
-				./src/test/test.hpp \
-				./src/socket/StreamSocket.hpp
+				./src/sockets/error.hpp \
+				./src/sockets/socket/Socket.hpp \
+				./src/sockets/listening-socket/ListeningSocket.hpp \
 
-INCLUDE		=	-I./include/ -I./src/test -I./src/socket
+INCLUDE		=	-I./include/ -I./src/sockets -I./src/sockets/socket -I./src/sockets/listening-socket
 
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)

@@ -6,15 +6,14 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/16 15:00:29 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/06/18 11:23:52 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.h"
 #include "colors.h"
 #include "Http.hpp"
-#include "test.hpp"
-#include "StreamSocket.hpp"
+#include "ListeningSocket.hpp"
 
 int main ( int argc, char** argv ) {
 	// std::cout << B("*************** WEBSERV! ***************") << std::endl;
@@ -31,10 +30,13 @@ int main ( int argc, char** argv ) {
 	(void)argv;
 
 	try {
-		StreamSocket mainServerSideSocket;
-		(void)mainServerSideSocket;
+		ListeningSocket listeningSocket;
 
-	} catch(StreamSocket::SocketException const &socketException) {
+		listeningSocket.setPortAvailable();
+		listeningSocket.bindSocket();
+		listeningSocket.listenToRequests();
+		listeningSocket.acceptFirstRequestInQueue();
+	} catch(ListeningSocket::SocketException const &socketException) {
 		std::cerr << RED << socketException.what() << RESET << std::endl;
 		return socketException.getError();
 	}
