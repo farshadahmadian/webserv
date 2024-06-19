@@ -12,105 +12,74 @@
 
 #include "ListeningSocket.hpp"
 
-
 // change _maxIncomingConnections(10)
-ListeningSocket::ListeningSocket(void) : Socket(), _port("8080"), _ip("127.0.0.1"), _maxIncomingConnections(10) {
-	try {
-		this->_addrInfo = this->initAddrInfo();
-		this->_socketFd = this->createSocket();
-	} catch(ListeningSocket::SocketException const &socketException) {
-		throw socketException;
-	}
+ListeningSocket::ListeningSocket(void) : Socket(), _maxIncomingConnections(10), _addressInfo(NULL) {
+	return;
+}
+
+ListeningSocket::ListeningSocket(int maxIncomingConnections) : Socket(), _maxIncomingConnections(maxIncomingConnections), _addressInfo(NULL) {
+	return;
+}
+
+ListeningSocket::ListeningSocket(ListeningSocket const &other) : _maxIncomingConnections(other._maxIncomingConnections) {
+	return;
 }
 
 ListeningSocket::~ListeningSocket(void) {
-	close(this->_socketFd);
-	freeaddrinfo(this->_addrInfo);
-}
-
-t_error ListeningSocket::SocketException::getError(void) const{
-	return this->_error;
-}
-
-void ListeningSocket::SocketException::setError(t_error error) {
-	this->_error = error;
 	return;
 }
 
-struct addrinfo *ListeningSocket::initAddrInfo(void) {
-	struct addrinfo hints;
-	struct addrinfo *addrInfo;
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	int getAddrResult = getaddrinfo((this->_ip).c_str(), (this->_port).c_str(), &hints, &addrInfo);
-	if (getAddrResult != 0)
-	{
-		std::string errMsg = static_cast<std::string>(gai_strerror(getAddrResult));
-		ListeningSocket::SocketException socketException(errMsg);
-		socketException.setError(GET_ADDR_INFO_FAILD);
-		throw socketException;
-	}
-	return addrInfo;
-}
-
-int ListeningSocket::createSocket(void) {
-	int socketFd = socket(this->_addrInfo->ai_family, this->_addrInfo->ai_socktype, this->_addrInfo->ai_protocol);
-	if (socketFd == -1)
-	{
-		ListeningSocket::SocketException socketException("Socket creation faild!");
-		socketException.setError(SOCKET_CREATION_FAILD);
-		throw socketException;
-	}
-	return socketFd;
-}
-
-void ListeningSocket::setPortAvailable(void) {
+void ListeningSocket::setPortAvailable(void) const {
 	int reusePort = 1;
-	int setSocketOptionResult = setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
+	int setSocketOptionResult = setsockopt(this->getSocketFd(), SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
 	if (setSocketOptionResult == -1)
 	{
-		ListeningSocket::SocketException socketException("Setting socket options faild!");
-		socketException.setError(SOCKET_OPTIONS_FAILD);
-		throw socketException;
+		Exception exception("Setting socket options faild!", SOCKET_OPTIONS_FAILD);
+		throw exception;
 	}
 	return;
 }
 
-void ListeningSocket::bindSocket(void) {
-	int bindResult = bind(this->_socketFd, this->_addrInfo->ai_addr, this->_addrInfo->ai_addrlen);
+void ListeningSocket::bindSocket(void) const {
+	int bindResult = bind(this->getSocketFd(), this->_addressInfo->ai_addr, this->_addressInfo->ai_addrlen);
 	if (bindResult != 0)
 	{
-		ListeningSocket::SocketException socketException("Binding the socket to the address failed!");
-		socketException.setError(BIND_SOCKET_FAILD);
-		throw socketException;
+		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILD);
+		throw exception;
 	}
 	return;
 }
 
-void ListeningSocket::listenToRequests(void) {
-	int listenResult = listen(this->_socketFd, this->_maxIncomingConnections);
+void ListeningSocket::listenToRequests(void) const {
+	int listenResult = listen(this->getSocketFd(), this->_maxIncomingConnections);
 	if (listenResult == -1)
 	{
-		ListeningSocket::SocketException socketException("Listening to incoming connections failed!");
-		socketException.setError(LISTENING_FAILED);
-		throw socketException;
+		Exception exception("Listening to incoming connections failed!", LISTENING_FAILED);
+		throw exception;
 	}
 }
 
-ListeningSocket ListeningSocket::acceptFirstRequestInQueue(void) {
+ListeningSocket ListeningSocket::acceptFirstRequestInQueue(void) const {
 	struct sockaddr_storage incomingConnectionAddress;
 	memset(&incomingConnectionAddress, 0, sizeof(incomingConnectionAddress));
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	ListeningSocket newSocket;
 
-	newSocket._socketFd = accept(this->_socketFd, reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
+	int newSocketFd = accept(this->getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
 
-	if (newSocket._socketFd == -1) {
-		ListeningSocket::SocketException socketException("Accepting the request failed");
-		socketException.setError(ACCEPTING_FAILED);
-		throw socketException;
+	if (newSocket.getSocketFd() == -1) {
+		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
+		throw exception;
 	}
+	newSocket.setSocketFd(newSocketFd);
 	return newSocket;
+}
+
+addrinfo *ListeningSocket::getAddressInfo(void) const {
+	return this->_addressInfo;
+}
+
+void ListeningSocket::setAddressInfo(addrinfo *addressInfo) {
+	this->_addressInfo = addressInfo;
 }

@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/18 11:36:16 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/06/19 15:08:59 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,22 +17,29 @@ NAME		=	webserv
 # @-Wshadow - warns about variable declarations that shadow a variable declared in an outer scope.
 CXXFLAGS	=	-std=c++98 -g -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
 
-VPATH		=	src src/sockets/socket src/sockets/listening-socket
+VPATH		=	src src/sockets/socket src/sockets/listening-socket src/sockets/connected-socket src/http-server src/exception
+
 SRC			=	main.cpp \
 				Http.cpp \
 				Server.cpp \
 				Location.cpp \
 				Socket.cpp \
 				ListeningSocket.cpp \
+				ConnectedSocket.cpp \
+				HttpServer.cpp \
+				Exception.cpp \
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
 				./src/Location.hpp \
-				./src/sockets/error.hpp \
+				./src/error.hpp \
 				./src/sockets/socket/Socket.hpp \
 				./src/sockets/listening-socket/ListeningSocket.hpp \
+				./src/sockets/connected-socket/ConnectedSocket.hpp \
+				./src/http-server/HttpServer.hpp \
+				./src/exception/Exception.hpp \
 
-INCLUDE		=	-I./include/ -I./src/sockets -I./src/sockets/socket -I./src/sockets/listening-socket
+INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening-socket -I./src/sockets/connected-socket -I./src/http-server -I./src/exception
 
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)

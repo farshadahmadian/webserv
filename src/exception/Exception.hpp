@@ -1,29 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConnectedSocket.hpp                                :+:      :+:    :+:   */
+/*   Exception.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/18 13:28:07 by fahmadia         ###   ########.fr       */
+/*   Created: 2024/06/18 13:25:05 by fahmadia          #+#    #+#             */
+/*   Updated: 2024/06/19 14:23:07 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONNECTED_SOCKET_HPP
-# define CONNECTED_SOCKET_HPP
+#ifndef EXCEPTION_HPP
+# define EXCEPTION_HPP
 
-# include "Socket.hpp"
+# include <stdexcept>
+# include <string>
+# include <error.hpp>
 
-class ConnectedSocket : public Socket {
-	private:
-		int _socketFd;
-		// addr_storage
-
+class Exception : public std::exception {
 	public:
-		ConnectedSocket(void);
-		~ConnectedSocket(void);
+		Exception(void);
+		Exception(std::string errMsg, t_error error);
+		~Exception(void) throw();
 
+		char const *what() const throw();
+
+		t_error getError(void) const;
+		void setError(t_error error);
+	
+	private:
+		std::string _errMsg;
+		t_error _error;
 };
 
 #endif

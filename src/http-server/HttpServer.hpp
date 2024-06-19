@@ -1,34 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   HttpServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 15:05:54 by fahmadia         ###   ########.fr       */
+/*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
+/*   Updated: 2024/06/19 15:03:20 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SOCKET_HPP
-# define SOCKET_HPP
+#ifndef HTTP_SERVER_HPP
+# define HTTP_SERVER_HPP
 
-# include <stdexcept>
 # include <string>
-# include <unistd.h>
-# include "error.hpp"
+# include <netdb.h>
+# include <stdexcept>
 # include "Exception.hpp"
+# include "ListeningSocket.hpp"
 
-class Socket {
+class HttpServer {
 	private:
-		int _socketFd;
+		std::string const _port;
+		std::string const _ip;
+		addrinfo *_addressInfo;
+		ListeningSocket _listeningSocket;
+
+		struct addrinfo *initAddrInfo(void);
+		int createSocket(void);
 		
 	public:
-		Socket(void);
-		virtual ~Socket(void);
+		HttpServer(void);
+		~HttpServer(void);
 
-		int getSocketFd(void) const;
-		void setSocketFd(int socketFd);
+		ListeningSocket const &getListeningSocket(void) const;
 };
+
 
 #endif
