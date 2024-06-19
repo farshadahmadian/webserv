@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/14 12:28:36 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/06/19 12:49:08 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,13 +27,20 @@ HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
 				./src/Location.hpp \
 
-INCLUDE		=	-I./include/
+INCLUDE		=	-I./include/ -I./src/
 
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)
 
+# SILENT		=	-DSILENT=0
+# ifeq ($(filter SILENT,$(MAKECMDGOALS)),SILENT)
+# 	SILENT	=	-DSILENT=1
+# endif
+
 # ----------------------------------------------------------------------- BASIC
 all: $(NAME)
+
+silent: $(NAME)
 
 $(NAME): $(OBJS)
 	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME)
