@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 15:05:54 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/06/20 19:52:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,10 @@ class Socket {
 		int _socketFd;
 		
 	public:
+		Socket(Socket const &other);
 		Socket(void);
+		Socket(int socketFd);
+		Socket &operator=(Socket const &rhs);
 		virtual ~Socket(void);
 
 		int getSocketFd(void) const;

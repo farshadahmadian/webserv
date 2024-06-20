@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/15 11:44:46 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/16 10:44:21 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/06/20 20:21:48 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,3 +24,5 @@ bool createServer(void);
 std::string const getSocketType(struct addrinfo const *socketAddress);
 std::string const getProtocolType(struct addrinfo const *socketAddress);
 std::string const getFamilyType(struct addrinfo const *socketAddress);
+
+void memoryTest ();

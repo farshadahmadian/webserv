@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:26:30 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 15:05:54 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/06/20 19:52:42 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,20 @@
 
 Socket::Socket(void) : _socketFd(0) {
 	return;
+}
+
+Socket::Socket(int socketFd) : _socketFd(socketFd) {
+	return;
+}
+
+Socket::Socket(Socket const &other) : _socketFd(other._socketFd) {
+	return;
+}
+
+Socket &Socket::operator=(Socket const &rhs) {
+	if (this != &rhs)
+		this->_socketFd = rhs._socketFd;
+	return *this;
 }
 
 Socket::~Socket(void) {

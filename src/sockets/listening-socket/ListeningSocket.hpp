@@ -21,26 +21,35 @@
 # include "colors.h"
 # include "error.hpp"
 # include "Socket.hpp"
+# include "ConnectedSocket.hpp"
 
 class ListeningSocket : public Socket {
 	private:
-		int const _maxIncomingConnections;
+		int _maxIncomingConnections;
+		std::string _ip;
+		std::string _port;
 		addrinfo *_addressInfo;
 
-		ListeningSocket(void);
+
 
 	public:
-		ListeningSocket(int maxIncomingConnections);
+		ListeningSocket(void);
+		ListeningSocket(int maxIncomingConnections, std::string const &ip, std::string const &port);
 		ListeningSocket(ListeningSocket const &other);
+		ListeningSocket &operator=(ListeningSocket const &rhs);
 		~ListeningSocket(void);
 
+		struct addrinfo *allocateAddrInfo(void) const;
+		int createSocket(void) const;
 		addrinfo *getAddressInfo(void) const;
+		std::string const &getIp(void) const;
+		std::string const &getPort(void) const;
 		void setAddressInfo(addrinfo *addressInfo);
 
 		void setPortAvailable(void) const;
 		void bindSocket(void) const;
 		void listenToRequests(void) const;
-		ListeningSocket acceptFirstRequestInQueue(void) const;
+		ConnectedSocket acceptFirstRequestInQueue(void) const;
 };
 
 #endif

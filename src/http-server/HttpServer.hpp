@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 15:03:20 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/06/20 19:49:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,19 @@
 
 class HttpServer {
 	private:
-		std::string const _port;
-		std::string const _ip;
-		addrinfo *_addressInfo;
 		ListeningSocket _listeningSocket;
 
-		struct addrinfo *initAddrInfo(void);
-		int createSocket(void);
-		
+
 	public:
 		HttpServer(void);
+		HttpServer(int maxIncomingConnections, std::string const &ip, std::string const &port);
+		HttpServer(HttpServer const &other);
+		HttpServer &operator=(HttpServer const &rhs);
 		~HttpServer(void);
 
 		ListeningSocket const &getListeningSocket(void) const;
+		
+		void runServer(void);
 };
 
 
