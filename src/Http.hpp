@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/14 15:30:27 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/06/21 15:16:03 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,80 +18,43 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-
-#include <sys/stat.h>	// stat()
-#include <cctype>		// isspace
 #include "colors.h"
-
-#define	SPACES			" \t\v\f\r"
-#define	COMMENT(c)		((c) == '#')
-#define	ENDVALUE(c)		((c) == ';')
-#define	OPENBLOCK(c)	((c) == '{')
-#define	CLOSEBLOCK(c)	((c) == '}')
-
-enum file_err {
-	E_TOOARGS,
-	E_INVFILE,
-	E_ISDIR,
-	E_FAIL
-};
-
-enum parser_err {
-	E_INVBLOCK,
-	E_CONTEXTDECL,
-	E_SYNTAX,
-	E_INVPROP,
-	E_ENDPROP
-};
 
 class Http
 {
-	public: // ---------------------------------------------- CONSTRUCTORS
-		Http( int argc, char** argv );
-		~Http( void );
-	private:
+	public: // ---------------------------------------------- USED CONSTRUCTORS
 		Http( void );
-		Http( const Http& );
+		~Http( void );
+
+	public: // ------------------------------------------------- PUBLIC MEMBERS
+		std::vector<Server>& getServer( void );
+		size_t& getServerNumber( void );
+		std::map<std::string, std::string> getSettings( void );
+
+		void addServer( void );
+		void addLocation( void );
+		void setHttpSettings( std::string directive, std::string value );
+		void setServerSettings( std::string directive, std::string value );
+		void setLocationSettings( std::string directive, std::string value );
+		
+		void displayHttpSettings( void ); // -------------------------- DISPLAY
+
+		// // temp
+		// void ourMain( void ) {
+		// 	std::vector<Server>::iterator it = _server.begin();
+		// 	while (it != _server.end()) {
+		// 		_server.startServer();
+		// 		it++;
+		// 	}
+		// };
+
+	private: // ----------------------------------------------- PRIVATE MEMBERS
+		size_t _n_server;
+		std::vector<Server> _server;
+		std::map<std::string, std::string> _settings;
+
+		Http( const Http& );  // -------------------------- UNUSED CONSTRUCTORS
 		void operator=( const Http& );
-		
-	private: // ---------------------------------------------- MEMBERS
-		std::string keepalive_timeout;
-		std::string client_body_buffer_size;
-		std::map<std::string, std::string> directive;
-		
-		std::vector<Server> server;
-
-		bool isDirectory( char* path ); // --------------------- PARSING
-		void parse( std::ifstream& confFile );
-		void parseContext( std::string& line, std::string& currBlock, std::string nextBlock );
-		bool parseDirectives( std::string& line, std::string& currBlock );
-		void addDirective( std::string& line, std::string& currBlock, const std::string dir );
-
-		static const std::string httpDirectives[2];
-		static const std::string serverDirectives[3];
-		static const std::string locationDirectives[5];
-
-		class FileExcept; // ------------------------------------- EXCEPTIONS
-		class ParserExcept;
 };
-
-class Http::FileExcept: public std::exception
-{
-	private:
-		int	_n;
-	public:
-		FileExcept( file_err n );
-		const char* what() const throw();
-};
-
-class Http::ParserExcept: public std::exception
-{
-	private:
-		int	_n;
-	public:
-		ParserExcept( parser_err n );
-		const char* what() const throw();
-};
-
 
 #endif /* __HTTP_HPP__ */

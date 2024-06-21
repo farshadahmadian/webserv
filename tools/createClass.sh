@@ -1,5 +1,5 @@
 #!/bin/bash
 
-c++ -Wall -Wextra -Werror ./createClass.cpp -o createClass;
-./createClass $@;
-rm -rf createClass;
+c++ -Wall -Wextra -Werror ./tools/createClass.cpp -o ./tools/createClass;
+./tools/createClass $@;
+rm -rf ./tools/createClass;

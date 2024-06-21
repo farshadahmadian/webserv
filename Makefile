@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/20 20:23:32 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/06/21 14:12:41 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,7 @@ SRC			=	main.cpp \
 				HttpServer.cpp \
 				Exception.cpp \
 				memoryTest.cpp \
+				Conf.cpp
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
@@ -40,21 +41,30 @@ HEADERS		=	./src/Http.hpp \
 				./src/http-server/HttpServer.hpp \
 				./src/exception/Exception.hpp \
 				./src/test/test.hpp \
+				./src/Conf.hpp
 
-INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening-socket -I./src/sockets/connected-socket -I./src/http-server -I./src/exception -I./src/test
+INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening-socket -I./src/sockets/connected-socket -I./src/http-server -I./src/exception -I./src/test 
+
 
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)
 
+VERBOSE		=	-DVERBOSE=0
+ifeq ($(filter verbose,$(MAKECMDGOALS)),verbose)
+	VERBOSE	=	-DVERBOSE=1
+endif
+
 # ----------------------------------------------------------------------- BASIC
 all: $(NAME)
 
+verbose: $(NAME)
+
 $(NAME): $(OBJS)
-	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME)
+	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME) $(VERBOSE)
 
 $(OBJS_PATH)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(OBJS_PATH)
-	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ $(VERBOSE)
 
 clean:
 	rm -rf $(OBJS_PATH)
@@ -88,4 +98,4 @@ R	=	\033[0;31m
 W	=	\033[0m
 N	=	\033[1;30m
 
-.PHONY: all clean fclean re nginx nginx-img nginx-rm
+.PHONY: all clean fclean re nginx nginx-img nginx-rm verbose

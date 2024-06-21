@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 14:37:04 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/13 16:25:27 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/06/20 12:39:16 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,13 @@
 #define GREEN	"\x1B[32m"
 #define YELLOW	"\x1B[33m"
 #define BLUE	"\x1B[34m"
+#define PURPLE	"\x1B[35m"
 
 #define R(x)	RED x RESET
 #define G(x)	GREEN x RESET
 #define Y(x)	YELLOW x RESET
 #define B(x)	BLUE x RESET
+#define P(x)	PURPLE x RESET
 
 #define BOLD(x)	"\x1B[1m" x RESET
 #define UNDL(x)	"\x1B[s4m" x RESET

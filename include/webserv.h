@@ -3,19 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:25:34 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/12 15:39:46 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/06/21 14:17:15 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __WEBSERV_H__
 # define __WEBSERV_H__
 
-/* ------------------------------------------------------------- GENERAL CPP */
-#include <iostream>
+#ifndef VERBOSE
+# define VERBOSE	0
+#endif
 
-/* ------------------------------------------------------------------ CONFIG */
+#include "colors.h"
+#include <iostream>
+#include "Conf.hpp"
 
 #endif /* __WEBSERV_H__ */
