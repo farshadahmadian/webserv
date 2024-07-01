@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/20 19:49:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/01 09:55:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,16 @@
 # include <string>
 # include <netdb.h>
 # include <stdexcept>
+# include <vector>
+#include <arpa/inet.h>
 # include "Exception.hpp"
 # include "ListeningSocket.hpp"
+# include "ConnectedSocket.hpp"
 
 class HttpServer {
 	private:
 		ListeningSocket _listeningSocket;
-
+		std::vector<ConnectedSocket> _connectedSockets;
 
 	public:
 		HttpServer(void);
@@ -33,7 +36,12 @@ class HttpServer {
 
 		ListeningSocket const &getListeningSocket(void) const;
 		
-		void runServer(void);
+		void printConnectedSockets(void);
+
+		void setPortAvailable(void);
+		void bindSocket(void) const;
+		void listenToRequests(void) const;
+		void acceptFirstRequestInQueue(void);
 };
 
 

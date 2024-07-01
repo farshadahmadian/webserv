@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <arpa/inet.h>
+
+#include <fcntl.h>
 #include "ListeningSocket.hpp"
 
 
@@ -35,8 +36,6 @@ ListeningSocket::ListeningSocket(int maxIncomingConnections, std::string const &
 }
 
 ListeningSocket::ListeningSocket(ListeningSocket const &other) : Socket(other),   _maxIncomingConnections(other._maxIncomingConnections), _ip(other._ip), _port(other._port), _addressInfo(NULL) {
-
-	// getaddrinfo((other._ip).c_str(), other._port.c_str(), other._addressInfo, &(this->_addressInfo));
 	this->_addressInfo = other.allocateAddrInfo();
 	return;
 }
@@ -85,67 +84,6 @@ int ListeningSocket::createSocket(void) const {
 	return socketFd;
 }
 
-void ListeningSocket::setPortAvailable(void) const {
-	int reusePort = 1;
-	int setSocketOptionResult = setsockopt(this->getSocketFd(), SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
-	if (setSocketOptionResult == -1)
-	{
-		Exception exception("Setting socket options faild!", SOCKET_OPTIONS_FAILD);
-		throw exception;
-	}
-	std::cout << GREEN << "Listening Socket with fd("<< this->getSocketFd() <<") of type " << (this->_addressInfo->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
-	return;
-}
-
-void ListeningSocket::bindSocket(void) const {
-	int bindResult = bind(this->getSocketFd(), this->_addressInfo->ai_addr, this->_addressInfo->ai_addrlen);
-	if (bindResult != 0)
-	{
-		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILD);
-		throw exception;
-	}
-	
-	// char *ip = new char[100];
-	// char ip[100];
-	// inet_ntop(this->_addressInfo->ai_family, &((reinterpret_cast<sockaddr_in *>(this->_addressInfo->ai_addr))->sin_addr), ip, 100);
-	std::string ip = static_cast<std::string>(inet_ntoa(reinterpret_cast<sockaddr_in *>(this->_addressInfo->ai_addr)->sin_addr)); // REMOVE
-	std::cout << GREEN << "Listening Socket is bound to " << ip.c_str() <<":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_addressInfo->ai_addr)->sin_port) << RESET << std::endl;
-
-	return;
-}
-
-void ListeningSocket::listenToRequests(void) const {
-	int listenResult = listen(this->getSocketFd(), this->_maxIncomingConnections);
-	if (listenResult == -1)
-	{
-		Exception exception("Listening to incoming connections failed!", LISTENING_FAILED);
-		throw exception;
-	}
-	
-	std::cout << GREEN << "Listening socket is litening to requests" << RESET << std::endl;
-	return;
-}
-
-ConnectedSocket ListeningSocket::acceptFirstRequestInQueue(void) const {
-	struct sockaddr_storage incomingConnectionAddress;
-	memset(&incomingConnectionAddress, 0, sizeof(incomingConnectionAddress));
-	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
-
-	int connectedSocketFd = accept(this->getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-
-	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
-
-	if (connectedSocket.getSocketFd() == -1) {
-		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
-		throw exception;
-	}
-	// connectedSocket.setSocketFd(connectedSocketFd);
-	// std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") of type" << (connectedSocket._addressInfo->ai_socktype == SOCK_STREAM ? "TCP Scoket" : "UNKNOWN SOCKET!!!") << " is assigned to response to the incoming connection request" << RESET << std::endl; 
-
-	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl; 
-	return connectedSocket;
-}
-
 addrinfo *ListeningSocket::getAddressInfo(void) const {
 	return this->_addressInfo;
 }
@@ -156,6 +94,10 @@ std::string const &ListeningSocket::getIp(void) const {
 
 std::string const &ListeningSocket::getPort(void) const {
 	return this->_port;
+}
+
+int ListeningSocket::getMaxIncomingConnections(void) const {
+	return this->_maxIncomingConnections;
 }
 
 void ListeningSocket::setAddressInfo(addrinfo *addressInfo) {

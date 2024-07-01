@@ -23,10 +23,11 @@ void memoryTest () {
 
 	// addrinfo *addressInfo = listeningSocket1.allocateAddrInfo();
 	listeningSocket1.createSocket();
-	listeningSocket1.bindSocket();
-	listeningSocket1.listenToRequests();
-	ConnectedSocket connectedSocket1 = listeningSocket1.acceptFirstRequestInQueue();
+	server1.bindSocket();
+	server1.listenToRequests();
+	server1.acceptFirstRequestInQueue();
 	ConnectedSocket connectedSocket2;
+	ConnectedSocket connectedSocket1;
 	ConnectedSocket connectedSocket3(connectedSocket2);
 	ConnectedSocket connectedSocket4(201, connectedSocket1.getIncomingRequestAddress(), connectedSocket1.getIncomingConnectionAddressSize());
 	connectedSocket3 = connectedSocket1;

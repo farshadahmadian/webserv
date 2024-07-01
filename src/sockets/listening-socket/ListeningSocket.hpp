@@ -23,6 +23,8 @@
 # include "Socket.hpp"
 # include "ConnectedSocket.hpp"
 
+class HttpServer;
+
 class ListeningSocket : public Socket {
 	private:
 		int _maxIncomingConnections;
@@ -44,12 +46,8 @@ class ListeningSocket : public Socket {
 		addrinfo *getAddressInfo(void) const;
 		std::string const &getIp(void) const;
 		std::string const &getPort(void) const;
+		int getMaxIncomingConnections(void) const;
 		void setAddressInfo(addrinfo *addressInfo);
-
-		void setPortAvailable(void) const;
-		void bindSocket(void) const;
-		void listenToRequests(void) const;
-		ConnectedSocket acceptFirstRequestInQueue(void) const;
 };
 
 #endif
