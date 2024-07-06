@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/01 09:55:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/06 10:57:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 # include <netdb.h>
 # include <stdexcept>
 # include <vector>
-#include <arpa/inet.h>
+# include <arpa/inet.h>
+# include <poll.h>
 # include "Exception.hpp"
 # include "ListeningSocket.hpp"
 # include "ConnectedSocket.hpp"
@@ -26,10 +27,13 @@ class HttpServer {
 	private:
 		ListeningSocket _listeningSocket;
 		std::vector<ConnectedSocket> _connectedSockets;
+		unsigned int _maxIncomingConnections;
+		unsigned int _monitoredFdsNum;
+		struct pollfd *_monitoredFds;
 
 	public:
 		HttpServer(void);
-		HttpServer(int maxIncomingConnections, std::string const &ip, std::string const &port);
+		HttpServer(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
 		HttpServer(HttpServer const &other);
 		HttpServer &operator=(HttpServer const &rhs);
 		~HttpServer(void);
@@ -41,7 +45,8 @@ class HttpServer {
 		void setPortAvailable(void);
 		void bindSocket(void) const;
 		void listenToRequests(void) const;
-		void acceptFirstRequestInQueue(void);
+		int acceptFirstRequestInQueue(void);
+		void startPoll(void);
 };
 
 

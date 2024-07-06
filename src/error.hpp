@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/16 14:33:17 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 14:57:58 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/06 07:28:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ typedef enum e_error {
 	LISTENING_FAILED,
 	SOCKET_OPTIONS_FAILD,
 	ACCEPTING_FAILED,
+	POLL_FAILED
 } t_error;
 
 #endif

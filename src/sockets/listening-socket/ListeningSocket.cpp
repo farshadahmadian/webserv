@@ -28,7 +28,7 @@ ListeningSocket::ListeningSocket(void) : Socket(), _maxIncomingConnections(10), 
 	return;
 }
 
-ListeningSocket::ListeningSocket(int maxIncomingConnections, std::string const &ip, std::string const &port) : Socket(), _maxIncomingConnections(maxIncomingConnections), _ip(ip), _port(port), _addressInfo(NULL) {
+ListeningSocket::ListeningSocket(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : Socket(), _maxIncomingConnections(maxIncomingConnections), _ip(ip), _port(port), _addressInfo(NULL) {
 	this->_addressInfo = this->allocateAddrInfo();
 	int socketFd = this->createSocket();
 	this->setSocketFd(socketFd);
@@ -96,7 +96,7 @@ std::string const &ListeningSocket::getPort(void) const {
 	return this->_port;
 }
 
-int ListeningSocket::getMaxIncomingConnections(void) const {
+unsigned int ListeningSocket::getMaxIncomingConnections(void) const {
 	return this->_maxIncomingConnections;
 }
 

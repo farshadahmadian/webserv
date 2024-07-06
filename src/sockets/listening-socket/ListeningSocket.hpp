@@ -27,7 +27,7 @@ class HttpServer;
 
 class ListeningSocket : public Socket {
 	private:
-		int _maxIncomingConnections;
+		unsigned int _maxIncomingConnections;
 		std::string _ip;
 		std::string _port;
 		addrinfo *_addressInfo;
@@ -36,7 +36,7 @@ class ListeningSocket : public Socket {
 
 	public:
 		ListeningSocket(void);
-		ListeningSocket(int maxIncomingConnections, std::string const &ip, std::string const &port);
+		ListeningSocket(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
 		ListeningSocket(ListeningSocket const &other);
 		ListeningSocket &operator=(ListeningSocket const &rhs);
 		~ListeningSocket(void);
@@ -46,7 +46,7 @@ class ListeningSocket : public Socket {
 		addrinfo *getAddressInfo(void) const;
 		std::string const &getIp(void) const;
 		std::string const &getPort(void) const;
-		int getMaxIncomingConnections(void) const;
+		unsigned int getMaxIncomingConnections(void) const;
 		void setAddressInfo(addrinfo *addressInfo);
 };
 
