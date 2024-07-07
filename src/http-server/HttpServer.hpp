@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/06 16:38:22 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/07 12:12:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <arpa/inet.h>
 # include <poll.h>
 # include <map>
+# include <fstream>
+# include <sstream>
 # include "Exception.hpp"
 # include "ListeningSocket.hpp"
 # include "ConnectedSocket.hpp"
@@ -32,12 +34,15 @@ class HttpServer {
 		unsigned int _maxIncomingConnections;
 		unsigned int _monitoredFdsNum;
 		struct pollfd *_monitoredFds;
+		std::map<std::string, std::string> _request;
 
 		void handleEvents(void);
 		void handleEventsOnListeningSocket(unsigned int i);
 		void handleEventsOnConnectedSockets(unsigned int i);
 		void addToMonitorsFds(int connectedSocketFd);
-
+		std::string readHtmlFile(std::string path);
+		void parseRequest(std::string request);
+		void printRequest(void);
 	public:
 		HttpServer(void);
 		HttpServer(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
