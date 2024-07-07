@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/06 10:57:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/07 08:37:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,11 @@ int main ( int argc, char** argv ) {
 		httpServer.bindSocket();
 		httpServer.listenToRequests();
 
-	
-
 		while (true)
 		{
-			httpServer.startPoll();
+			httpServer.startPoll2();
 			httpServer.printConnectedSockets();
 		}
-		
-
 		
 	} catch(Exception const &exception) {
 		std::cerr << RED << exception.what() << RESET << std::endl;
