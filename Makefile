@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
+#    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/06/21 14:12:41 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/07/08 11:27:51 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,7 +60,7 @@ all: $(NAME)
 verbose: $(NAME)
 
 $(NAME): $(OBJS)
-	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME) $(VERBOSE)
+	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME)
 
 $(OBJS_PATH)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(OBJS_PATH)

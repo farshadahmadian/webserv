@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/21 15:16:03 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:38:58 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Http
 	public: // ---------------------------------------------- USED CONSTRUCTORS
 		Http( void );
 		~Http( void );
+		void displayHttpSettings( void ); // -------------------------- DISPLAY
 
 	public: // ------------------------------------------------- PUBLIC MEMBERS
 		std::vector<Server>& getServer( void );
@@ -37,7 +38,6 @@ class Http
 		void setServerSettings( std::string directive, std::string value );
 		void setLocationSettings( std::string directive, std::string value );
 		
-		void displayHttpSettings( void ); // -------------------------- DISPLAY
 
 		// // temp
 		// void ourMain( void ) {
@@ -53,7 +53,7 @@ class Http
 		std::vector<Server> _server;
 		std::map<std::string, std::string> _settings;
 
-		Http( const Http& );  // -------------------------- UNUSED CONSTRUCTORS
+		Http( const Http& ); // --------------------------- UNUSED CONSTRUCTORS
 		void operator=( const Http& );
 };
 

@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/20 15:36:24 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:42:41 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ size_t& Http::getServerNumber( void ) { return (_n_server); };
 std::map<std::string, std::string> Http::getSettings( void ) { return (_settings); };
 
 void Http::addServer( void ) {
-	VERBOSE ? std::cout << G("* [SERVER CONTEXT ON] server index: ") << _n_server << std::endl : std::cout;
+	// VERBOSE ? std::cout << G("* [SERVER CONTEXT ON] server index: ") << _n_server << std::endl : std::cout;
 	Server s(_n_server);
 	_server.push_back(s);
 	_n_server++;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/21 15:16:37 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:41:16 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void Conf::parse( std::ifstream& confFile ) {
 		if (line.find_first_not_of(SPACES) == std::string::npos) continue ;			// line with only spaces and IND don't do nothing neither changing level
 		setCurrIndentation(line);													 // set curr level based on line TABS
 		if (_currLvl == COMMENT) continue;
-		VERBOSE ? displayParseState(line) : void();
+		// VERBOSE ? displayParseState(line) : void();
 		directive = extractDirective(line);			// extract the directive
 		if (!isValidDirective(directive))
 			throw ParseExcept(E_INVDIR);
@@ -89,7 +89,6 @@ void Conf::parse( std::ifstream& confFile ) {
 		value = extractValue(line);
 		updateConfiguration(directive, value);
 	}
-	VERBOSE ? _http.displayHttpSettings() : void();
 	checkConfiguration();
 	// _http.start();
 }
@@ -178,7 +177,7 @@ bool Conf::isValidDirective( std::string directive ) {
 */
 bool Conf::openContext( std::string directive ) {
 	if (directive.compare("server") == 0) {
-		VERBOSE ? std::cout << P("* Server context [ON]") << std::endl : std::cout;
+		// VERBOSE ? std::cout << P("* Server context [ON]") << std::endl : std::cout;
 		_activeContext = SERVER;
 		_http.addServer();
 		return (true);
@@ -188,7 +187,7 @@ bool Conf::openContext( std::string directive ) {
 			throw ParseExcept(E_INVCONTEXT);
 		if (_prevLvl == HTTP && _currLvl != SERVER)		// case cut_server.conf
 			throw ParseExcept(E_INVCONTEXT);
-		VERBOSE ? std::cout << P("* Location context [ON]") << std::endl : std::cout;
+		// VERBOSE ? std::cout << P("* Location context [ON]") << std::endl : std::cout;
 		_activeContext = LOCATION;
 		_http.addLocation();
 		return (true);
@@ -201,9 +200,9 @@ bool Conf::openContext( std::string directive ) {
 */
 void Conf::closeContext( void ) {
 	if (_currLvl < _activeContext) {
-		VERBOSE ? std::cout << R("* Context closed   : ") << displayIndentantion(_activeContext) << std::endl : std::cout;
+		// VERBOSE ? std::cout << R("* Context closed   : ") << displayIndentantion(_activeContext) << std::endl : std::cout;
 		_activeContext = _currLvl;
-		VERBOSE ? std::cout << G("* Context activated: ") << displayIndentantion(_activeContext) << std::endl : std::cout;
+		// VERBOSE ? std::cout << G("* Context activated: ") << displayIndentantion(_activeContext) << std::endl : std::cout;
 	}
 }
 
@@ -238,7 +237,7 @@ void Conf::updateConfiguration( std::string directive, std::string value ) {
 		_http.setServerSettings(directive, value);
 	if (_activeContext == LOCATION)
 		_http.setLocationSettings(directive, value);
-	VERBOSE ? std::cout << G("* Directive stored!") << std::endl : std::cout;
+	// VERBOSE ? std::cout << G("* Directive stored!") << std::endl : std::cout;
 }
 
 // -------------------------------------------------------------------- DISPLAY
@@ -255,6 +254,8 @@ std::string Conf::displayIndentantion( indentation ind ) {
 	if (ind == LOCATION) return ("location");
 	return ("init");
 }
+
+void Conf::displayConf( void ) { _http.displayHttpSettings(); }
 
 // ----------------------------------------------------------------- EXCEPTIONS
 Conf::FileExcept::FileExcept( file_err n ): _n(n) {};

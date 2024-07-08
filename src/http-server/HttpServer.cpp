@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/07 12:16:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/08 10:56:38 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -353,7 +353,7 @@ void HttpServer::handleEventsOnConnectedSockets(unsigned int i) {
 
 std::string HttpServer::readHtmlFile(std::string path) {
 	std::ifstream fileStream;
-	fileStream.open(path);
+	fileStream.open(path.c_str());
 	if (fileStream.is_open())
 		std::cout << "file is open\n";
 	else

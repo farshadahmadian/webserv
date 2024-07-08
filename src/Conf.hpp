@@ -18,9 +18,9 @@
 #include "errors.h"
 
 #define DEFAULT_FILE_PATH	"./conf/default.conf"
-#define	SPACES			" \t\v\f\r"
-#define	COMMENT(c)		((c) == '#')
-#define	ENDVALUE(c)		((c) == ';')
+#define	SPACES				" \t\v\f\r"
+#define	COMMENT(c)			((c) == '#')
+#define	ENDVALUE(c)			((c) == ';')
 
 /* List of possible context directives */
 #define N_HTTP_DIR		3
@@ -40,7 +40,8 @@ class Conf
 	public: // ---------------------------------------------- USED CONSTRUCTORS
 		Conf( int argc, char** argv );
 		~Conf( void );
-	
+		void displayConf( void );
+
 	private:
 		Http _http; // --------------------------------------------------- CORE
 
@@ -94,25 +95,3 @@ class Conf::ParseExcept: public std::exception
 };
 
 #endif /* __CONF_HPP__ */
-
-
-
-/*  
-
-
-
-
-CONF---->_http------->_server(vector)------>_location(vector)
-				http-rules      server-rules          loc-rules
-							------->_server(vector)------>_location(vector)
-  											server-rules          loc-rules
-																			------>_location(vector)
-																						  loc-rules
-																			------>_location(vector)
-																						  loc-rules
-							------->_server(vector)------>_location(vector)
-  											server-rules          loc-rules
-
-
-
-*/

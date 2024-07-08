@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/07 08:37:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:43:09 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@
 #include "test.hpp"
 
 int main ( int argc, char** argv ) {
-
-	(void)argc;
-	(void)argv;
-
 	try {
+		Conf webserver(argc, argv);
+		webserver.displayConf();
+		std::cout << "---------------------------------------------------------" << std::endl;
+
 		HttpServer httpServer;
 		httpServer.setPortAvailable();
 		httpServer.bindSocket();

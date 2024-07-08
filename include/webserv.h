@@ -3,19 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:25:34 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/21 14:17:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/08 11:18:55 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __WEBSERV_H__
 # define __WEBSERV_H__
-
-#ifndef VERBOSE
-# define VERBOSE	0
-#endif
 
 #include "colors.h"
 #include <iostream>
