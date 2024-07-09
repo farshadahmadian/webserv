@@ -6,17 +6,15 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 10:00:28 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:26:20 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "colors.h"
-#include "HttpConf.hpp"
 #include "ListeningSocket.hpp"
 #include "ConnectedSocket.hpp"
-#include "HttpServer.hpp"
+#include "Server.hpp"
 #include "test.hpp"
-#include "Logger.hpp"
+
 #include "Parser.hpp"
 
 /*  
@@ -31,17 +29,22 @@ int main ( int argc, char** argv ) {
 		configuration.displayConf();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
+		std::vector<ServerConf>::iterator serverIt = configuration.getHttp().getServer().begin();
+		while (serverIt != configuration.getHttp().getServer().end()) {
+			// Server httpServer;
+			// Server s((*serverIt).getSettings());
+			
+			// Server.setPortAvailable();
+			// Server.bindSocket();
+			// Server.listenToRequests();
 
-		// HttpServer httpServer;
-		// httpServer.setPortAvailable();
-		// httpServer.bindSocket();
-		// httpServer.listenToRequests();
-
-		// while (true)
-		// {
-		// 	httpServer.startPoll2();
-		// 	httpServer.printConnectedSockets();
-		// }
+			// while (true)
+			// {
+			// 	Server.startPoll2();
+			// 	Server.printConnectedSockets();
+			// }
+			serverIt++;
+		}
 		
 	} catch(Exception const &exception) {
 		std::cerr << RED << exception.what() << RESET << std::endl;

@@ -3,34 +3,34 @@
 /*                                                        :::      ::::::::   */
 /*   Exception.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:25:05 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/19 14:23:07 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:11:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXCEPTION_HPP
-# define EXCEPTION_HPP
+#ifndef __EXCEPTION_HPP__
+# define __EXCEPTION_HPP__
 
 # include <stdexcept>
 # include <string>
-# include <error.hpp>
+# include "errors.h"
 
 class Exception : public std::exception {
 	public:
 		Exception(void);
-		Exception(std::string errMsg, t_error error);
+		Exception(std::string errMsg, enum server_err error);
 		~Exception(void) throw();
 
 		char const *what() const throw();
 
-		t_error getError(void) const;
-		void setError(t_error error);
+		enum server_err getError(void) const;
+		void setError(enum server_err error);
 	
 	private:
 		std::string _errMsg;
-		t_error _error;
+		enum server_err _error;
 };
 
-#endif
+#endif /* __EXCEPTION_HPP__ */

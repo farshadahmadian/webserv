@@ -1,22 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Conf.hpp                                         :+:      :+:    :+:   */
+/*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/20 10:22:06 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/20 10:26:55 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/09 12:22:17 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __CONF_HPP__
-# define __CONF_HPP__
+#ifndef __PARSER_HPP__
+# define __PARSER_HPP__
 
 #include "HttpConf.hpp"
 #include <sys/stat.h>	// stat()
 #include "errors.h"
-#include "Logger.hpp"
 
 #define DEFAULT_FILE_PATH	"./conf/default.conf"
 #define	SPACES				" \t\v\f\r"
@@ -42,6 +41,7 @@ class Parser
 		Parser( int argc, char** argv );
 		~Parser( void );
 		void displayConf( void );
+		HttpConf& getHttp( void );
 
 	private:
 		HttpConf _http; // --------------------------------------------------- CONF
@@ -95,4 +95,4 @@ class Parser::ParseExcept: public std::exception
 		const char* what() const throw();
 };
 
-#endif /* __CONF_HPP__ */
+#endif /* __PARSER_HPP__ */

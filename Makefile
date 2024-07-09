@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/09 09:48:33 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/09 12:37:09 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ VPATH		=	src \
 				src/sockets/listening-socket \
 				src/sockets/connected-socket \
 				src/test \
-				src/http-server \
+				src/server \
 				src/exception \
 				src/parsing
 
@@ -42,20 +42,15 @@ SOCKETS_HPP	=	./src/sockets/socket/Socket.hpp \
 				./src/sockets/listening-socket/ListeningSocket.hpp \
 				./src/sockets/connected-socket/ConnectedSocket.hpp \
 
-SERVER_CPP	=	HttpServer.cpp \
+SERVER_CPP	=	Server.cpp \
 				Exception.cpp
-SERVER_HPP	=	./src/http-server/HttpServer.hpp \
+SERVER_HPP	=	./src/server/Server.hpp \
 				./src/exception/Exception.hpp 
 
+# files to tidy up
 EXTRA_CPP	=	memoryTest.cpp
 EXTRA_HPP	=	./src/error.hpp \
-				./src/sockets/socket/Socket.hpp \
-				./src/sockets/listening-socket/ListeningSocket.hpp \
-				./src/sockets/connected-socket/ConnectedSocket.hpp \
-				./src/http-server/HttpServer.hpp \
-				./src/exception/Exception.hpp \
 				./src/test/test.hpp \
-				./src/Logger.hpp
 
 SRCS		=	main.cpp \
 				$(PARSING_CPP) \
@@ -71,7 +66,7 @@ INCLUDE		=	-I./include/ \
 				-I./src/sockets/socket \
 				-I./src/sockets/listening-socket \
 				-I./src/sockets/connected-socket \
-				-I./src/http-server \
+				-I./src/server \
 				-I./src/exception \
 				-I./src/test \
 				-I./src/parsing

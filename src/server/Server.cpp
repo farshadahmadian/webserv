@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HttpServer.cpp                                     :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/08 15:52:06 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:25:56 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HttpServer.hpp"
+#include "Server.hpp"
 
-HttpServer::HttpServer(void): 
+Server::Server(void): 
 	_listeningSocket(ListeningSocket()), 
 	_connectedSockets(std::map<int, ConnectedSocket>()), 
 	_maxIncomingConnections(10), 
@@ -32,19 +32,29 @@ HttpServer::HttpServer(void):
 	return;
 }
 
-HttpServer::HttpServer(HttpServer const &other) : _listeningSocket(other._listeningSocket),  _connectedSockets(other._connectedSockets), _maxIncomingConnections(other._maxIncomingConnections), _monitoredFdsNum(other._monitoredFdsNum), _monitoredFds(NULL) {
+Server::Server( std::map<std::string, std::string> settings ) { // new from nico
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+	// from the map of settings to set the real options for the server
+}
+
+Server::Server(Server const &other) : _listeningSocket(other._listeningSocket),  _connectedSockets(other._connectedSockets), _maxIncomingConnections(other._maxIncomingConnections), _monitoredFdsNum(other._monitoredFdsNum), _monitoredFds(NULL) {
 
 	// deep copy _monitoredFds
 	// _request
 	return;
 }
 
-// HttpServer::HttpServer(HttpServer const &other) {
+// Server::Server(Server const &other) {
 // 	*this = other;
 // 	return;
 // }
 
-HttpServer::HttpServer(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : _listeningSocket(maxIncomingConnections, ip, port),  _connectedSockets(std::map<int, ConnectedSocket>()), _maxIncomingConnections(maxIncomingConnections), _monitoredFdsNum(0), _monitoredFds(NULL), _request(std::map<std::string, std::string>()) {
+Server::Server(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : _listeningSocket(maxIncomingConnections, ip, port),  _connectedSockets(std::map<int, ConnectedSocket>()), _maxIncomingConnections(maxIncomingConnections), _monitoredFdsNum(0), _monitoredFds(NULL), _request(std::map<std::string, std::string>()) {
 
 	this->_monitoredFds = new struct pollfd[this->_maxIncomingConnections + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (this->_maxIncomingConnections + 1));
@@ -58,7 +68,7 @@ HttpServer::HttpServer(unsigned int maxIncomingConnections, std::string const &i
 	return;
 }
 
-HttpServer &HttpServer::operator=(HttpServer const &rhs) {
+Server &Server::operator=(Server const &rhs) {
 	if (this != &rhs)
 	{
 		this->_listeningSocket = rhs._listeningSocket;
@@ -71,7 +81,7 @@ HttpServer &HttpServer::operator=(HttpServer const &rhs) {
 	return *this;
 }
 
-HttpServer::~HttpServer(void) {
+Server::~Server(void) {
 	// close(this->_listeningSocket.getSocketFd());
 
 	// std::map<int, ConnectedSocket>::iterator iterator;
@@ -85,11 +95,11 @@ HttpServer::~HttpServer(void) {
 	return;
 }
 
-ListeningSocket const &HttpServer::getListeningSocket(void) const {
+ListeningSocket const &Server::getListeningSocket(void) const {
 	return this->_listeningSocket;
 }
 
-void HttpServer::printConnectedSockets(void) {
+void Server::printConnectedSockets(void) {
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
@@ -98,7 +108,7 @@ void HttpServer::printConnectedSockets(void) {
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
 }
 
-void HttpServer::setPortAvailable(void) {
+void Server::setPortAvailable(void) {
 	int reusePort = 1;
 	int setSocketOptionResult = setsockopt(this->_listeningSocket.getSocketFd(), SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
 	if (setSocketOptionResult == -1)
@@ -110,7 +120,7 @@ void HttpServer::setPortAvailable(void) {
 	return;
 }
 
-void HttpServer::bindSocket(void) const {
+void Server::bindSocket(void) const {
 	int bindResult = bind(this->_listeningSocket.getSocketFd(), this->_listeningSocket.getAddressInfo()->ai_addr, this->_listeningSocket.getAddressInfo()->ai_addrlen);
 	if (bindResult != 0)
 	{
@@ -127,7 +137,7 @@ void HttpServer::bindSocket(void) const {
 	return;
 }
 
-void HttpServer::listenToRequests(void) const {
+void Server::listenToRequests(void) const {
 	int listenResult = listen(this->_listeningSocket.getSocketFd(), static_cast<int>(this->_listeningSocket.getMaxIncomingConnections()));
 	if (listenResult == -1)
 	{
@@ -139,7 +149,7 @@ void HttpServer::listenToRequests(void) const {
 	return;
 }
 
-int HttpServer::acceptFirstRequestInQueue(void) {
+int Server::acceptFirstRequestInQueue(void) {
 	
 	struct sockaddr_storage incomingConnectionAddress;
 	memset(&incomingConnectionAddress, 0, sizeof(incomingConnectionAddress));
@@ -161,7 +171,7 @@ int HttpServer::acceptFirstRequestInQueue(void) {
 	return connectedSocketFd;
 }
 
-void HttpServer::startPoll(void) {
+void Server::startPoll(void) {
 	if (this->_monitoredFds[0].fd == -1) {
 		this->_monitoredFds[0].fd = _listeningSocket.getSocketFd();
 		this->_monitoredFds[0].events = POLLIN; this->_monitoredFdsNum++;
@@ -227,7 +237,7 @@ void HttpServer::startPoll(void) {
 	return;
 }
 
-void HttpServer::startPoll2(void) {
+void Server::startPoll2(void) {
 	// if (this->_monitoredFds[0].fd  == - 1)
 	// {
 		
@@ -260,7 +270,7 @@ void HttpServer::startPoll2(void) {
 }
 
 
-void HttpServer::handleEvents(void) {
+void Server::handleEvents(void) {
 	try {
 		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
 		{
@@ -280,7 +290,7 @@ void HttpServer::handleEvents(void) {
 	
 }
 
-void HttpServer::handleEventsOnListeningSocket(unsigned int i) {
+void Server::handleEventsOnListeningSocket(unsigned int i) {
 	try {
 		// if ((this->_monitoredFds[i].revents & POLLERR) || (this->_monitoredFds[i].revents & POLLHUP) || (this->_monitoredFds[i].revents & POLLNVAL)) {
 		// 	throw Exception("Event error", EVENT_ERROR);
@@ -301,7 +311,7 @@ void HttpServer::handleEventsOnListeningSocket(unsigned int i) {
 	return;
 }
 
-void HttpServer::addToMonitorsFds(int connectedSocketFd) {
+void Server::addToMonitorsFds(int connectedSocketFd) {
 	for (unsigned int i = 0; i <= this->_maxIncomingConnections ;i++) {
 		if (this->_monitoredFds[i].fd == -1)
 		{
@@ -312,7 +322,7 @@ void HttpServer::addToMonitorsFds(int connectedSocketFd) {
 	}
 }
 
-void HttpServer::handleEventsOnConnectedSockets(unsigned int i) {
+void Server::handleEventsOnConnectedSockets(unsigned int i) {
 			std::cout << "this->_monitoredFds[" << i << "].fd = "  << this->_monitoredFds[i].fd << std::endl;
 			std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
 			std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
@@ -356,7 +366,7 @@ void HttpServer::handleEventsOnConnectedSockets(unsigned int i) {
 	return;
 }
 
-std::string HttpServer::readHtmlFile(std::string path) {
+std::string Server::readHtmlFile(std::string path) {
 	std::ifstream fileStream;
 	fileStream.open(path.c_str());
 	if (fileStream.is_open())
@@ -369,7 +379,7 @@ std::string HttpServer::readHtmlFile(std::string path) {
 	return ss.str();
 }
 
-void HttpServer::parseRequest(std::string request) {
+void Server::parseRequest(std::string request) {
 	std::istringstream inputStringStream(request, std::ios::in);
 	std::cout << "Parsing the request:" << std::endl;
 	// std::cout << inputStringStream.str() << std::endl;
@@ -386,7 +396,7 @@ void HttpServer::parseRequest(std::string request) {
 	this->_request["httpVersion"] = httpVersion;
 }
 
-void HttpServer::printRequest(void) {
+void Server::printRequest(void) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
 

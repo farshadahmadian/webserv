@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 09:14:43 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:11:44 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <stdexcept>
 # include <string>
 # include <unistd.h>
-# include "error.hpp"
+# include "error.h"
 # include "Exception.hpp"
 
 class Socket {

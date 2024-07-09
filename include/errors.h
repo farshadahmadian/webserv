@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/06/20 15:12:45 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:10:33 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,17 @@ enum parse_err {
 	E_CONTNAME
 };
 
+enum server_err {
+	NO_ERROR = 0,
+	GET_ADDR_INFO_FAILD = 200,
+	SOCKET_CREATION_FAILD,
+	BIND_SOCKET_FAILD,
+	LISTENING_FAILED,
+	SOCKET_OPTIONS_FAILD,
+	ACCEPTING_FAILED,
+	POLL_FAILED,
+	EVENT_ERROR,
+	RECEIVE_FAILED,
+};
 
 #endif /* __ERRORS_H__ */

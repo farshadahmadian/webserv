@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HttpServer.hpp                                     :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/08 13:06:25 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:25:10 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTP_SERVER_HPP
-# define HTTP_SERVER_HPP
+#ifndef __SERVER_HPP__
+# define __SERVER_HPP__
 
 # include <string>
 # include <netdb.h>
@@ -26,7 +26,7 @@
 # include "ListeningSocket.hpp"
 # include "ConnectedSocket.hpp"
 
-class HttpServer {
+class Server {
 	private:
 		ListeningSocket _listeningSocket;
 		// std::vector<ConnectedSocket> _connectedSockets;
@@ -44,11 +44,12 @@ class HttpServer {
 		void parseRequest(std::string request);
 		void printRequest(void);
 	public:
-		HttpServer(void);
-		HttpServer(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
-		HttpServer(HttpServer const &other);
-		HttpServer &operator=(HttpServer const &rhs);
-		~HttpServer(void);
+		Server( std::map<std::string, std::string> settings ); // new from nico
+		Server(void);
+		Server(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
+		Server(Server const &other);
+		Server &operator=(Server const &rhs);
+		~Server(void);
 
 		ListeningSocket const &getListeningSocket(void) const;
 		
@@ -64,4 +65,4 @@ class HttpServer {
 };
 
 
-#endif
+#endif /* __SERVER_HPP__ */

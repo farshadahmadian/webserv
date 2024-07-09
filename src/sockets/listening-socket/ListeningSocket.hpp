@@ -19,7 +19,6 @@
 # include <iostream>
 # include <unistd.h>
 # include "colors.h"
-# include "error.hpp"
 # include "Socket.hpp"
 # include "ConnectedSocket.hpp"
 

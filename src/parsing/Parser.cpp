@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 09:58:29 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:21:16 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,24 @@ Parser::Parser( int argc, char** argv ):
 	confFile.close();
 };
 
+// ---------------------------------------------------------------------- UTILS
+std::string& ltrim( std::string& s, const char* to_trim ) {
+	size_t pos = s.find_first_not_of(to_trim);
+	s.erase(0, pos);
+	return (s);
+}
+
+std::string& rtrim( std::string& s, const char* to_trim ) {
+	size_t pos = s.find_last_not_of(to_trim);
+	s.erase(pos + 1);
+	return (s);
+}
+
+std::string& trim( std::string& s, const char* to_trim ) {
+	return (ltrim(rtrim(s, to_trim), to_trim));
+}
+
+// -------------------------------------------------------------------- PARSING
 void Parser::checkFile( int argc, char** argv, std::ifstream& confFile ) {
 	if (argc > 2) throw FileExcept(E_TOOARGS);
 	if (!argv[1] || std::string(argv[1]).empty())
@@ -48,24 +66,6 @@ bool Parser::isDirectory( char* path ) {
 	return (false);
 }
 
-// ---------------------------------------------------------------------- UTILS
-std::string& ltrim( std::string& s, const char* to_trim ) {
-	size_t pos = s.find_first_not_of(to_trim);
-	s.erase(0, pos);
-	return (s);
-}
-
-std::string& rtrim( std::string& s, const char* to_trim ) {
-	size_t pos = s.find_last_not_of(to_trim);
-	s.erase(pos + 1);
-	return (s);
-}
-
-std::string& trim( std::string& s, const char* to_trim ) {
-	return (ltrim(rtrim(s, to_trim), to_trim));
-}
-
-// -------------------------------------------------------------------- PARSING
 void Parser::parse( std::ifstream& confFile ) {	
 	std::string line;
 	std::string directive;
@@ -238,6 +238,9 @@ void Parser::updateConfiguration( std::string directive, std::string value ) {
 		_http.setLocationSettings(directive, value);
 	VERBOSE == 2 ? std::cout << G("* Directive stored!") << std::endl : std::cout;
 }
+
+// -------------------------------------------------------------------- GETTERS
+HttpConf& Parser::getHttp( void ) { return (_http); };
 
 // -------------------------------------------------------------------- DISPLAY
 void Parser::displayParseState( std::string line ) {

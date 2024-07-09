@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 15:34:44 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 09:54:54 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:24:11 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
 #include "LocationConf.hpp"
-#include "colors.h"
 
 class ServerConf
 {

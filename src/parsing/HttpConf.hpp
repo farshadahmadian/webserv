@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 09:45:52 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 09:54:39 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 12:16:43 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,6 @@
 #include "ServerConf.hpp"
 #include <stdexcept>
 #include <fstream>
-#include <iostream>
-#include <map>
-#include "colors.h"
 
 class HttpConf
 {
