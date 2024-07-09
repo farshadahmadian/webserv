@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 12:25:56 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:26:11 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ Server::Server(void):
 }
 
 Server::Server( std::map<std::string, std::string> settings ) { // new from nico
+	(void) settings;
 	// from the map of settings to set the real options for the server
 	// from the map of settings to set the real options for the server
 	// from the map of settings to set the real options for the server

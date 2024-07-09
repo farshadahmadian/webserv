@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Exception.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:25:05 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 12:11:24 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:18:54 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include <stdexcept>
 # include <string>
-# include "errors.h"
+# include "../../include/errors.h"
 
 class Exception : public std::exception {
 	public:

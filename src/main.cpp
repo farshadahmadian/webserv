@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:26:20 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:50:25 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ListeningSocket.hpp"
-#include "ConnectedSocket.hpp"
-#include "Server.hpp"
-#include "test.hpp"
+#include "./sockets/listening-socket/ListeningSocket.hpp"
+#include "./sockets/connected-socket/ConnectedSocket.hpp"
+#include "./server/Server.hpp"
+#include "./test/test.hpp"
 
-#include "Parser.hpp"
+#include "./parsing/Parser.hpp"
 
 /*  
 	- Check verbosity of the parser: displayConf can be verbose=1 while parser steps are verbose=2

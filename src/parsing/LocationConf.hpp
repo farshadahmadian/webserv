@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConf.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 14:32:58 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:06:50 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:48:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __LOCATIONCONF_HPP__
 # define __LOCATIONCONF_HPP__
 
-#include "parser.h"
+#include "../../include/parser.h"
 
 class LocationConf
 {

@@ -18,9 +18,9 @@
 # include <cstring>
 # include <iostream>
 # include <unistd.h>
-# include "colors.h"
-# include "Socket.hpp"
-# include "ConnectedSocket.hpp"
+# include "../../../include/colors.h"
+# include "../socket/Socket.hpp"
+# include "../connected-socket/ConnectedSocket.hpp"
 
 class HttpServer;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 12:11:44 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:24:26 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <string>
 # include <unistd.h>
 # include "error.h"
-# include "Exception.hpp"
+# include "../../exception/Exception.hpp"
 
 class Socket {
 	private:

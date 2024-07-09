@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectedSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/20 20:28:32 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:24:52 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define CONNECTED_SOCKET_HPP
 
 # include <netdb.h>
-# include "Socket.hpp"
+# include "../socket/Socket.hpp"
 
 class ConnectedSocket : public Socket {
 	private:

@@ -1,6 +1,6 @@
-#include "HttpServer.hpp"
-#include "ListeningSocket.hpp"
-#include "ConnectedSocket.hpp"
+#include "../http-server/HttpServer.hpp"
+#include "../sockets/listening-socket/ListeningSocket.hpp"
+#include "../sockets/connected-socket/ConnectedSocket.hpp"
 
 void memoryTest () {
 	HttpServer server1;
@@ -23,9 +23,9 @@ void memoryTest () {
 
 	// addrinfo *addressInfo = listeningSocket1.allocateAddrInfo();
 	listeningSocket1.createSocket();
-	server1.bindSocket();
-	server1.listenToRequests();
-	server1.acceptFirstRequestInQueue();
+	// server1.bindSocket();
+	// server1.listenToRequests();
+	// server1.acceptFirstRequestInQueue();
 	ConnectedSocket connectedSocket2;
 	ConnectedSocket connectedSocket1;
 	ConnectedSocket connectedSocket3(connectedSocket2);

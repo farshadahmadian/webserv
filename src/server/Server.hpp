@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 12:25:10 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:43:31 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,10 @@
 # include <map>
 # include <fstream>
 # include <sstream>
-# include "Exception.hpp"
-# include "ListeningSocket.hpp"
-# include "ConnectedSocket.hpp"
+# include "./exception/Exception.hpp"
+# include "../sockets/listening-socket/ListeningSocket.hpp"
+# include "../sockets/connected-socket/ConnectedSocket.hpp"
+# include "../server/Server.hpp"
 
 class Server {
 	private:

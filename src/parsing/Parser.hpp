@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:22:17 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 16:48:42 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "HttpConf.hpp"
 #include <sys/stat.h>	// stat()
-#include "errors.h"
+#include "../../include/errors.h"
 
 #define DEFAULT_FILE_PATH	"./conf/default.conf"
 #define	SPACES				" \t\v\f\r"
