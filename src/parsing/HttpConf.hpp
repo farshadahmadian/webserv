@@ -1,35 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Http.hpp                                           :+:      :+:    :+:   */
+/*   HttpConf.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 14:39:29 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/07/09 09:45:52 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/09 09:54:39 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __HTTP_HPP__
-# define __HTTP_HPP__
+#ifndef __HTTPCONF_HPP__
+# define __HTTPCONF_HPP__
 
-#include "Server.hpp"
+#include "ServerConf.hpp"
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include "colors.h"
 
-class Http
+class HttpConf
 {
 	public: // ---------------------------------------------- USED CONSTRUCTORS
-		Http( void );
-		~Http( void );
+		HttpConf( void );
+		~HttpConf( void );
 		void displayHttpSettings( void ); // -------------------------- DISPLAY
-		void start( void );
 
 	public: // ------------------------------------------------- PUBLIC MEMBERS
-		std::vector<Server>& getServer( void );
+		std::vector<ServerConf>& getServer( void );
 		size_t& getServerNumber( void );
 		std::map<std::string, std::string> getSettings( void );
 
@@ -41,11 +40,11 @@ class Http
 
 	private: // ----------------------------------------------- PRIVATE MEMBERS
 		size_t _n_server;
-		std::vector<Server> _server;
+		std::vector<ServerConf> _server;
 		std::map<std::string, std::string> _settings;
 
-		Http( const Http& ); // --------------------------- UNUSED CONSTRUCTORS
-		void operator=( const Http& );
+		HttpConf( const HttpConf& ); // --------------------------- UNUSED CONSTRUCTORS
+		void operator=( const HttpConf& );
 };
 
-#endif /* __HTTP_HPP__ */
+#endif /* __HTTPCONF_HPP__ */

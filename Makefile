@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/08 15:44:58 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/09 09:48:33 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,39 +17,67 @@ NAME		=	webserv
 # @-Wshadow - warns about variable declarations that shadow a variable declared in an outer scope.
 CXXFLAGS	=	-std=c++98 -g -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
 
-VPATH		=	src src/sockets/socket src/sockets/listening-socket src/sockets/connected-socket src/test src/http-server src/exception
+VPATH		=	src \
+				src/sockets/socket \
+				src/sockets/listening-socket \
+				src/sockets/connected-socket \
+				src/test \
+				src/http-server \
+				src/exception \
+				src/parsing
 
-SRC			=	main.cpp \
-				Http.cpp \
-				Server.cpp \
-				Location.cpp \
-				Socket.cpp \
+PARSING_CPP	=	Parser.cpp \
+				HttpConf.cpp \
+				ServerConf.cpp \
+				LocationConf.cpp
+PARSING_HPP	=	./src/parsing/Parser.hpp \
+				./src/parsing/HttpConf.hpp \
+				./src/parsing/ServerConf.hpp \
+				./src/parsing/LocationConf.hpp
+
+SOCKETS_CPP	=	Socket.cpp \
 				ListeningSocket.cpp \
-				ConnectedSocket.cpp \
-				HttpServer.cpp \
-				Exception.cpp \
-				memoryTest.cpp \
-				Conf.cpp \
-				Logger.cpp
+				ConnectedSocket.cpp
+SOCKETS_HPP	=	./src/sockets/socket/Socket.hpp \
+				./src/sockets/listening-socket/ListeningSocket.hpp \
+				./src/sockets/connected-socket/ConnectedSocket.hpp \
 
-HEADERS		=	./src/Http.hpp \
-				./src/Server.hpp \
-				./src/Location.hpp \
-				./src/error.hpp \
+SERVER_CPP	=	HttpServer.cpp \
+				Exception.cpp
+SERVER_HPP	=	./src/http-server/HttpServer.hpp \
+				./src/exception/Exception.hpp 
+
+EXTRA_CPP	=	memoryTest.cpp
+EXTRA_HPP	=	./src/error.hpp \
 				./src/sockets/socket/Socket.hpp \
 				./src/sockets/listening-socket/ListeningSocket.hpp \
 				./src/sockets/connected-socket/ConnectedSocket.hpp \
 				./src/http-server/HttpServer.hpp \
 				./src/exception/Exception.hpp \
 				./src/test/test.hpp \
-				./src/Conf.hpp \
 				./src/Logger.hpp
 
-INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening-socket -I./src/sockets/connected-socket -I./src/http-server -I./src/exception -I./src/test 
+SRCS		=	main.cpp \
+				$(PARSING_CPP) \
+				$(SOCKETS_CPP) \
+				$(SERVER_CPP)
+HEADERS		=	$(PARSING_HPP) \
+				$(SOCKETS_HPP) \
+				$(SERVER_HPP) \
+				$(EXTRA)
 
+INCLUDE		=	-I./include/ \
+				-I./src \
+				-I./src/sockets/socket \
+				-I./src/sockets/listening-socket \
+				-I./src/sockets/connected-socket \
+				-I./src/http-server \
+				-I./src/exception \
+				-I./src/test \
+				-I./src/parsing
 
 OBJS_PATH	=	objs
-OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)
+OBJS		=	$(SRCS:%.cpp=$(OBJS_PATH)/%.o)
 
 # Verbosity can be defined like 'make VERBOSE=1;' The default by doing 'make' is 0
 # Only three levels are allowed:

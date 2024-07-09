@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 09:05:30 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 09:14:43 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,11 @@ class Socket {
 		Socket(void);
 		Socket(Socket const &other);
 		Socket(int socketFd);
+		Socket &operator=(Socket const &rhs);	// unused
 		virtual ~Socket(void);
 
 		int getSocketFd(void) const;
 		void setSocketFd(int socketFd);
-		
-	private:
-		Socket &operator=(Socket const &rhs);	// unused
 };
 
 #endif

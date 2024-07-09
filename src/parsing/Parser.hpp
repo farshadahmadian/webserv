@@ -13,7 +13,7 @@
 #ifndef __CONF_HPP__
 # define __CONF_HPP__
 
-#include "Http.hpp"
+#include "HttpConf.hpp"
 #include <sys/stat.h>	// stat()
 #include "errors.h"
 #include "Logger.hpp"
@@ -36,16 +36,15 @@ enum indentation {
 	COMMENT
 };
 
-class Conf
+class Parser
 {
 	public: // ---------------------------------------------- USED CONSTRUCTORS
-		Conf( int argc, char** argv );
-		~Conf( void );
+		Parser( int argc, char** argv );
+		~Parser( void );
 		void displayConf( void );
-		void start( void );
 
 	private:
-		Http _http; // --------------------------------------------------- CORE
+		HttpConf _http; // --------------------------------------------------- CONF
 
 		indentation _prevLvl; // -------------------------------------- PARSING
 		indentation _currLvl;
@@ -73,12 +72,12 @@ class Conf
 		class FileExcept; // --------------------------------------- EXCEPTIONS
 		class ParseExcept;
 
-		Conf( void ); // ---------------------------------- UNUSED CONSTRUCTORS
-		Conf( const Conf& );
-		void operator=( const Conf& );
+		Parser( void ); // ---------------------------------- UNUSED CONSTRUCTORS
+		Parser( const Parser& );
+		void operator=( const Parser& );
 };
 
-class Conf::FileExcept: public std::exception
+class Parser::FileExcept: public std::exception
 {
 	private:
 		int	_n;
@@ -87,7 +86,7 @@ class Conf::FileExcept: public std::exception
 		const char* what() const throw();
 };
 
-class Conf::ParseExcept: public std::exception
+class Parser::ParseExcept: public std::exception
 {
 	private:
 		int	_n;

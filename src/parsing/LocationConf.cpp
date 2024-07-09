@@ -1,42 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.cpp                                       :+:      :+:    :+:   */
+/*   LocationConf.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:38:41 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 09:58:53 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Location.hpp"
+#include "LocationConf.hpp"
 
 // ----------------------------------------------------------- USED CONSTRUCTORS
-Location::~Location( void ) {};
-Location::Location( const Location& obj ):
+LocationConf::~LocationConf( void ) {};
+LocationConf::LocationConf( const LocationConf& obj ):
 	_i(obj._i),
 	_settings(obj._settings) {};
-Location::Location ( size_t i ): 
+LocationConf::LocationConf ( size_t i ): 
 	_i(i),
 	_settings(std::map<std::string, std::string>()) {};
 
 // ------------------------------------------------------------- PUBLIC MEMBERS
-size_t Location::getIndex( void ) { return (_i); };
-std::map<std::string, std::string> Location::getSettings( void ) { return (_settings); };
+size_t LocationConf::getIndex( void ) { return (_i); };
+std::map<std::string, std::string> LocationConf::getSettings( void ) { return (_settings); };
 
-void Location::setSettings( std::string key, std::string value ) { _settings[key] = value; };
+void LocationConf::setSettings( std::string key, std::string value ) { _settings[key] = value; };
 
 // -------------------------------------------------------------------- DISPLAY
-void Location::displayLocationSettings( void ) {
-	VERBOSE ? std::cout << G("          [LOCATION]") << std::endl : std::cout;
+void LocationConf::displayLocationSettings( void ) {
+	std::cout << G("          [LOCATION]") << std::endl;
 	std::map<std::string, std::string>::iterator it = _settings.begin();
 	while (it != _settings.end()) {
-		VERBOSE ? std::cout << "            * " << (*it).first << ": " << (*it).second << std::endl : std::cout;
+		std::cout << "            * " << (*it).first << ": " << (*it).second << std::endl;
 		it++;
 	}
 }
 
 // -------------------------------------------------------- UNUSED CONSTRUCTORS
-Location::Location ( void ) {/* Not needed */};
-void Location::operator=( const Location& ) {/* Not needed */};
+LocationConf::LocationConf ( void ) {/* Not needed */};
+void LocationConf::operator=( const LocationConf& ) {/* Not needed */};

@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Conf.cpp                                           :+:      :+:    :+:   */
+/*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 15:42:40 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 09:58:29 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Conf.hpp"
+#include "Parser.hpp"
 
 // --------------------------------------------------------------- CONSTRUCTORS
-Conf::~Conf( void ) {};
-Conf::Conf( int argc, char** argv ): 
+Parser::~Parser( void ) {};
+Parser::Parser( int argc, char** argv ): 
 	_prevLvl(INIT),
 	_currLvl(INIT),
 	_activeContext(HTTP) {
@@ -25,7 +25,7 @@ Conf::Conf( int argc, char** argv ):
 	confFile.close();
 };
 
-void Conf::checkFile( int argc, char** argv, std::ifstream& confFile ) {
+void Parser::checkFile( int argc, char** argv, std::ifstream& confFile ) {
 	if (argc > 2) throw FileExcept(E_TOOARGS);
 	if (!argv[1] || std::string(argv[1]).empty())
 		confFile.open(DEFAULT_FILE_PATH, std::ifstream::in);
@@ -37,7 +37,7 @@ void Conf::checkFile( int argc, char** argv, std::ifstream& confFile ) {
 	if (!confFile) throw FileExcept(E_INVFILE);
 }
 
-bool Conf::isDirectory( char* path ) {
+bool Parser::isDirectory( char* path ) {
 	struct stat s;
 	if (stat(path, &s) == 0) {
 		if (S_ISDIR(s.st_mode))
@@ -66,7 +66,7 @@ std::string& trim( std::string& s, const char* to_trim ) {
 }
 
 // -------------------------------------------------------------------- PARSING
-void Conf::parse( std::ifstream& confFile ) {	
+void Parser::parse( std::ifstream& confFile ) {	
 	std::string line;
 	std::string directive;
 	std::string value;
@@ -92,11 +92,11 @@ void Conf::parse( std::ifstream& confFile ) {
 	checkConfiguration();
 }
 
-/*	Empty values are already checked in Conf::getValue() member funciton. Here
+/*	Empty values are already checked in Parser::getValue() member funciton. Here
 	is checked only if there are no servers or no location, and if their settings 
 	are valid values (excluding empty string).
 */
-void Conf::checkConfiguration( void ) {
+void Parser::checkConfiguration( void ) {
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER);
 	// std::vector<Server>::iterator serverIt = _http.getServer().begin();
 	////////////
@@ -114,7 +114,7 @@ void Conf::checkConfiguration( void ) {
 /*	Get the number of tabs preceding the line and erase them. To detect some 
 	wrong nesting, we need to store the value of the previous context.
 */
-void Conf::setCurrIndentation( std::string& line ) {
+void Parser::setCurrIndentation( std::string& line ) {
 	if (_currLvl != COMMENT && _currLvl != INIT)
 		_prevLvl = _currLvl;
 	int i = 0;
@@ -135,7 +135,7 @@ void Conf::setCurrIndentation( std::string& line ) {
 /*	Extract the directive name and erases it. It checks also if after "server"
 	and "location" is there something dirty.
 */
-std::string Conf::extractDirective( std::string& line ) {
+std::string Parser::extractDirective( std::string& line ) {
 	if (line.empty()) throw ParseExcept(E_ONLYTABS);
 	size_t firstSpace = line.find_first_of(SPACES);			// go to first space
 	std::string directive = line.substr(0, firstSpace);		// cut the string
@@ -148,7 +148,7 @@ std::string Conf::extractDirective( std::string& line ) {
 	return (directive);										// can be also a context names
 }
 
-bool Conf::isValidDirective( std::string directive ) {	
+bool Parser::isValidDirective( std::string directive ) {	
 	size_t size;
 	const std::string* list;
 
@@ -174,7 +174,7 @@ bool Conf::isValidDirective( std::string directive ) {
 /*	_activeContext is switched in case the portion of line read is "server" or
 	"location". In those cases, an instance is also created.
 */
-bool Conf::openContext( std::string directive ) {
+bool Parser::openContext( std::string directive ) {
 	if (directive.compare("server") == 0) {
 		VERBOSE == 2 ? std::cout << P("* Server context [ON]") << std::endl : std::cout;
 		_activeContext = SERVER;
@@ -197,7 +197,7 @@ bool Conf::openContext( std::string directive ) {
 /*	If the currLvl of indentation is lower than the one of the active context,
 	the active context is closed and becomes the one of the currLvl.
 */
-void Conf::closeContext( void ) {
+void Parser::closeContext( void ) {
 	if (_currLvl < _activeContext) {
 		VERBOSE == 2 ? std::cout << R("* Context closed   : ") << displayIndentantion(_activeContext) << std::endl : std::cout;
 		_activeContext = _currLvl;
@@ -208,13 +208,13 @@ void Conf::closeContext( void ) {
 /*	The active context and the current level of indentation has to be always
 	equal, otherwise it means, that a directive was written in the wrong one.
 */
-bool Conf::isCorrectContextOpen( void ) {
+bool Parser::isCorrectContextOpen( void ) {
 	if (_activeContext != _currLvl)
 		return (false);
 	return (true);
 }
 
-std::string Conf::extractValue( std::string& line ) {
+std::string Parser::extractValue( std::string& line ) {
 	size_t end_of_decl;
 	std::string value;
 
@@ -229,7 +229,7 @@ std::string Conf::extractValue( std::string& line ) {
 	return (value);
 }
 
-void Conf::updateConfiguration( std::string directive, std::string value ) {
+void Parser::updateConfiguration( std::string directive, std::string value ) {
 	if (_activeContext == HTTP) 
 		_http.setHttpSettings(directive, value);
 	if (_activeContext == SERVER)
@@ -240,28 +240,28 @@ void Conf::updateConfiguration( std::string directive, std::string value ) {
 }
 
 // -------------------------------------------------------------------- DISPLAY
-void Conf::displayParseState( std::string line ) {
+void Parser::displayParseState( std::string line ) {
 	std::cout << "------------------------------------------------------------" << std::endl;
 	std::cout << G("* [LINE]     ") << "[" << line << "]" << std::endl << std::endl;
 	std::cout << B("* Prev indentation ") << "[ " << displayIndentantion(_prevLvl) << " ]" << std::endl;
 	std::cout << B("* Curr indentation ") << "[ " << displayIndentantion(_currLvl) << " ]" << std::endl;
 }
 
-std::string Conf::displayIndentantion( indentation ind ) {
+std::string Parser::displayIndentantion( indentation ind ) {
 	if (ind == HTTP) return ("http");
 	if (ind == SERVER) return ("server");
 	if (ind == LOCATION) return ("location");
 	return ("init");
 }
 
-void Conf::displayConf( void ) { _http.displayHttpSettings(); }
-
-// ----------------------------------------------------------------------- CORE
-void Conf::start( void ) { _http.start(); };
+void Parser::displayConf( void ) { 
+	std::cout << B("***************** { WEB SERVER CONFIGURATION } *****************") << std::endl;
+	_http.displayHttpSettings(); 
+}
 
 // ----------------------------------------------------------------- EXCEPTIONS
-Conf::FileExcept::FileExcept( file_err n ): _n(n) {};
-const char* Conf::FileExcept::what() const throw() {
+Parser::FileExcept::FileExcept( file_err n ): _n(n) {};
+const char* Parser::FileExcept::what() const throw() {
 	if (_n == E_TOOARGS) return ("too many args");
 	if (_n == E_INVFILE) return ("invalid file");
 	if (_n == E_ISDIR) return ("arg provided is a directory");
@@ -269,8 +269,8 @@ const char* Conf::FileExcept::what() const throw() {
 	return ("Unknow File exception");
 }
 
-Conf::ParseExcept::ParseExcept( parse_err n ): _n(n) {};
-const char* Conf::ParseExcept::what() const throw() {
+Parser::ParseExcept::ParseExcept( parse_err n ): _n(n) {};
+const char* Parser::ParseExcept::what() const throw() {
 	if (_n == E_INVDIR) return("invalid conf: directive doesn't exist, or wrong indented");
 	if (_n == E_CONTNAME) return("invalid conf: context name");
 	if (_n == E_ONLYTABS) return("invalid conf: directive expected after tabs");
@@ -284,16 +284,16 @@ const char* Conf::ParseExcept::what() const throw() {
 }
 
 // ------------------------------------------------------------------- DIR LIST
-const std::string Conf::_httpDirectives[N_HTTP_DIR] = {
+const std::string Parser::_httpDirectives[N_HTTP_DIR] = {
 	"keepalive_timeout",
 	"client_body_buffer_size",
 	"server" };
-const std::string Conf::_serverDirectives[N_SERVER_DIR] = {
+const std::string Parser::_serverDirectives[N_SERVER_DIR] = {
 	"server_name",
 	"listen",
 	"root",
 	"location" };
-const std::string Conf::_locationDirectives[N_LOCATION_DIR] = {
+const std::string Parser::_locationDirectives[N_LOCATION_DIR] = {
 	"uri", 
 	"root", 
 	"index", 
@@ -302,6 +302,6 @@ const std::string Conf::_locationDirectives[N_LOCATION_DIR] = {
 	"cgi" };
 
 // -------------------------------------------------------- UNUSED CONSTRUCTORS
-Conf::Conf( void ) {/* Not needed */};
-Conf::Conf( const Conf& ) {/* Not needed */};
-void Conf::operator=( const Conf& ) {/* Not needed */};
+Parser::Parser( void ) {/* Not needed */};
+Parser::Parser( const Parser& ) {/* Not needed */};
+void Parser::operator=( const Parser& ) {/* Not needed */};

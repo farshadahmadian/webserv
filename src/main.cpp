@@ -6,26 +6,31 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 09:08:38 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 10:00:28 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.h"
 #include "colors.h"
-#include "Http.hpp"
+#include "HttpConf.hpp"
 #include "ListeningSocket.hpp"
 #include "ConnectedSocket.hpp"
 #include "HttpServer.hpp"
 #include "test.hpp"
 #include "Logger.hpp"
+#include "Parser.hpp"
+
+/*  
+	- Check verbosity of the parser: displayConf can be verbose=1 while parser steps are verbose=2
+	- with verbose=0 there is not output for the configuration
+	- when default settings are choosen, warn the user
+*/
 
 int main ( int argc, char** argv ) {
 	try {
-		Conf settings(argc, argv);
-		VERBOSE >= 1 ? settings.displayConf() : void();
+		Parser configuration(argc, argv);
+		configuration.displayConf();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
-		settings.start();
 
 		// HttpServer httpServer;
 		// httpServer.setPortAvailable();
@@ -46,7 +51,7 @@ int main ( int argc, char** argv ) {
 	// memoryTest();
 
 	/* try {
-		Conf settings(argc, argv);
+		Conf configuration(argc, argv);
 		// Conf conf(argc, argv);
 		// Http http(conf);
 		// http.startWebServ();

@@ -1,33 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.hpp                                       :+:      :+:    :+:   */
+/*   LocationConf.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 14:32:58 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 15:13:34 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 09:58:59 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __LOCATION_HPP__
-# define __LOCATION_HPP__
-
-#ifndef VERBOSE
-# define VERBOSE	0
-#endif
+#ifndef __LOCATIONCONF_HPP__
+# define __LOCATIONCONF_HPP__
 
 #include <string>
 #include <map>
 #include <iostream>
 #include "colors.h"
 
-class Location
+class LocationConf
 {
 	public: // ---------------------------------------------- USED CONSTRUCTORS
-		Location( size_t );
-		~Location( void );
-		Location( const Location& );
+		LocationConf( size_t );
+		~LocationConf( void );
+		LocationConf( const LocationConf& );
 	
 	public: // ------------------------------------------------- PUBLIC MEMBERS
 		size_t getIndex( void );
@@ -39,8 +35,8 @@ class Location
 		size_t _i;
 		std::map<std::string, std::string> _settings;
 
-		Location( void ); // ------------------------------ UNUSED CONSTRUCTORS
-		void operator=( const Location& );
+		LocationConf( void ); // ------------------------------ UNUSED CONSTRUCTORS
+		void operator=( const LocationConf& );
 };
 
-#endif /* __LOCATION_HPP__ */
+#endif /* __LOCATIONCONF_HPP__ */
