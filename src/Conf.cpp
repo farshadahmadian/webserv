@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:41:16 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 15:42:40 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,21 +76,20 @@ void Conf::parse( std::ifstream& confFile ) {
 			throw FileExcept(E_FAIL);
 		if (line.empty()) continue ;												// empty lines are jumped
 		if (line.find_first_not_of(SPACES) == std::string::npos) continue ;			// line with only spaces and IND don't do nothing neither changing level
-		setCurrIndentation(line);													 // set curr level based on line TABS
+		setCurrIndentation(line);													// set curr level based on line TABS
 		if (_currLvl == COMMENT) continue;
-		// VERBOSE ? displayParseState(line) : void();
-		directive = extractDirective(line);			// extract the directive
+		VERBOSE == 2 ? displayParseState(line) : void();
+		directive = extractDirective(line);											// extract the directive
 		if (!isValidDirective(directive))
 			throw ParseExcept(E_INVDIR);
 		if (openContext(directive)) continue ;
-		closeContext();							// if the current level of indentation is lower than the one before, one or two context are closed 
-		if (!isCorrectContextOpen())			// check if the context for {{{THAT}}} directive is open
+		closeContext();																// if the current level of indentation is lower than the one before, one or two context are closed 
+		if (!isCorrectContextOpen())												// check if the context for {{{THAT}}} directive is open
 			throw ParseExcept(E_INVCONTEXT);
 		value = extractValue(line);
 		updateConfiguration(directive, value);
 	}
 	checkConfiguration();
-	// _http.start();
 }
 
 /*	Empty values are already checked in Conf::getValue() member funciton. Here
@@ -177,7 +176,7 @@ bool Conf::isValidDirective( std::string directive ) {
 */
 bool Conf::openContext( std::string directive ) {
 	if (directive.compare("server") == 0) {
-		// VERBOSE ? std::cout << P("* Server context [ON]") << std::endl : std::cout;
+		VERBOSE == 2 ? std::cout << P("* Server context [ON]") << std::endl : std::cout;
 		_activeContext = SERVER;
 		_http.addServer();
 		return (true);
@@ -187,7 +186,7 @@ bool Conf::openContext( std::string directive ) {
 			throw ParseExcept(E_INVCONTEXT);
 		if (_prevLvl == HTTP && _currLvl != SERVER)		// case cut_server.conf
 			throw ParseExcept(E_INVCONTEXT);
-		// VERBOSE ? std::cout << P("* Location context [ON]") << std::endl : std::cout;
+		VERBOSE == 2 ? std::cout << P("* Location context [ON]") << std::endl : std::cout;
 		_activeContext = LOCATION;
 		_http.addLocation();
 		return (true);
@@ -200,9 +199,9 @@ bool Conf::openContext( std::string directive ) {
 */
 void Conf::closeContext( void ) {
 	if (_currLvl < _activeContext) {
-		// VERBOSE ? std::cout << R("* Context closed   : ") << displayIndentantion(_activeContext) << std::endl : std::cout;
+		VERBOSE == 2 ? std::cout << R("* Context closed   : ") << displayIndentantion(_activeContext) << std::endl : std::cout;
 		_activeContext = _currLvl;
-		// VERBOSE ? std::cout << G("* Context activated: ") << displayIndentantion(_activeContext) << std::endl : std::cout;
+		VERBOSE == 2 ? std::cout << G("* Context activated: ") << displayIndentantion(_activeContext) << std::endl : std::cout;
 	}
 }
 
@@ -237,7 +236,7 @@ void Conf::updateConfiguration( std::string directive, std::string value ) {
 		_http.setServerSettings(directive, value);
 	if (_activeContext == LOCATION)
 		_http.setLocationSettings(directive, value);
-	// VERBOSE ? std::cout << G("* Directive stored!") << std::endl : std::cout;
+	VERBOSE == 2 ? std::cout << G("* Directive stored!") << std::endl : std::cout;
 }
 
 // -------------------------------------------------------------------- DISPLAY
@@ -256,6 +255,9 @@ std::string Conf::displayIndentantion( indentation ind ) {
 }
 
 void Conf::displayConf( void ) { _http.displayHttpSettings(); }
+
+// ----------------------------------------------------------------------- CORE
+void Conf::start( void ) { _http.start(); };
 
 // ----------------------------------------------------------------- EXCEPTIONS
 Conf::FileExcept::FileExcept( file_err n ): _n(n) {};

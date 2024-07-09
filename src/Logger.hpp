@@ -1,39 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Logger.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 09:05:30 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/07/08 14:32:36 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/08 15:44:27 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SOCKET_HPP
-# define SOCKET_HPP
+#ifndef __LOGGER_HPP__
+# define __LOGGER_HPP__
 
-# include <stdexcept>
-# include <string>
-# include <unistd.h>
-# include "error.hpp"
-# include "Exception.hpp"
+#include <string>
 
-class Socket {
-	private:
-		int _socketFd;
-		
-	public:
-		Socket(void);
-		Socket(Socket const &other);
-		Socket(int socketFd);
-		virtual ~Socket(void);
-
-		int getSocketFd(void) const;
-		void setSocketFd(int socketFd);
-		
-	private:
-		Socket &operator=(Socket const &rhs);	// unused
+enum log {
+	MINIMAL,
+	STANDARD,
+	DETAILED
 };
 
-#endif
+class Logger
+{
+	public:
+		Logger( void );
+		~Logger( void );
+
+		// static Logger& getLogger( void );
+		
+		enum log _level;
+
+
+	
+	private:
+		Logger( const Logger& ); // ----------------------- UNUSED CONSTRUCTORS
+		void operator=( const Logger& );
+};
+
+#endif /* __LOGGER_HPP__ */

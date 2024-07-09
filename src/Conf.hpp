@@ -16,6 +16,7 @@
 #include "Http.hpp"
 #include <sys/stat.h>	// stat()
 #include "errors.h"
+#include "Logger.hpp"
 
 #define DEFAULT_FILE_PATH	"./conf/default.conf"
 #define	SPACES				" \t\v\f\r"
@@ -41,6 +42,7 @@ class Conf
 		Conf( int argc, char** argv );
 		~Conf( void );
 		void displayConf( void );
+		void start( void );
 
 	private:
 		Http _http; // --------------------------------------------------- CORE

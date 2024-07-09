@@ -6,11 +6,12 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:44:29 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 15:54:09 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "HttpServer.hpp"
 
 // ----------------------------------------------------------- USED CONSTRUCTORS
 Server::~Server( void ) {};
@@ -37,6 +38,23 @@ void Server::addLocation( void ) {
 	_location.push_back(l);
 	_n_location++;
 };
+
+// ----------------------------------------------------------------------- CORE
+void Server::start( void ) {
+	std::cout << G("* Starting server...") << std::endl;
+	
+	// HttpServer httpServer;
+	
+	// httpServer.setPortAvailable();
+	// httpServer.bindSocket();
+	// httpServer.listenToRequests();
+
+	// while (true)
+	// {
+	// 	httpServer.startPoll2();
+	// 	httpServer.printConnectedSockets();
+	// }
+}
 
 // -------------------------------------------------------------------- DISPLAY
 void Server::displayServerSettings( void ) {

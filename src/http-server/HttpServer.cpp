@@ -6,14 +6,19 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/08 10:56:38 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 15:52:06 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "HttpServer.hpp"
 
-HttpServer::HttpServer(void) : _listeningSocket(ListeningSocket()), _connectedSockets(std::map<int, ConnectedSocket>()), _maxIncomingConnections(10), _monitoredFdsNum(0), _monitoredFds(NULL), _request(std::map<std::string, std::string>()) {
+HttpServer::HttpServer(void): 
+	_listeningSocket(ListeningSocket()), 
+	_connectedSockets(std::map<int, ConnectedSocket>()), 
+	_maxIncomingConnections(10), 
+	_monitoredFdsNum(0), 
+	_monitoredFds(NULL), 
+	_request(std::map<std::string, std::string>()) {
 
 	this->_monitoredFds = new struct pollfd[this->_maxIncomingConnections + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (this->_maxIncomingConnections + 1));

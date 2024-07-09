@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:38:58 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 14:39:29 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Http
 		Http( void );
 		~Http( void );
 		void displayHttpSettings( void ); // -------------------------- DISPLAY
+		void start( void );
 
 	public: // ------------------------------------------------- PUBLIC MEMBERS
 		std::vector<Server>& getServer( void );
@@ -37,16 +38,6 @@ class Http
 		void setHttpSettings( std::string directive, std::string value );
 		void setServerSettings( std::string directive, std::string value );
 		void setLocationSettings( std::string directive, std::string value );
-		
-
-		// // temp
-		// void ourMain( void ) {
-		// 	std::vector<Server>::iterator it = _server.begin();
-		// 	while (it != _server.end()) {
-		// 		_server.startServer();
-		// 		it++;
-		// 	}
-		// };
 
 	private: // ----------------------------------------------- PRIVATE MEMBERS
 		size_t _n_server;

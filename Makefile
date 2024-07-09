@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/08 11:27:51 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/08 15:44:58 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,8 @@ SRC			=	main.cpp \
 				HttpServer.cpp \
 				Exception.cpp \
 				memoryTest.cpp \
-				Conf.cpp
+				Conf.cpp \
+				Logger.cpp
 
 HEADERS		=	./src/Http.hpp \
 				./src/Server.hpp \
@@ -41,7 +42,8 @@ HEADERS		=	./src/Http.hpp \
 				./src/http-server/HttpServer.hpp \
 				./src/exception/Exception.hpp \
 				./src/test/test.hpp \
-				./src/Conf.hpp
+				./src/Conf.hpp \
+				./src/Logger.hpp
 
 INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening-socket -I./src/sockets/connected-socket -I./src/http-server -I./src/exception -I./src/test 
 
@@ -49,22 +51,24 @@ INCLUDE		=	-I./include/ -I./src -I./src/sockets/socket -I./src/sockets/listening
 OBJS_PATH	=	objs
 OBJS		=	$(SRC:%.cpp=$(OBJS_PATH)/%.o)
 
-VERBOSE		=	-DVERBOSE=0
-ifeq ($(filter verbose,$(MAKECMDGOALS)),verbose)
-	VERBOSE	=	-DVERBOSE=1
-endif
+# Verbosity can be defined like 'make VERBOSE=1;' The default by doing 'make' is 0
+# Only three levels are allowed:
+#	0 = the minimal messages we want to show, default behavior of the program.
+#	1 = additional useful messages, like a setting felt back to a default value
+#		(ex. the server block in parsing has no port, so the automatic is 80; this is notified).
+#	2 = unuseful information, like the steps performed by the parsing, useful only
+#		for debugging pourposes.
+VERBOSE		?=	0
 
 # ----------------------------------------------------------------------- BASIC
 all: $(NAME)
-
-verbose: $(NAME)
 
 $(NAME): $(OBJS)
 	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME)
 
 $(OBJS_PATH)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(OBJS_PATH)
-	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ $(VERBOSE)
+	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ -DVERBOSE=$(VERBOSE)
 
 clean:
 	rm -rf $(OBJS_PATH)
@@ -98,4 +102,4 @@ R	=	\033[0;31m
 W	=	\033[0m
 N	=	\033[1;30m
 
-.PHONY: all clean fclean re nginx nginx-img nginx-rm verbose
+.PHONY: all clean fclean re nginx nginx-img nginx-rm

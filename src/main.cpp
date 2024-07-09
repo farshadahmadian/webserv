@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:43:09 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/09 09:08:38 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,26 @@
 #include "ConnectedSocket.hpp"
 #include "HttpServer.hpp"
 #include "test.hpp"
+#include "Logger.hpp"
 
 int main ( int argc, char** argv ) {
 	try {
-		Conf webserver(argc, argv);
-		webserver.displayConf();
+		Conf settings(argc, argv);
+		VERBOSE >= 1 ? settings.displayConf() : void();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
-		HttpServer httpServer;
-		httpServer.setPortAvailable();
-		httpServer.bindSocket();
-		httpServer.listenToRequests();
+		settings.start();
 
-		while (true)
-		{
-			httpServer.startPoll2();
-			httpServer.printConnectedSockets();
-		}
+		// HttpServer httpServer;
+		// httpServer.setPortAvailable();
+		// httpServer.bindSocket();
+		// httpServer.listenToRequests();
+
+		// while (true)
+		// {
+		// 	httpServer.startPoll2();
+		// 	httpServer.printConnectedSockets();
+		// }
 		
 	} catch(Exception const &exception) {
 		std::cerr << RED << exception.what() << RESET << std::endl;
@@ -43,7 +46,7 @@ int main ( int argc, char** argv ) {
 	// memoryTest();
 
 	/* try {
-		Conf webserver(argc, argv);
+		Conf settings(argc, argv);
 		// Conf conf(argc, argv);
 		// Http http(conf);
 		// http.startWebServ();

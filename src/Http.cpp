@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/08 11:42:41 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/08 15:54:23 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,15 @@ void Http::addLocation( void ) { _server.back().addLocation(); }
 void Http::setHttpSettings( std::string key, std::string value ) { _settings[key] = value; };
 void Http::setServerSettings( std::string key, std::string value ) { _server.back().setSettings(key, value); };
 void Http::setLocationSettings( std::string key, std::string value ) { _server.back().getLocation().back().setSettings(key, value); };
+
+void Http::start( void ) {
+	VERBOSE ? std::cout << G("* Http starting...") << std::endl : std::cout;
+	std::vector<Server>::iterator serverIt = getServer().begin();
+	while (serverIt != getServer().end()) {
+		(*serverIt).start();
+		serverIt++;
+	}
+};
 
 // -------------------------------------------------------------------- DISPLAY
 void Http::displayHttpSettings( void ) {
