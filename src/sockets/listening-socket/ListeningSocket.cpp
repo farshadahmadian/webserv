@@ -16,7 +16,12 @@
 
 
 // change default values
-ListeningSocket::ListeningSocket(void) : Socket(), _maxIncomingConnections(10), _ip("127.0.0.1"), _port("8080"), _addressInfo(NULL) {
+ListeningSocket::ListeningSocket(void): 
+	Socket(), 
+	_maxIncomingConnections(10), 
+	_ip("127.0.0.1"), 
+	_port("8080"), 
+	_addressInfo(NULL) {
 
 	try {	
 		this->_addressInfo = this->allocateAddrInfo();

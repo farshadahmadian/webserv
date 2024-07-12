@@ -3,50 +3,101 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+         #
+#    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/09 16:54:02 by nnabaeei         ###   ########.fr        #
+#    Updated: 2024/07/12 11:38:32 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+NAME		=	webserv
 
+# @-Wconversion - prevent implicit cast when accuracy is lost.
+# @-Wsign-conversion - prevent implicit change of sign.
+# @-Wshadow - warns about variable declarations that shadow a variable declared in an outer scope.
+CXXFLAGS	=	-std=c++98 -g -Wall -Wextra -Wshadow -Wconversion -Wsign-conversion #-Werror
 
+VPATH		=	src \
+				src/sockets/socket \
+				src/sockets/listening-socket \
+				src/sockets/connected-socket \
+				src/test \
+				src/server \
+				src/exception \
+				src/parsing
 
+PARSING_CPP	=	Parser.cpp \
+				HttpConf.cpp \
+				ServerConf.cpp \
+				LocationConf.cpp
+PARSING_HPP	=	./src/parsing/Parser.hpp \
+				./src/parsing/HttpConf.hpp \
+				./src/parsing/ServerConf.hpp \
+				./src/parsing/LocationConf.hpp
 
-NAME     := mutantstack
-CXX      := g++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g
-CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
+SOCKETS_CPP	=	Socket.cpp \
+				ListeningSocket.cpp \
+				ConnectedSocket.cpp
+SOCKETS_HPP	=	./src/sockets/socket/Socket.hpp \
+				./src/sockets/listening-socket/ListeningSocket.hpp \
+				./src/sockets/connected-socket/ConnectedSocket.hpp \
 
-# Directories
-SRC_DIR := src
-OBJ_DIR := obj
+SERVER_CPP	=	Server.cpp \
+				Exception.cpp
+SERVER_HPP	=	./src/server/Server.hpp \
+				./src/exception/Exception.hpp 
 
-# Find all .cpp files in the SRC directory and subdirectories
-CPP_FILES := $(shell find $(SRC_DIR) -name '*.cpp')
+# files to tidy up
+EXTRA_CPP	=	memoryTest.cpp
+EXTRA_HPP	=	./src/error.hpp \
+				./src/test/test.hpp \
 
-# Find all .hpp files in the SRC directory and subdirectories
-HEADERS := $(shell find $(SRC_DIR) -name '*.hpp')
+SRCS		=	main.cpp \
+				$(PARSING_CPP) \
+				$(SOCKETS_CPP) \
+				$(SERVER_CPP)
+HEADERS		=	$(PARSING_HPP) \
+				$(SOCKETS_HPP) \
+				$(SERVER_HPP) \
+				$(EXTRA)
 
-# Generate object file names, preserving directory structure
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP_FILES))
+INCLUDE		=	-I./include/ \
+				-I./src \
+				-I./src/sockets/socket \
+				-I./src/sockets/listening-socket \
+				-I./src/sockets/connected-socket \
+				-I./src/server \
+				-I./src/exception \
+				-I./src/test \
+				-I./src/parsing
 
+OBJS_PATH	=	objs
+OBJS		=	$(SRCS:%.cpp=$(OBJS_PATH)/%.o)
+
+# Verbosity can be defined like 'make VERBOSE=1;' The default by doing 'make' is 0
+# Only three levels are allowed:
+#	0 = the minimal messages we want to show, default behavior of the program.
+#	1 = additional useful messages, like a setting felt back to a default value
+#		(ex. the server block in parsing has no port, so the automatic is 80; this is notified).
+#	2 = unuseful information, like the steps performed by the parsing, useful only
+#		for debugging pourposes.
+VERBOSE		?=	0
+
+# ----------------------------------------------------------------------- BASIC
 all: $(NAME)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
-	@mkdir -p $(dir $@)
-	@$(CXX) -c -o $@ $< $(CXXFLAGS) -I$(SRC_DIR)
+$(NAME): $(OBJS)
+	c++ $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $(NAME)
 
-$(NAME): $(OBJ_FILES)
-	@$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(NAME) $(LDFLAGS)
-	@echo "$(ORG)----- $(RESET)$(GREEN)$(NAME)$(RESET)$(ORG) as exe file is created!-----$(RESET)"
+$(OBJS_PATH)/%.o: %.cpp $(HEADERS)
+	mkdir -p $(OBJS_PATH)
+	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ -DVERBOSE=$(VERBOSE)
 
 clean:
-	@rm -rf $(OBJ_DIR)
+	rm -rf $(OBJS_PATH)
 
 fclean: clean
-	@rm -rf $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 
@@ -67,12 +118,11 @@ nginx-rm:
 	docker rm nginx;
 	docker rmi nginx-img;
 
+G	=	\033[0;32m
+Y	=	\033[0;33m
+B	=	\033[0;34m
+R	=	\033[0;31m
+W	=	\033[0m
+N	=	\033[1;30m
 
-.PHONY: all clean fclean re
-
-BLUE    = \033[38;5;4m
-GREEN   = \033[38;5;2m
-ORG     = \033[38;5;214m
-RED     = \033[38;5;196m
-RESET   = \033[0m
-
+.PHONY: all clean fclean re nginx nginx-img nginx-rm

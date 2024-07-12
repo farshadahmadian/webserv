@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 09:45:52 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:16:43 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/12 14:23:42 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ class HttpConf
 		void setServerSettings( std::string directive, std::string value );
 		void setLocationSettings( std::string directive, std::string value );
 
+		void checkConfiguration( void ); // ------------------------ CONFIGURATION
+		static const std::string httpDirectives[N_HTTP_DIR];
+		static const std::string httpDefaults[N_HTTP_DIR-1];
 	private: // ----------------------------------------------- PRIVATE MEMBERS
 		size_t _n_server;
 		std::vector<ServerConf> _server;

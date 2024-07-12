@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:16:04 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:46:36 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,44 @@ void ServerConf::addLocation( void ) {
 	LocationConf l(_n_location);
 	_location.push_back(l);
 	_n_location++;
+};
+
+// -------------------------------------------------------------- CONF CHECKING
+void ServerConf::checkConfiguration( void ) {
+	for (size_t i = 0; i < N_SERVER_DIR-1; i++) {
+		if (_settings.find(serverDirectives[i]) == _settings.end())
+			_settings[serverDirectives[i]] = serverDefaults[i];
+	}
+	/*  
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+		***** DECIDE WHAT TO DO IN CASE THERE IS NO LOCATION !!!! *****
+	*/
+	std::vector<LocationConf>::iterator locationIt = getLocation().begin();
+	while (locationIt != getLocation().end()) {
+		(*locationIt).checkConfiguration();
+		locationIt++;
+	}
+}
+
+// ------------------------------------------------------------- DIRECTIVE LIST
+const std::string ServerConf::serverDirectives[N_SERVER_DIR] = {
+	"ip",
+	"server_name",
+	"port",
+	"root",
+	"index",
+	"location" 
+};
+const std::string ServerConf::serverDefaults[N_SERVER_DIR-1] = {
+	/* ip */			"127.0.0.1",
+	/* server_name */	"",
+	/* port */			"8080",
+	/* root */			"html",
+	/* index */			"index index.html",
 };
 
 // -------------------------------------------------------------------- DISPLAY

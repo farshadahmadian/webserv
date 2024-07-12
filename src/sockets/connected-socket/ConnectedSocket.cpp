@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectedSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/06/20 20:05:13 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/12 14:43:17 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,17 @@ ConnectedSocket::ConnectedSocket(void) : Socket() {
 	return;
 }
 
-ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t const &incomingConnectionAddressSize) : Socket(socketFd), _incomingRequestAddress(incomingRequestAddress), _incomingConnectionAddressSize(incomingConnectionAddressSize) {
+ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t const &incomingConnectionAddressSize): 
+	Socket(socketFd), 
+	_incomingRequestAddress(incomingRequestAddress), 
+	_incomingConnectionAddressSize(incomingConnectionAddressSize) {
 	return;
 }
 
-ConnectedSocket::ConnectedSocket(ConnectedSocket const &other) : Socket(other), _incomingRequestAddress(other._incomingRequestAddress), _incomingConnectionAddressSize(other._incomingConnectionAddressSize) {
+ConnectedSocket::ConnectedSocket(ConnectedSocket const &other): 
+	Socket(other), 
+	_incomingRequestAddress(other._incomingRequestAddress), 
+	_incomingConnectionAddressSize(other._incomingConnectionAddressSize) {
 	return;
 }
 
@@ -45,4 +51,3 @@ sockaddr_storage const &ConnectedSocket::getIncomingRequestAddress(void) const {
 socklen_t const &ConnectedSocket::getIncomingConnectionAddressSize(void) const {
 	return this->_incomingConnectionAddressSize;
 }
-

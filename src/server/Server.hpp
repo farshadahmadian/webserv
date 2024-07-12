@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 16:43:31 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:49:00 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,17 @@
 # include "../sockets/connected-socket/ConnectedSocket.hpp"
 # include "../server/Server.hpp"
 
+#define MAX_CONNECTIONS		10
+
 class Server {
 	private:
+		const std::string _serverName;
+		const std::string _root;
 		ListeningSocket _listeningSocket;
 		// std::vector<ConnectedSocket> _connectedSockets;
 		std::map<int, ConnectedSocket> _connectedSockets;
-		unsigned int _maxIncomingConnections;
 		unsigned int _monitoredFdsNum;
-		struct pollfd *_monitoredFds;
+		struct pollfd _monitoredFds[MAX_CONNECTIONS];
 		std::map<std::string, std::string> _request;
 
 		void handleEvents(void);
@@ -44,13 +47,13 @@ class Server {
 		std::string readHtmlFile(std::string path);
 		void parseRequest(std::string request);
 		void printRequest(void);
+	
+		Server(	void ); // ---------------------------------- UNUSED CONSTRUCTORS
+		Server(	Server const &other );
+		Server& operator=( Server const &rhs );
 	public:
-		Server( std::map<std::string, std::string> settings ); // new from nico
-		Server(void);
-		Server(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
-		Server(Server const &other);
-		Server &operator=(Server const &rhs);
-		~Server(void);
+		Server( std::map<std::string, std::string> settings );
+		~Server( void );
 
 		ListeningSocket const &getListeningSocket(void) const;
 		
@@ -62,8 +65,6 @@ class Server {
 		int acceptFirstRequestInQueue(void);
 		void startPoll(void);
 		void startPoll2(void);
-		
 };
-
 
 #endif /* __SERVER_HPP__ */

@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:21:16 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/12 14:30:33 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,26 +89,8 @@ void Parser::parse( std::ifstream& confFile ) {
 		value = extractValue(line);
 		updateConfiguration(directive, value);
 	}
-	checkConfiguration();
-}
-
-/*	Empty values are already checked in Parser::getValue() member funciton. Here
-	is checked only if there are no servers or no location, and if their settings 
-	are valid values (excluding empty string).
-*/
-void Parser::checkConfiguration( void ) {
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER);
-	// std::vector<Server>::iterator serverIt = _http.getServer().begin();
-	////////////
-	//
-	//	NEED IMPLEMENTATION: waiting until we know which are the limits of the parameters, 
-	//	which is the minimal/default configuration and so on. 
-	//	- Also [location] is not sure if STRICLTY NEEDED.
-	//	- If something not set what happens? Like keepalive_timeout...?
-	//	- Suppose file with only server written inside
-	//	- If two server have same name OR same port???
-	//
-	////////////
+	_http.checkConfiguration();
 }
 
 /*	Get the number of tabs preceding the line and erase them. To detect some 
@@ -153,15 +135,15 @@ bool Parser::isValidDirective( std::string directive ) {
 	const std::string* list;
 
 	if (_currLvl == HTTP) {
-		list = _httpDirectives;
+		list = HttpConf::httpDirectives;
 		size = N_HTTP_DIR;
 	}
 	if (_currLvl == SERVER) {
-		list = _serverDirectives;
+		list = ServerConf::serverDirectives;
 		size = N_SERVER_DIR;
 	}
 	if (_currLvl == LOCATION) {
-		list = _locationDirectives;
+		list = LocationConf::locationDirectives;
 		size = N_LOCATION_DIR;
 	}
 	for (size_t i = 0; i < size; i++) {
@@ -230,7 +212,9 @@ std::string Parser::extractValue( std::string& line ) {
 }
 
 void Parser::updateConfiguration( std::string directive, std::string value ) {
-	if (_activeContext == HTTP) 
+	// _http::setSetting(directive, value, _activeContext)
+	
+	if (_activeContext == HTTP)
 		_http.setHttpSettings(directive, value);
 	if (_activeContext == SERVER)
 		_http.setServerSettings(directive, value);
@@ -285,24 +269,6 @@ const char* Parser::ParseExcept::what() const throw() {
 	if (_n == E_NOLOCATION) return("invalid conf: server has no location");
 	return ("Unknkow exception");
 }
-
-// ------------------------------------------------------------------- DIR LIST
-const std::string Parser::_httpDirectives[N_HTTP_DIR] = {
-	"keepalive_timeout",
-	"client_body_buffer_size",
-	"server" };
-const std::string Parser::_serverDirectives[N_SERVER_DIR] = {
-	"server_name",
-	"listen",
-	"root",
-	"location" };
-const std::string Parser::_locationDirectives[N_LOCATION_DIR] = {
-	"uri", 
-	"root", 
-	"index", 
-	"method", 
-	"autoindex", 
-	"cgi" };
 
 // -------------------------------------------------------- UNUSED CONSTRUCTORS
 Parser::Parser( void ) {/* Not needed */};

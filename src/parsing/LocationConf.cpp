@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 09:58:53 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:48:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,32 @@ size_t LocationConf::getIndex( void ) { return (_i); };
 std::map<std::string, std::string> LocationConf::getSettings( void ) { return (_settings); };
 
 void LocationConf::setSettings( std::string key, std::string value ) { _settings[key] = value; };
+
+// -------------------------------------------------------------- CONF CHECKING
+void LocationConf::checkConfiguration( void ) {
+	for (size_t i = 0; i < N_LOCATION_DIR-1; i++) {
+		if (_settings.find(locationDirectives[i]) == _settings.end())
+			_settings[locationDirectives[i]] = locationDefaults[i];
+	}
+}
+
+// ------------------------------------------------------------- DIRECTIVE LIST
+const std::string LocationConf::locationDirectives[N_LOCATION_DIR] = {
+	"uri", 
+	"root", 
+	"index", 
+	"method", 
+	"autoindex", 
+	"cgi"
+};
+const std::string LocationConf::locationDefaults[N_LOCATION_DIR] = {
+	/* uri */		"/", 
+	/* root */		"/", 
+	/* index */		"index index.html", 
+	/* method */	"GET", 
+	/* autoindex */	"false", 
+	/* cgi */		"---SET A DEFAULT---"
+};
 
 // -------------------------------------------------------------------- DISPLAY
 void LocationConf::displayLocationSettings( void ) {

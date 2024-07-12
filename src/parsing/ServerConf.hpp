@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 15:34:44 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:24:11 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:42:12 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,10 @@ class ServerConf
 		void addLocation( void );
 		void displayServerSettings( void ); // ------------------------ DISPLAY
 		
+		void checkConfiguration( void ); // ------------------------ CONFIGURATION
+		static const std::string serverDirectives[N_SERVER_DIR];
+		static const std::string serverDefaults[N_SERVER_DIR-1];
+
 	private:
 		ServerConf( void ); // -------------------------------- UNUSED CONSTRUCTORS
 		void operator=( const ServerConf& );

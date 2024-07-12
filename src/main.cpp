@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 16:50:25 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:42:08 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int main ( int argc, char** argv ) {
 		std::vector<ServerConf>::iterator serverIt = configuration.getHttp().getServer().begin();
 		while (serverIt != configuration.getHttp().getServer().end()) {
 			// Server httpServer;
-			// Server s((*serverIt).getSettings());
+			Server s((*serverIt).getSettings());
 			
 			// Server.setPortAvailable();
 			// Server.bindSocket();

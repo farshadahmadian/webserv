@@ -3,83 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 16:26:11 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:49:09 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(void): 
-	_listeningSocket(ListeningSocket()), 
+Server::Server( std::map<std::string, std::string> settings ):
+	_serverName(settings["server_name"]),
+	_root(settings["/"]),
+	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["ip"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()), 
-	_maxIncomingConnections(10), 
 	_monitoredFdsNum(0), 
-	_monitoredFds(NULL), 
 	_request(std::map<std::string, std::string>()) {
-
-	this->_monitoredFds = new struct pollfd[this->_maxIncomingConnections + 1];
-	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (this->_maxIncomingConnections + 1));
-	for (unsigned int i = 0; i < this->_maxIncomingConnections + 1; i++)
-	{
+	
+	// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
+	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
+	for (unsigned int i = 0; i < MAX_CONNECTIONS + 1; i++)
 		this->_monitoredFds[i].fd = -1;
-	}
 	this->_monitoredFds[0].fd = this->_listeningSocket.getSocketFd();
 	this->_monitoredFds[0].events = POLLIN;
 	this->_monitoredFdsNum++;
-	return;
-}
-
-Server::Server( std::map<std::string, std::string> settings ) { // new from nico
-	(void) settings;
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-	// from the map of settings to set the real options for the server
-}
-
-Server::Server(Server const &other) : _listeningSocket(other._listeningSocket),  _connectedSockets(other._connectedSockets), _maxIncomingConnections(other._maxIncomingConnections), _monitoredFdsNum(other._monitoredFdsNum), _monitoredFds(NULL) {
-
-	// deep copy _monitoredFds
-	// _request
-	return;
-}
-
-// Server::Server(Server const &other) {
-// 	*this = other;
-// 	return;
-// }
-
-Server::Server(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : _listeningSocket(maxIncomingConnections, ip, port),  _connectedSockets(std::map<int, ConnectedSocket>()), _maxIncomingConnections(maxIncomingConnections), _monitoredFdsNum(0), _monitoredFds(NULL), _request(std::map<std::string, std::string>()) {
-
-	this->_monitoredFds = new struct pollfd[this->_maxIncomingConnections + 1];
-	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (this->_maxIncomingConnections + 1));
-	for (unsigned int i = 0; i < this->_maxIncomingConnections + 1; i++)
-	{
-		this->_monitoredFds[i].fd = -1;
-	}
-	this->_monitoredFds[0].fd = this->_listeningSocket.getSocketFd();
-	this->_monitoredFds[0].events = POLLIN;
-	this->_monitoredFdsNum++;
-	return;
-}
-
-Server &Server::operator=(Server const &rhs) {
-	if (this != &rhs)
-	{
-		this->_listeningSocket = rhs._listeningSocket;
-		this->_connectedSockets = rhs._connectedSockets;
-		this->_monitoredFdsNum = rhs._monitoredFdsNum;
-		this->_maxIncomingConnections = rhs._maxIncomingConnections;
-		//deep copy _monitorFds
-		//_request
-	}
-	return *this;
+	std::cout << GREEN <<  "* Server [ " << _serverName << " ] created successfully." <<  RESET << std::endl;
 }
 
 Server::~Server(void) {
@@ -91,14 +39,11 @@ Server::~Server(void) {
 	// for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 	// 	close(iterator->second.getSocketFd());
 
-	delete this->_monitoredFds;
-
+	// delete this->_monitoredFds;
 	return;
 }
 
-ListeningSocket const &Server::getListeningSocket(void) const {
-	return this->_listeningSocket;
-}
+ListeningSocket const &Server::getListeningSocket(void) const { return (this->_listeningSocket); }
 
 void Server::printConnectedSockets(void) {
 	std::map<int, ConnectedSocket>::iterator iterator;
@@ -198,7 +143,7 @@ void Server::startPoll(void) {
 			if (reventResult != 0) {
 			std::cout << "Listening socket wiht fd " << this->_monitoredFds[i].fd << " has data to be read" << std::endl;
 			
-			if (this->_monitoredFdsNum <= this->_maxIncomingConnections && i == 0) {
+			if (this->_monitoredFdsNum <= MAX_CONNECTIONS && i == 0) {
 				connectedSocketFd = this->acceptFirstRequestInQueue();
 				this->_monitoredFdsNum++;
 				for (unsigned int j = 0; j < this->_monitoredFdsNum; j++)
@@ -297,7 +242,7 @@ void Server::handleEventsOnListeningSocket(unsigned int i) {
 		// 	throw Exception("Event error", EVENT_ERROR);
 		// }
 
-		if ((this->_monitoredFds[i].revents & POLLIN) && (this->_monitoredFdsNum <= this->_maxIncomingConnections))	{
+		if ((this->_monitoredFds[i].revents & POLLIN) && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
 			int connectedSocketFd = this->acceptFirstRequestInQueue();
 			this->addToMonitorsFds(connectedSocketFd);
 			this->_monitoredFdsNum++;
@@ -313,7 +258,7 @@ void Server::handleEventsOnListeningSocket(unsigned int i) {
 }
 
 void Server::addToMonitorsFds(int connectedSocketFd) {
-	for (unsigned int i = 0; i <= this->_maxIncomingConnections ;i++) {
+	for (unsigned int i = 0; i <= MAX_CONNECTIONS ;i++) {
 		if (this->_monitoredFds[i].fd == -1)
 		{
 			this->_monitoredFds[i].fd = connectedSocketFd;

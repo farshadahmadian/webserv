@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 16:48:42 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/12 14:29:44 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,6 @@
 #define	ENDVALUE(c)			((c) == ';')
 
 /* List of possible context directives */
-#define N_HTTP_DIR		3
-#define N_SERVER_DIR	4
-#define N_LOCATION_DIR	6
 
 enum indentation {
 	INIT = -1,
@@ -49,6 +46,7 @@ class Parser
 		indentation _prevLvl; // -------------------------------------- PARSING
 		indentation _currLvl;
 		indentation _activeContext;
+
 		void checkFile( int argc, char** argv, std::ifstream& );
 		bool isDirectory( char* path );
 		void parse( std::ifstream& confFile );
@@ -60,14 +58,9 @@ class Parser
 		bool isCorrectContextOpen( void );
 		std::string extractValue( std::string& line );
 		void updateConfiguration(std::string directive, std::string value);
-		void checkConfiguration( void );
 
 		std::string displayIndentantion( indentation ); // ------------ DISPLAY
 		void displayParseState( std::string line );
-
-		static const std::string _httpDirectives[N_HTTP_DIR]; // ---- DIR LISTS
-		static const std::string _serverDirectives[N_SERVER_DIR];
-		static const std::string _locationDirectives[N_LOCATION_DIR];
 
 		class FileExcept; // --------------------------------------- EXCEPTIONS
 		class ParseExcept;
