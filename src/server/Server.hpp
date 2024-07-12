@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 15:49:00 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/13 00:20:23 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # include <map>
 # include <fstream>
 # include <sstream>
-# include "./exception/Exception.hpp"
+# include "Exception.hpp"
 # include "../sockets/listening-socket/ListeningSocket.hpp"
 # include "../sockets/connected-socket/ConnectedSocket.hpp"
 # include "../server/Server.hpp"
