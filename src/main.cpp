@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/13 00:18:09 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/14 23:56:18 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,15 @@ int main ( int argc, char** argv ) {
 			// Server httpServer;
 			Server s((*serverIt).getSettings());
 			
-			// Server.setPortAvailable();
-			// Server.bindSocket();
-			// Server.listenToRequests();
+			s.setPortAvailable();
+			s.bindSocket();
+			s.listenToRequests();
 
-			// while (true)
-			// {
-			// 	Server.startPoll2();
-			// 	Server.printConnectedSockets();
-			// }
+			while (true)
+			{
+				s.startPoll2();
+				s.printConnectedSockets();
+			}
 			serverIt++;
 		}
 		
