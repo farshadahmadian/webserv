@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 15:49:09 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 16:44:13 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void Server::printConnectedSockets(void) {
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
-	std::cout << "Connected Sockets List:" << std::endl;
+	// std::cout << "Connected Sockets List:" << std::endl;
 	for(iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
 }
@@ -197,8 +197,8 @@ void Server::startPoll2(void) {
 			throw pollException;
 		}
 
-		if (eventsNum == 0)
-			std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
+		// if (eventsNum == 0)
+		// 	std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
 
 		if (eventsNum > 0)
 		{
@@ -220,6 +220,16 @@ void Server::handleEvents(void) {
 	try {
 		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
 		{
+			//navid_code from here ->
+			if (this->_monitoredFds[i].revents == 0) {
+                continue;
+            }
+            if (this->_monitoredFds[i].revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                close(this->_monitoredFds[i].fd);
+                this->_monitoredFds[i].fd = -1;
+                continue;
+            }
+			// ->! to here
 			if (this->_monitoredFds[i].fd == this->_listeningSocket.getSocketFd())
 			{
 				std::cout << "handling event on the listening socket" << std::endl;
@@ -269,40 +279,57 @@ void Server::addToMonitorsFds(int connectedSocketFd) {
 }
 
 void Server::handleEventsOnConnectedSockets(unsigned int i) {
+
 			std::cout << "this->_monitoredFds[" << i << "].fd = "  << this->_monitoredFds[i].fd << std::endl;
 			std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
 			std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
 			std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
 	try {
 		if (this->_monitoredFds[i].revents & POLLIN) {
-			char receive[20048];
-			receive[20047] = '\0';
-			ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
-			std::cout << "received request:\n" << GREEN << receive << RESET << std::endl;
-			if (result == -1)
-				throw Exception("Receive Failed", RECEIVE_FAILED);
-			// close(this->_monitoredFds[i].fd);
-			// this->_monitoredFdsNum--;
-			this->parseRequest(static_cast<std::string>(receive));
-			this->printRequest();
-
+			//naivd_code from here ->
+			HTTPRequest	httpreq(""); //navid_code
+			httpreq.handleRequest(this->_monitoredFds[i].fd);
+			// char receive[20048];
+			// receive[20047] = '\0';
+			// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
+			// if (result == -1)
+			// 	throw Exception("Receive Failed", RECEIVE_FAILED);
+			// // close(this->_monitoredFds[i].fd);
+			// // this->_monitoredFdsNum--;
+			// this->parseRequest(static_cast<std::string>(receive));
+			// this->printRequest();
+			_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
+            std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
 		}
 
 		if (this->_monitoredFds[i].revents & POLLOUT) {
-			std::cout << "sending the response\n";
+			std::cout << MAGENTA "sending the response\n" RESET;
 			std::string htmlContent = this->readHtmlFile("./src/index.html");
 			std::ostringstream ss;
-			ss << "HTTP/1.1 200 OK\r\n";
-			ss << "Content-Type: text/html\r\n";
-			ss << "Content-Length:" << htmlContent.size() << "\r\n";
-			ss << "\r\n";
+			// ss << "HTTP/1.1 200 OK\r\n";
+			// ss << "Content-Type: text/html\r\n";
+			// ss << "Content-Length:" << htmlContent.size() << "\r\n";
+			// ss << "\r\n";
+			// ss << htmlContent;
+			// size_t size = ss.str().size();
+			// // std::cout << ss.str() << std::endl;
+			// send(this->_monitoredFds[i].fd, ss.str().c_str(), size, 0);
+			// close(this->_monitoredFds[i].fd);
+			// this->_monitoredFdsNum--;
+			std::string response = _responses[this->_monitoredFds[i].fd];
+			ss << response;
 			ss << htmlContent;
-			size_t size = ss.str().size();
-			// std::cout << ss.str() << std::endl;
-			send(this->_monitoredFds[i].fd, ss.str().c_str(), size, 0);
-			close(this->_monitoredFds[i].fd);
-			this->_monitoredFdsNum--;
+            // Send the response
+            // send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+			send(this->_monitoredFds[i].fd, ss.str().c_str(), ss.str().size(), 0);
+            close(this->_monitoredFds[i].fd);
+            this->_monitoredFds[i].fd = -1;
+            this->_monitoredFdsNum--;
+
+            // Remove the response from the map
+            _responses.erase(this->_monitoredFds[i].fd);
 		}
+		// ->! to here
 		// else {
 		// 	throw Exception("Exception in connected socket!", EVENT_ERROR);
 		// }
@@ -313,12 +340,14 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 }
 
 std::string Server::readHtmlFile(std::string path) {
-	std::ifstream fileStream;
-	fileStream.open(path.c_str());
+	std::ifstream fileStream(path.c_str());
+	// fileStream.open(path.c_str());
 	if (fileStream.is_open())
 		std::cout << "file is open\n";
-	else
+	else{
 		perror("error:");
+		return ("");
+	}
 	std::ostringstream ss;
 	ss << fileStream.rdbuf();
 	// std::cout << ss.str() << std::endl;

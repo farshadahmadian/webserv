@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/14 23:56:18 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/15 16:16:19 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 int main ( int argc, char** argv ) {
 	try {
 		Parser configuration(argc, argv);
-		configuration.displayConf();
+		// configuration.displayConf();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
 		std::vector<ServerConf>::iterator serverIt = configuration.getHttp().getServer().begin();
@@ -39,7 +39,7 @@ int main ( int argc, char** argv ) {
 			while (true)
 			{
 				s.startPoll2();
-				s.printConnectedSockets();
+				// s.printConnectedSockets();
 			}
 			serverIt++;
 		}

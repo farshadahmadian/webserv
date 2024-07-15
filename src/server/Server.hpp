@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/13 00:20:23 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/15 16:19:53 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <poll.h>
 # include <map>
 # include <fstream>
+# include "../request/HttpRequest.hpp"
 # include <sstream>
 # include "Exception.hpp"
 # include "../sockets/listening-socket/ListeningSocket.hpp"
@@ -39,6 +40,7 @@ class Server {
 		unsigned int _monitoredFdsNum;
 		struct pollfd _monitoredFds[MAX_CONNECTIONS];
 		std::map<std::string, std::string> _request;
+		std::map<int, std::string> _responses; //navid_code
 
 		void handleEvents(void);
 		void handleEventsOnListeningSocket(unsigned int i);
