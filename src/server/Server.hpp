@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/15 16:19:53 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/16 00:04:37 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Server {
 		struct pollfd _monitoredFds[MAX_CONNECTIONS];
 		std::map<std::string, std::string> _request;
 		std::map<int, std::string> _responses; //navid_code
+		std::map<std::string, std::string> _settings; //navid_code
 
 		void handleEvents(void);
 		void handleEventsOnListeningSocket(unsigned int i);

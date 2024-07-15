@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/15 16:37:38 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/16 00:30:49 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include "colors.h"
 # include "errors.h"
 # include "../exception/Exception.hpp"
+# include "../parsing/HttpConf.hpp"
 
 #include <string>
 #include <map>
@@ -41,11 +42,14 @@
 
 class HTTPRequest {
 public:
-	HTTPRequest(const std::string& request);
+	// HTTPRequest(const std::string& request);
+	HTTPRequest(std::map<std::string, std::string> serverConfig);
 	bool parse();
 	int validate();
 	std::string getResponse();
 	void handleRequest(int clientSocket);
+	std::string readHtmlFile(std::string path);
+	
 
 private:
 	std::string _request;
@@ -54,6 +58,8 @@ private:
 	std::string _version;
 	std::map<std::string, std::string> _headers;
     std::string _body;
+	std::map<std::string, std::string> _serverConfig;
+
 
     std::string handleGet();
     std::string handlePost();

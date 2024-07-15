@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/15 17:18:43 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/16 00:53:00 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HTTPRequest::HTTPRequest(const std::string& req) : _request(req) {}
+HTTPRequest::HTTPRequest(std::map<std::string, std::string> serverConfig) : _serverConfig(serverConfig) {}
 
 bool HTTPRequest::isValidMethod(const std::string& mthd) {
 	return (mthd == "GET" || mthd == "POST" || mthd == "HEAD");
@@ -97,6 +97,9 @@ bool HTTPRequest::parse() {
 	for(; itr != _headers.end(); itr++)
 		std::cout << ORG << itr->first << ":" BLUE << itr->second << RESET << std::endl;
 
+	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
+	for(; itrr != _serverConfig.end(); itrr++)
+		std::cout << MAGENTA << itrr->first << "--->" ORG << itrr->second << RESET << std::endl; 
 
 	//parsing the post 
 	if (_method == "POST") {
@@ -116,9 +119,11 @@ int HTTPRequest::validate() {
 std::string HTTPRequest::getResponse() {
 	int statusCode = validate();
 
+	std::cout << BLUE << _method << RESET << std::endl;
     if (statusCode != 200) {
         return httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
     }
+
 
     if (_method == "GET") {
         return handleGet();
@@ -127,14 +132,25 @@ std::string HTTPRequest::getResponse() {
     } else if (_method == "DELETE") {
         return handleDelete();
     }
-
     return httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>";
 
 }
 
 std::string HTTPRequest::handleGet() {
+	std::ostringstream headers;
+	if (_uri == "/" || _uri == "/index.html")
+	{
+		std::cout << RED "inside Get ......." RESET << std::endl;
+		std::string readHtml = readHtmlFile("./src/index.html");
+		headers << httpStatusCode(200);
+		headers << "Server: " + _serverConfig["server_name"];
+		headers << "\r\nContent-Type: text/html\r\n";
+		headers << "Content-Length: " << readHtml.size() << "\r\n\r\n";
+		headers << readHtml;
+	}
     // Placeholder implementation
-    return httpStatusCode(200) + "Content-Type: text/html\r\n\r\n<html><body><h1>GET Request Received</h1></body></html>";
+    // return httpStatusCode(200) + "Content-Type: text/html\r\n\r\n<html><body><h1>GET Request Received</h1></body></html>";
+    return headers.str();
 }
 
 std::string HTTPRequest::handlePost() {
@@ -178,4 +194,17 @@ void HTTPRequest::handleRequest(int clientSocket) {
     }
 
     close(clientSocket);
+}
+
+std::string HTTPRequest::readHtmlFile(std::string path) {
+	std::ifstream fileStream(path.c_str());
+	if (fileStream.is_open())
+		std::cout << "file is open\n";
+	else{
+		perror("error:");
+		return ("");
+	}
+	std::ostringstream ss;
+	ss << fileStream.rdbuf();
+	return ss.str();
 }

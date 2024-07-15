@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/15 16:44:13 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/16 00:58:20 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ Server::Server( std::map<std::string, std::string> settings ):
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["ip"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()), 
 	_monitoredFdsNum(0), 
-	_request(std::map<std::string, std::string>()) {
+	_request(std::map<std::string, std::string>()),
+	_settings(settings) {
 	
 	// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
@@ -287,7 +288,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 	try {
 		if (this->_monitoredFds[i].revents & POLLIN) {
 			//naivd_code from here ->
-			HTTPRequest	httpreq(""); //navid_code
+			HTTPRequest	httpreq(_settings); //navid_code
 			httpreq.handleRequest(this->_monitoredFds[i].fd);
 			// char receive[20048];
 			// receive[20047] = '\0';
@@ -304,8 +305,8 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 
 		if (this->_monitoredFds[i].revents & POLLOUT) {
 			std::cout << MAGENTA "sending the response\n" RESET;
-			std::string htmlContent = this->readHtmlFile("./src/index.html");
-			std::ostringstream ss;
+			// std::string htmlContent = this->readHtmlFile("./src/index.html");
+			// std::ostringstream ss;
 			// ss << "HTTP/1.1 200 OK\r\n";
 			// ss << "Content-Type: text/html\r\n";
 			// ss << "Content-Length:" << htmlContent.size() << "\r\n";
@@ -317,17 +318,18 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 			// close(this->_monitoredFds[i].fd);
 			// this->_monitoredFdsNum--;
 			std::string response = _responses[this->_monitoredFds[i].fd];
-			ss << response;
-			ss << htmlContent;
+			// ss << response;
+			// ss << htmlContent;
             // Send the response
-            // send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-			send(this->_monitoredFds[i].fd, ss.str().c_str(), ss.str().size(), 0);
+            send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+			// send(this->_monitoredFds[i].fd, ss.str().c_str(), ss.str().size(), 0);
             close(this->_monitoredFds[i].fd);
             this->_monitoredFds[i].fd = -1;
             this->_monitoredFdsNum--;
 
             // Remove the response from the map
             _responses.erase(this->_monitoredFds[i].fd);
+			std::cout << RED << response << RESET;
 		}
 		// ->! to here
 		// else {
@@ -365,7 +367,6 @@ void Server::parseRequest(std::string request) {
 	// std::cout << "Method = " << method << std::endl;
 	// std::cout << "path = " << path << std::endl;
 	// std::cout << "httpVersion = " << httpVersion << std::endl;
-
 	this->_request["method"] = method;
 	this->_request["path"] = path;
 	this->_request["httpVersion"] = httpVersion;
