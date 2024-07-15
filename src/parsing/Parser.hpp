@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/12 14:29:44 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 12:05:27 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Parser
 		indentation _prevLvl; // -------------------------------------- PARSING
 		indentation _currLvl;
 		indentation _activeContext;
+		int _line_counter;
 
 		void checkFile( int argc, char** argv, std::ifstream& );
 		bool isDirectory( char* path );
@@ -83,8 +84,9 @@ class Parser::ParseExcept: public std::exception
 {
 	private:
 		int	_n;
+		int	_line_counter;
 	public:
-		ParseExcept( parse_err n );
+		ParseExcept( parse_err n, int line_counter );
 		const char* what() const throw();
 };
 

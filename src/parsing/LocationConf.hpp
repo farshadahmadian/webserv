@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 14:32:58 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/12 15:48:52 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 12:26:59 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class LocationConf
 		LocationConf( size_t );
 		~LocationConf( void );
 		LocationConf( const LocationConf& );
-	
+
 		size_t getIndex( void );
 		std::map<std::string, std::string> getSettings( void );
 		void setSettings( std::string key, std::string value );
@@ -29,10 +29,9 @@ class LocationConf
 
 		void checkConfiguration( void ); // --------------------- CONFIGURATION
 		static const std::string locationDirectives[N_LOCATION_DIR];
-		static const std::string locationDefaults[N_LOCATION_DIR];
-	
 	private: // ----------------------------------------------- PRIVATE MEMBERS
 		size_t _i;
+		// std::vector<> _nothgin
 		std::map<std::string, std::string> _settings;
 
 		LocationConf( void ); // ------------------------------ UNUSED CONSTRUCTORS

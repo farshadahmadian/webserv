@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Exception.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:25:05 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 16:18:54 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/15 08:50:58 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Exception : public std::exception {
 
 		enum server_err getError(void) const;
 		void setError(enum server_err error);
-	
+
 	private:
 		std::string _errMsg;
 		enum server_err _error;

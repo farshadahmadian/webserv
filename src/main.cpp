@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/12 15:42:08 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 09:07:45 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 #include "./parsing/Parser.hpp"
 
-/*  
+/*
 	- Check verbosity of the parser: displayConf can be verbose=1 while parser steps are verbose=2
 	- with verbose=0 there is not output for the configuration
 	- when default settings are choosen, warn the user
@@ -33,23 +33,26 @@ int main ( int argc, char** argv ) {
 		while (serverIt != configuration.getHttp().getServer().end()) {
 			// Server httpServer;
 			Server s((*serverIt).getSettings());
-			
-			// Server.setPortAvailable();
-			// Server.bindSocket();
-			// Server.listenToRequests();
 
-			// while (true)
-			// {
-			// 	Server.startPoll2();
-			// 	Server.printConnectedSockets();
-			// }
+			s.setPortAvailable();
+			s.bindSocket();
+			s.listenToRequests();
+
+			while (true)
+			{
+				s.startPoll2();
+				s.printConnectedSockets();
+			}
 			serverIt++;
 		}
-		
-	} catch(Exception const &exception) {
-		std::cerr << RED << exception.what() << RESET << std::endl;
-		return exception.getError();
+	} catch (std::exception& e) {
+		std::cerr << R("Error: ") << e.what() << std::endl;
+		return (1);
 	}
+	// } catch(Exception const &exception) {
+	// 	std::cerr << RED << exception.what() << RESET << std::endl;
+	// 	return exception.getError();
+	// }
 
 	// memoryTest();
 

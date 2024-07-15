@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/12 11:38:32 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/15 11:56:13 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,10 +27,12 @@ VPATH		=	src \
 				src/parsing
 
 PARSING_CPP	=	Parser.cpp \
+				Block.cpp \
 				HttpConf.cpp \
 				ServerConf.cpp \
 				LocationConf.cpp
 PARSING_HPP	=	./src/parsing/Parser.hpp \
+				./src/parsing/Block.hpp \
 				./src/parsing/HttpConf.hpp \
 				./src/parsing/ServerConf.hpp \
 				./src/parsing/LocationConf.hpp
@@ -45,7 +47,7 @@ SOCKETS_HPP	=	./src/sockets/socket/Socket.hpp \
 SERVER_CPP	=	Server.cpp \
 				Exception.cpp
 SERVER_HPP	=	./src/server/Server.hpp \
-				./src/exception/Exception.hpp 
+				./src/exception/Exception.hpp
 
 # files to tidy up
 EXTRA_CPP	=	memoryTest.cpp
@@ -74,15 +76,6 @@ INCLUDE		=	-I./include/ \
 OBJS_PATH	=	objs
 OBJS		=	$(SRCS:%.cpp=$(OBJS_PATH)/%.o)
 
-# Verbosity can be defined like 'make VERBOSE=1;' The default by doing 'make' is 0
-# Only three levels are allowed:
-#	0 = the minimal messages we want to show, default behavior of the program.
-#	1 = additional useful messages, like a setting felt back to a default value
-#		(ex. the server block in parsing has no port, so the automatic is 80; this is notified).
-#	2 = unuseful information, like the steps performed by the parsing, useful only
-#		for debugging pourposes.
-VERBOSE		?=	0
-
 # ----------------------------------------------------------------------- BASIC
 all: $(NAME)
 
@@ -91,7 +84,7 @@ $(NAME): $(OBJS)
 
 $(OBJS_PATH)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(OBJS_PATH)
-	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ -DVERBOSE=$(VERBOSE)
+	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
 	rm -rf $(OBJS_PATH)

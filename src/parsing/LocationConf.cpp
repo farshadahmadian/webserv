@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/12 15:48:24 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 11:17:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ LocationConf::~LocationConf( void ) {};
 LocationConf::LocationConf( const LocationConf& obj ):
 	_i(obj._i),
 	_settings(obj._settings) {};
-LocationConf::LocationConf ( size_t i ): 
+LocationConf::LocationConf ( size_t i ):
 	_i(i),
 	_settings(std::map<std::string, std::string>()) {};
 
@@ -30,29 +30,20 @@ void LocationConf::setSettings( std::string key, std::string value ) { _settings
 // -------------------------------------------------------------- CONF CHECKING
 void LocationConf::checkConfiguration( void ) {
 	for (size_t i = 0; i < N_LOCATION_DIR-1; i++) {
-		if (_settings.find(locationDirectives[i]) == _settings.end())
-			_settings[locationDirectives[i]] = locationDefaults[i];
+		// if (_settings.find(locationDirectives[i]) == _settings.end())
+		// 	_settings[locationDirectives[i]] = locationDefaults[i];
 	}
 }
 
 // ------------------------------------------------------------- DIRECTIVE LIST
 const std::string LocationConf::locationDirectives[N_LOCATION_DIR] = {
-	"uri", 
-	"root", 
-	"index", 
-	"method", 
-	"autoindex", 
+	"uri",
+	"root",
+	"index",
+	"method",
+	"autoindex",
 	"cgi"
 };
-const std::string LocationConf::locationDefaults[N_LOCATION_DIR] = {
-	/* uri */		"/", 
-	/* root */		"/", 
-	/* index */		"index index.html", 
-	/* method */	"GET", 
-	/* autoindex */	"false", 
-	/* cgi */		"---SET A DEFAULT---"
-};
-
 // -------------------------------------------------------------------- DISPLAY
 void LocationConf::displayLocationSettings( void ) {
 	std::cout << G("          [LOCATION]") << std::endl;

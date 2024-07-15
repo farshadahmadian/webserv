@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 09:45:52 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/12 14:23:42 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 12:24:44 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,21 +24,22 @@ class HttpConf
 		~HttpConf( void );
 		void displayHttpSettings( void ); // -------------------------- DISPLAY
 
-	public: // ------------------------------------------------- PUBLIC MEMBERS
 		std::vector<ServerConf>& getServer( void );
 		size_t& getServerNumber( void );
 		std::map<std::string, std::string> getSettings( void );
 
 		void addServer( void );
 		void addLocation( void );
+		void setDefaults( void );
+		// void setSettings( std::string directive, std::string value );
 		void setHttpSettings( std::string directive, std::string value );
 		void setServerSettings( std::string directive, std::string value );
 		void setLocationSettings( std::string directive, std::string value );
 
 		void checkConfiguration( void ); // ------------------------ CONFIGURATION
 		static const std::string httpDirectives[N_HTTP_DIR];
-		static const std::string httpDefaults[N_HTTP_DIR-1];
 	private: // ----------------------------------------------- PRIVATE MEMBERS
+		// block _type;
 		size_t _n_server;
 		std::vector<ServerConf> _server;
 		std::map<std::string, std::string> _settings;
