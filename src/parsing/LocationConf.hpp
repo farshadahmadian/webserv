@@ -5,37 +5,35 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/12 14:32:58 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/15 12:26:59 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/07/16 12:33:07 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/16 16:02:54 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __LOCATIONCONF_HPP__
 # define __LOCATIONCONF_HPP__
 
-#include "../../include/parser.h"
+#include "AConf.hpp"
+#include "LocationConf.hpp"
 
-class LocationConf
+class LocationConf: public AConf
 {
-	public: // ---------------------------------------------- USED CONSTRUCTORS
-		LocationConf( size_t );
+	public:
+		LocationConf( std::map<std::string, std::string> settings );
 		~LocationConf( void );
-		LocationConf( const LocationConf& );
 
-		size_t getIndex( void );
-		std::map<std::string, std::string> getSettings( void );
-		void setSettings( std::string key, std::string value );
-		void displayLocationSettings( void );  // --------------------- DISPLAY
+		void setSpecificSettingsDefaults( void );
+		void setSetting( std::string key, std::string value, context active );
+		void addNestedBlock( context type );
 
-		void checkConfiguration( void ); // --------------------- CONFIGURATION
+		void checkConfiguration( void );
+		void displaySettings( void ) const;
 		static const std::string locationDirectives[N_LOCATION_DIR];
-	private: // ----------------------------------------------- PRIVATE MEMBERS
-		size_t _i;
-		// std::vector<> _nothgin
-		std::map<std::string, std::string> _settings;
 
-		LocationConf( void ); // ------------------------------ UNUSED CONSTRUCTORS
-		void operator=( const LocationConf& );
+	private:
+		// UN-USED CONSTRUCTORS
+		LocationConf( void );
+		LocationConf& operator=( const LocationConf& );
 };
 
 #endif /* __LOCATIONCONF_HPP__ */

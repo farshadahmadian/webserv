@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/15 11:56:13 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/16 13:47:09 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,12 +27,12 @@ VPATH		=	src \
 				src/parsing
 
 PARSING_CPP	=	Parser.cpp \
-				Block.cpp \
+				AConf.cpp \
 				HttpConf.cpp \
 				ServerConf.cpp \
 				LocationConf.cpp
 PARSING_HPP	=	./src/parsing/Parser.hpp \
-				./src/parsing/Block.hpp \
+				./src/parsing/AConf.hpp \
 				./src/parsing/HttpConf.hpp \
 				./src/parsing/ServerConf.hpp \
 				./src/parsing/LocationConf.hpp

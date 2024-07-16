@@ -1,51 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Block.hpp                                          :+:      :+:    :+:   */
+/*   HttpConf.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/15 11:47:17 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/15 12:03:14 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/07/09 09:45:52 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/16 12:23:13 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef __HTTPCONF_HPP__
+# define __HTTPCONF_HPP__
 
-#include <vector>
-#include <map>
+#include "ServerConf.hpp"
+#include <stdexcept>
+#include <fstream>
 
-enum block {
-	HTTP,
-	SERVER,
-	LOCATION
-};
-
-class Block
+class HttpConf
 {
 	public: // ---------------------------------------------- USED CONSTRUCTORS
-		Block( void );
-		~Block( void );
+		// HttpConf( std::map<std::string, std::string> settings );
+		HttpConf( void );
+		~HttpConf( void );
 
-		std::vector<Block>& getNestedBlock( void );
+		std::vector<ServerConf>& getServer( void );
 		std::map<std::string, std::string> getSettings( void );
 
-		void addNestedBlock( enum block type );
+		void addNestedBlock( context type );
 		void setDefaults( void );
-		void setSettings( std::string directive, std::string value/* , nesting_level */ );
+		void setSettings( std::string directive, std::string value, context type );
 
 		void checkConfiguration( void ); // ------------------------ CONFIGURATION
+		static const std::string httpDirectives[N_HTTP_DIR];
 
 		void displaySettings( void ); // -------------------------- DISPLAY
-
-	protected:
-		static const std::string sharedDirectives[5];
-
 	private: // ----------------------------------------------- PRIVATE MEMBERS
-		block _type;
-		std::vector<Block> _nested;
+		std::vector<ServerConf> _server;
 		std::map<std::string, std::string> _settings;
 
-		Block( const Block& ); // --------------------------- UNUSED CONSTRUCTORS
-		void operator=( const Block& );
+		HttpConf( const HttpConf& ); // --------------------------- UNUSED CONSTRUCTORS
+		void operator=( const HttpConf& );
 };
+
+#endif /* __HTTPCONF_HPP__ */

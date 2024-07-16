@@ -5,38 +5,43 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/15 12:02:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 16:01:49 by ncasteln         ###   ########.fr       */
+/*   Created: 2024/06/12 15:34:44 by ncasteln          #+#    #+#             */
+/*   Updated: 2024/07/16 09:03:46 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SERVERCONF_HPP__
 # define __SERVERCONF_HPP__
 
-#include "AConf.hpp"
+#include <iostream>
+#include <vector>
 #include "LocationConf.hpp"
+#include "errors.h"
 
-class ServerConf: public AConf
+class ServerConf
 {
 	public:
 		ServerConf( std::map<std::string, std::string> settings );
-		~ServerConf( void );
+		~ServerConf( void );  // -------------------------------- USED CONSTRUCTORS
+		ServerConf( const ServerConf& );
 
-		void setSpecificSettingsDefaults( void );
-		void setSetting( std::string key, std::string value, context active );
+		std::vector<LocationConf>& getLocation( void );
+		std::map<std::string, std::string> getSettings( void );
+
 		void addNestedBlock( context type );
-		const std::vector<LocationConf>& getLocation( void ) const;
+		void setDefaults( void );
+		void setSettings( std::string key, std::string value, context type );
 
-		void checkConfiguration( void );
-		void displaySettings( void ) const;
+		void checkConfiguration( void ); // ------------------------ CONFIGURATION
 		static const std::string serverDirectives[N_SERVER_DIR];
 
+		void displaySettings( void ); // ------------------------ DISPLAY
 	private:
 		std::vector<LocationConf> _location;
+		std::map<std::string, std::string> _settings;
 
-		// UN-USED CONSTRUCTORS
-		ServerConf( void );
-		ServerConf& operator=( const ServerConf& );
+		ServerConf( void ); // -------------------------------- UNUSED CONSTRUCTORS
+		void operator=( const ServerConf& );
 };
 
 #endif /* __SERVERCONF_HPP__ */

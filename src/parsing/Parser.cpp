@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/15 11:49:55 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/16 15:20:33 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,18 @@ void Parser::parse( std::ifstream& confFile ) {
 		setCurrIndentation(line);													// set curr level based on line TABS
 		if (_currLvl == COMMENT) continue;
 		directive = extractDirective(line);											// extract the directive
-		if (!isValidDirective(directive))
+		if (isValidContext(directive)) {
+			openContext(directive);
+			continue;
+		}
+		if (!isValidDirective(directive)) {
 			throw ParseExcept(E_INVDIR, _line_counter);
-		if (openContext(directive)) continue ;
+		}
 		closeContext();																// if the current level of indentation is lower than the one before, one or two context are closed
 		if (!isCorrectContextOpen())												// check if the context for {{{THAT}}} directive is open
 			throw ParseExcept(E_INVCONTEXT, _line_counter);
 		value = extractValue(line);
-		updateConfiguration(directive, value);
+		_http.setSetting(directive, value, _activeContext);
 	}
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER, _line_counter);
 	_http.checkConfiguration();
@@ -131,24 +135,35 @@ std::string Parser::extractDirective( std::string& line ) {
 	return (directive);										// can be also a context names
 }
 
-bool Parser::isValidDirective( std::string directive ) {
-	size_t size;
-	const std::string* list;
+bool Parser::isValidContext( std::string directive ) {
+	if (_currLvl == HTTP && directive == "server")
+		return (true);
+	if (_currLvl == SERVER && directive == "location")
+		return (true);
+	return (false);
+}
 
-	if (_currLvl == HTTP) {
-		list = HttpConf::httpDirectives;
-		size = N_HTTP_DIR;
+bool Parser::isValidDirective( std::string directive ) {
+	const std::string* sharedList = AConf::sharedDirectives;
+	for (size_t i = 0; i < N_SHARED_DIR; i++) {
+		if (sharedList[i] == directive)
+			return (true);
 	}
+	if (_currLvl == HTTP)
+		return (false);
+
+	size_t size;
+	const std::string* specificList;
 	if (_currLvl == SERVER) {
-		list = ServerConf::serverDirectives;
+		specificList = ServerConf::serverDirectives;
 		size = N_SERVER_DIR;
 	}
 	if (_currLvl == LOCATION) {
-		list = LocationConf::locationDirectives;
+		specificList = LocationConf::locationDirectives;
 		size = N_LOCATION_DIR;
 	}
 	for (size_t i = 0; i < size; i++) {
-		if (list[i] == directive)
+		if (specificList[i] == directive)
 			return (true);
 	}
 	return (false);
@@ -157,22 +172,17 @@ bool Parser::isValidDirective( std::string directive ) {
 /*	_activeContext is switched in case the portion of line read is "server" or
 	"location". In those cases, an instance is also created.
 */
-bool Parser::openContext( std::string directive ) {
-	if (directive.compare("server") == 0) {
+void Parser::openContext( std::string directive ) {
+	if (directive == "server")
 		_activeContext = SERVER;
-		_http.addServer();
-		return (true);
-	}
-	if (directive.compare("location") == 0) {
+	else if (directive == "location") {
 		if (_prevLvl == INIT)							// case context_2.conf
 			throw ParseExcept(E_INVCONTEXT, _line_counter);
 		if (_prevLvl == HTTP && _currLvl != SERVER)		// case cut_server.conf
 			throw ParseExcept(E_INVCONTEXT, _line_counter);
 		_activeContext = LOCATION;
-		_http.addLocation();
-		return (true);
 	}
-	return (false);
+	_http.addNestedBlock(_activeContext);
 }
 
 /*	If the currLvl of indentation is lower than the one of the active context,
@@ -207,20 +217,6 @@ std::string Parser::extractValue( std::string& line ) {
 	return (value);
 }
 
-void Parser::updateConfiguration( std::string directive, std::string value ) {
-	// _http::setSetting(directive, value, _activeContext)
-
-	if (_activeContext == HTTP)
-		_http.setHttpSettings(directive, value);
-	if (_activeContext == SERVER)
-		_http.setServerSettings(directive, value);
-	if (_activeContext == LOCATION)
-		_http.setLocationSettings(directive, value);
-}
-
-// -------------------------------------------------------------------- GETTERS
-HttpConf& Parser::getHttp( void ) { return (_http); };
-
 // -------------------------------------------------------------------- DISPLAY
 void Parser::displayParseState( std::string line ) {
 	std::cout << "------------------------------------------------------------" << std::endl;
@@ -229,7 +225,7 @@ void Parser::displayParseState( std::string line ) {
 	std::cout << B("* Curr indentation ") << "[ " << displayIndentantion(_currLvl) << " ]" << std::endl;
 }
 
-std::string Parser::displayIndentantion( indentation ind ) {
+std::string Parser::displayIndentantion( context ind ) {
 	if (ind == HTTP) return ("http");
 	if (ind == SERVER) return ("server");
 	if (ind == LOCATION) return ("location");
@@ -238,7 +234,7 @@ std::string Parser::displayIndentantion( indentation ind ) {
 
 void Parser::displayConf( void ) {
 	std::cout << B("***************** { WEB SERVER CONFIGURATION } *****************") << std::endl;
-	_http.displayHttpSettings();
+	_http.displaySettings();
 }
 
 // ----------------------------------------------------------------- EXCEPTIONS

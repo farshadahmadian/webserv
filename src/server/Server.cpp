@@ -6,20 +6,20 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 15:49:09 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/15 13:59:12 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server( std::map<std::string, std::string> settings ):
-	_serverName(settings["server_name"]),
-	_root(settings["/"]),
+	_serverName(settings["server_name"]),	// std::vector<string> _serverNames()
+	_root(settings["/"]),					// std::vector<string> _roots()
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["ip"], settings["port"])),
-	_connectedSockets(std::map<int, ConnectedSocket>()), 
-	_monitoredFdsNum(0), 
+	_connectedSockets(std::map<int, ConnectedSocket>()),
+	_monitoredFdsNum(0),
 	_request(std::map<std::string, std::string>()) {
-	
+
 	// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
 	for (unsigned int i = 0; i < MAX_CONNECTIONS + 1; i++)
@@ -73,7 +73,7 @@ void Server::bindSocket(void) const {
 		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILD);
 		throw exception;
 	}
-	
+
 	// char *ip = new char[100];
 	// char ip[100];
 	// inet_ntop(this->_addressInfo->ai_family, &((reinterpret_cast<sockaddr_in *>(this->_addressInfo->ai_addr))->sin_addr), ip, 100);
@@ -90,13 +90,13 @@ void Server::listenToRequests(void) const {
 		Exception exception("Listening to incoming connections failed!", LISTENING_FAILED);
 		throw exception;
 	}
-	
+
 	std::cout << GREEN << "Listening socket is litening to requests" << RESET << std::endl;
 	return;
 }
 
 int Server::acceptFirstRequestInQueue(void) {
-	
+
 	struct sockaddr_storage incomingConnectionAddress;
 	memset(&incomingConnectionAddress, 0, sizeof(incomingConnectionAddress));
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
@@ -112,7 +112,7 @@ int Server::acceptFirstRequestInQueue(void) {
 
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
-	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl; 
+	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return connectedSocketFd;
 }
@@ -130,11 +130,11 @@ void Server::startPoll(void) {
 		Exception pollException("Error ocurred in poll", POLL_FAILED);
 		throw pollException;
 	}
-	
+
 	if (eventsNum == 0)
 		std::cout << "Timeout! No event received" << std::endl;
 	else if (eventsNum > 0) {
-		
+
 		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
 		{
 			short int reventResult = this->_monitoredFds[i].revents & POLLIN;
@@ -142,7 +142,7 @@ void Server::startPoll(void) {
 
 			if (reventResult != 0) {
 			std::cout << "Listening socket wiht fd " << this->_monitoredFds[i].fd << " has data to be read" << std::endl;
-			
+
 			if (this->_monitoredFdsNum <= MAX_CONNECTIONS && i == 0) {
 				connectedSocketFd = this->acceptFirstRequestInQueue();
 				this->_monitoredFdsNum++;
@@ -154,8 +154,8 @@ void Server::startPoll(void) {
 					this->_monitoredFds[j].events = POLLIN;
 					}
 				}
-				
-				
+
+
 				} else if (i != 0) {
 					// char string[100];
 					std::cout << "this->_monitoredFds[" << i << "].revents = " << this->_monitoredFds[i].revents << std::endl;
@@ -165,7 +165,7 @@ void Server::startPoll(void) {
 					this->_monitoredFds[i].revents = 0;
 					this->_monitoredFdsNum--;
 					this->_connectedSockets.erase(_monitoredFds[i].fd);
-				} 
+				}
 				// else {
 				// 	std::cout << "Maximum connections number reached. Can't accept any more connections!" << std::endl;
 				// 	this->_monitoredFds[0].revents = 0;
@@ -179,14 +179,14 @@ void Server::startPoll(void) {
 		// this->_monitoredFds[0].fd = -1;
 		// this->_monitoredFdsNum--;
 	}
-			
+
 	return;
 }
 
 void Server::startPoll2(void) {
 	// if (this->_monitoredFds[0].fd  == - 1)
 	// {
-		
+
 	// }
 
 	try {
@@ -233,7 +233,7 @@ void Server::handleEvents(void) {
 	}catch(Exception const &exception) {
 		throw exception;
 	}
-	
+
 }
 
 void Server::handleEventsOnListeningSocket(unsigned int i) {
