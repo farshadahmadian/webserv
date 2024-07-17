@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:32:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 15:43:23 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:39:53 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ ServerConf::~ServerConf ( void ) {
 	setSpecificSettingsDefaults();
 };
 
-const std::string ServerConf::serverDirectives[N_SERVER_DIR] = {
+const std::string ServerConf::serverSettings[N_SERVER_DIR] = {
 	"host",
 	"server_name",
 	"port"
@@ -51,25 +51,27 @@ void ServerConf::setSetting( std::string key, std::string value, context type ) 
 		_location.back().setSetting(key, value, type);
 }
 
-void ServerConf::checkConfiguration( void ) {
-	// for (size_t i = 0; i < N_SERVER_DIR-1; i++) {
-	// 	if (_settings.find(serverDirectives[i]) == _settings.end())
-	// 		_settings[serverDirectives[i]] = serverDefaults[i];
-	// }
-	// if (_settings.find("host") == _settings.end()) {
-	// 	// throw
-	// }
-	// if (_settings.find("root") == _settings.end()) {
-	// 	// throw
-	// }
-	// if (_settings.find("port") == _settings.end()) {
-	// 	// throw
-	// }
-	// std::vector<LocationConf>::iterator locationIt = getLocation().begin();
-	// while (locationIt != getLocation().end()) {
-	// 	(*locationIt).checkConfiguration();
-	// 	locationIt++;
-	// }
+
+enum conf_err ServerConf::checkSettings( void ) {
+	enum conf_err n = CONF_SUCCESS;
+
+	// check shared
+	n = checkSharedSettings();
+	if (n) return (n);
+
+	// check specific
+	// PORT			"8080"				: set limit
+	if (!isValidNumber(_settings["port"], "port")) return (E_PORT);
+	if (!isValidHost(_settings["host"])) return (E_HOST);
+
+	// iterate locations
+	std::vector<LocationConf>::iterator locationIt = _location.begin();
+	while (locationIt != _location.end()) {
+		n = (*locationIt).checkSettings();
+		if (n) return (n);
+		locationIt++;
+	}
+	return (n);
 }
 
 void ServerConf::displaySettings( void ) const {

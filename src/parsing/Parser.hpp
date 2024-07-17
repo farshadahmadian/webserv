@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 14:12:33 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:09:25 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ class Parser
 		void displayConf( void );
 
 	private:
-		HttpConf _http; // --------------------------------------------------- CONF
+		HttpConf _http; // ----------------------------------------------- CONF
 
-		context _prevLvl; // -------------------------------------- PARSING
+		context _prevLvl; // ------------------------------------------ PARSING
 		context _currLvl;
 		context _activeContext;
 		int _line_counter;
@@ -42,13 +42,14 @@ class Parser
 		bool isCorrectContextOpen( void );
 		std::string extractValue( std::string& line );
 
-		std::string displayIndentantion( context ); // ------------ DISPLAY
+		std::string displayIndentantion( context ); // ---------------- DISPLAY
 		void displayParseState( std::string line );
 
 		class FileExcept; // --------------------------------------- EXCEPTIONS
 		class ParseExcept;
+		class ConfExcept;
 
-		Parser( void ); // ---------------------------------- UNUSED CONSTRUCTORS
+		Parser( void ); // -------------------------------- UNUSED CONSTRUCTORS
 		Parser( const Parser& );
 		void operator=( const Parser& );
 };
@@ -69,6 +70,16 @@ class Parser::ParseExcept: public std::exception
 		int	_line_counter;
 	public:
 		ParseExcept( parse_err n, int line_counter );
+		const char* what() const throw();
+};
+
+class Parser::ConfExcept: public std::exception
+{
+	private:
+		int	_n;
+		int	_line_counter;
+	public:
+		ConfExcept( conf_err n, int	line_counter );
 		const char* what() const throw();
 };
 

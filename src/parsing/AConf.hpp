@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:24:02 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 15:58:58 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:50:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __ACONF_HPP__
 
 #include "parser.h"
+#include "parse_utils.hpp"
 
 class AConf
 {
@@ -29,12 +30,15 @@ class AConf
 		void setSharedSettingsDefaults( void );
 
 		virtual void addNestedBlock( context type ) = 0;
-		virtual void checkConfiguration( void ) = 0;
 		virtual void setSetting( std::string key, std::string value, context active ) = 0;
 
+		virtual enum conf_err checkSettings( void ) = 0;
+
 	public:
+		enum conf_err checkSharedSettings( void );
+		static const std::string sharedSettings[N_SHARED_DIR];
+
 		virtual void displaySettings( void ) const = 0;
-		static const std::string sharedDirectives[N_SHARED_DIR];
 
 	private:
 		// UN-USED CONSTRUCTORS

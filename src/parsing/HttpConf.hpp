@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 15:28:32 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 16:00:58 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 10:34:41 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@ class HttpConf: public AConf
 		void addNestedBlock( context type );
 		const std::vector<ServerConf>& getServer( void ) const;
 
-		void checkConfiguration( void );
+		enum conf_err checkSettings( void );
+
 		void displaySettings( void ) const;
+
 	private:
 		std::vector<ServerConf> _server;
 

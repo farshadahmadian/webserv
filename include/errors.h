@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/15 11:01:21 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:14:54 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,14 @@ enum parse_err {
 	E_CONTNAME,
 };
 
-
+enum conf_err {
+	E_TIMEOUT = 123,
+	E_AUTOINDEX,
+	E_CLIENTSIZE,
+	E_HOST,
+	E_PORT,
+	CONF_SUCCESS = 0
+};
 
 enum server_err {
 	NO_ERROR = 0,

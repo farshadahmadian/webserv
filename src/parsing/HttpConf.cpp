@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:31:20 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 16:00:06 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:33:35 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,21 @@ void HttpConf::setSetting( std::string key, std::string value, context type ) {
 		_server.back().setSetting(key, value, type);
 }
 
-void HttpConf::checkConfiguration( void ) {
-	/*
-		WHAT TO CHECK ????
-	*/
-	// std::vector<ServerConf>::iterator serverIt = getServer().begin();
-	// while (serverIt != getServer().end()) {
-	// 	(*serverIt).checkConfiguration();
-	// 	serverIt++;
-	// }
+/*	Access the servers to check their specific configurations. the behavior it is
+	a bit different from the other checkSpecficSettings(), since http class has no
+	specific settings to be set.
+*/
+enum conf_err HttpConf::checkSettings( void ) {
+	enum conf_err n = CONF_SUCCESS;
+	n = checkSharedSettings();
+	if (n) return (n);
+	std::vector<ServerConf>::iterator serverIt = _server.begin();
+	while (serverIt != _server.end()) {
+		n = (*serverIt).checkSettings();
+		if (n) return (n);
+		serverIt++;
+	}
+	return (n);
 }
 
 void HttpConf::displaySettings( void ) const {

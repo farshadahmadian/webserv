@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 15:20:33 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:49:13 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,23 +25,6 @@ Parser::Parser( int argc, char** argv ):
 	parse(confFile);
 	confFile.close();
 };
-
-// ---------------------------------------------------------------------- UTILS
-std::string& ltrim( std::string& s, const char* to_trim ) {
-	size_t pos = s.find_first_not_of(to_trim);
-	s.erase(0, pos);
-	return (s);
-}
-
-std::string& rtrim( std::string& s, const char* to_trim ) {
-	size_t pos = s.find_last_not_of(to_trim);
-	s.erase(pos + 1);
-	return (s);
-}
-
-std::string& trim( std::string& s, const char* to_trim ) {
-	return (ltrim(rtrim(s, to_trim), to_trim));
-}
 
 // -------------------------------------------------------------------- PARSING
 void Parser::checkFile( int argc, char** argv, std::ifstream& confFile ) {
@@ -95,7 +78,9 @@ void Parser::parse( std::ifstream& confFile ) {
 		_http.setSetting(directive, value, _activeContext);
 	}
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER, _line_counter);
-	_http.checkConfiguration();
+
+	conf_err n = _http.checkSettings();
+	if (n) throw ConfExcept(n, _line_counter);
 }
 
 /*	Get the number of tabs preceding the line and erase them. To detect some
@@ -127,7 +112,7 @@ std::string Parser::extractDirective( std::string& line ) {
 	size_t firstSpace = line.find_first_of(SPACES);			// go to first space
 	std::string directive = line.substr(0, firstSpace);		// cut the string
 	line.erase(0, directive.length());
-	if (directive.compare("server") == 0 || directive.compare("location") == 0) {
+	if (directive == "server" || directive == "location") {
 		ltrim(line, SPACES);
 		if (!line.empty() && !COMMENT(line[0]) && !ENDVALUE(line[0]))
 			throw ParseExcept(E_CONTNAME, _line_counter);
@@ -144,7 +129,7 @@ bool Parser::isValidContext( std::string directive ) {
 }
 
 bool Parser::isValidDirective( std::string directive ) {
-	const std::string* sharedList = AConf::sharedDirectives;
+	const std::string* sharedList = AConf::sharedSettings;
 	for (size_t i = 0; i < N_SHARED_DIR; i++) {
 		if (sharedList[i] == directive)
 			return (true);
@@ -155,11 +140,11 @@ bool Parser::isValidDirective( std::string directive ) {
 	size_t size;
 	const std::string* specificList;
 	if (_currLvl == SERVER) {
-		specificList = ServerConf::serverDirectives;
+		specificList = ServerConf::serverSettings;
 		size = N_SERVER_DIR;
 	}
 	if (_currLvl == LOCATION) {
-		specificList = LocationConf::locationDirectives;
+		specificList = LocationConf::locationSettings;
 		size = N_LOCATION_DIR;
 	}
 	for (size_t i = 0; i < size; i++) {
@@ -247,19 +232,30 @@ const char* Parser::FileExcept::what() const throw() {
 	return ("Unknow File exception");
 }
 
-Parser::ParseExcept::ParseExcept( parse_err n, int count ): _n(n), _line_counter(count) {};
+Parser::ParseExcept::ParseExcept( parse_err n, int line_counter ): _n(n), _line_counter(line_counter) {};
 const char* Parser::ParseExcept::what() const throw() {
-	std::cerr << "line (" << _line_counter << ") ";
-	if (_n == E_INVDIR) return("invalid conf: directive doesn't exist, or wrong indented");
-	if (_n == E_CONTNAME) return("invalid conf: context name");
-	if (_n == E_ONLYTABS) return("invalid conf: directive expected after tabs");
-	if (_n == E_INVCONTEXT) return("invalid conf: directive declared in wrong context");
-	if (_n == E_INVIND) return("invalid conf: wrong indentation");
-	if (_n == E_ENDDECL) return("invalid conf: directive end not found");
-	if (_n == E_EMPTYVAL) return("invalid conf: empty value");
-	if (_n == E_NOSERVER) return("invalid conf: http has no server");
-	if (_n == E_NOLOCATION) return("invalid conf: server has no location");
-	return ("Unknkow exception");
+	std::cerr << "line (" << _line_counter << ") invalid conf: ";
+	if (_n == E_INVDIR) return("directive doesn't exist, or wrong indented");
+	if (_n == E_CONTNAME) return("invalid context name");
+	if (_n == E_ONLYTABS) return("directive expected after tabs");
+	if (_n == E_INVCONTEXT) return("directive declared in wrong context");
+	if (_n == E_INVIND) return("wrong indentation");
+	if (_n == E_ENDDECL) return("directive end not found");
+	if (_n == E_EMPTYVAL) return("empty value");
+	if (_n == E_NOSERVER) return("http has no server");
+	if (_n == E_NOLOCATION) return("server has no location");
+	return ("Unknkow Parse exception");
+}
+
+Parser::ConfExcept::ConfExcept( conf_err n, int line_counter ): _n(n), _line_counter(line_counter) {};
+const char* Parser::ConfExcept::what() const throw() {
+	std::cerr << "line (" << _line_counter << ") invalid conf: ";
+	if (_n == E_AUTOINDEX) return("autoindex can be only `on` or `off`");
+	if (_n == E_TIMEOUT) return("keepalive_timeout can only be a number between `???` and `???`");
+	if (_n == E_CLIENTSIZE) return("client_body_buffer_size can only be a number between `???` and `???`");
+	if (_n == E_HOST) return("wrong ip format");
+	if (_n == E_PORT) return("port can only be a number between `???` and `???`");
+	return ("Unknkow Conf exception");
 }
 
 // -------------------------------------------------------- UNUSED CONSTRUCTORS

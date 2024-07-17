@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 16:01:42 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:10:10 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 LocationConf::LocationConf( std::map<std::string, std::string> settings ): AConf(settings, LOCATION) {}
 LocationConf::~LocationConf ( void ) {};
 
-const std::string LocationConf::locationDirectives[N_LOCATION_DIR] = {
+const std::string LocationConf::locationSettings[N_LOCATION_DIR] = {
 	"uri",
 	"method",
 	"cgi"
@@ -27,7 +27,6 @@ void LocationConf::setSpecificSettingsDefaults( void ) {
 	_settings["cgi"] = DEFAULT_CGI;
 };
 
-
 void LocationConf::addNestedBlock( context type ) { (void)type; /* not implemented */}
 
 void LocationConf::setSetting( std::string key, std::string value, context type ) {
@@ -35,11 +34,17 @@ void LocationConf::setSetting( std::string key, std::string value, context type 
 		_settings[key] = value;
 }
 
-void LocationConf::checkConfiguration( void ) {
-	// for (size_t i = 0; i < N_LOCATION_DIR-1; i++) {
-	// 	// if (_settings.find(locationDirectives[i]) == _settings.end())
-	// 	// 	_settings[locationDirectives[i]] = locationDefaults[i];
-	// }
+enum conf_err LocationConf::checkSettings( void ) {
+	enum conf_err n = CONF_SUCCESS;
+
+	// check sshared
+	n = checkSharedSettings();
+
+	// check specific
+	// URI				""					: still to decide						-
+	// METHOD			"GET"				: can only be GET POST DELETE			- to do
+	// CGI				""					: still to decide						-
+	return (n);
 }
 
 void LocationConf::displaySettings( void ) const {

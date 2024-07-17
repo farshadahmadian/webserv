@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:02:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 16:01:49 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:09:47 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,10 @@ class ServerConf: public AConf
 		void addNestedBlock( context type );
 		const std::vector<LocationConf>& getLocation( void ) const;
 
-		void checkConfiguration( void );
+		enum conf_err checkSettings( void );
+
 		void displaySettings( void ) const;
-		static const std::string serverDirectives[N_SERVER_DIR];
+		static const std::string serverSettings[N_SERVER_DIR];
 
 	private:
 		std::vector<LocationConf> _location;

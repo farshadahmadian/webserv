@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/16 13:47:09 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/17 11:50:12 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,12 +30,14 @@ PARSING_CPP	=	Parser.cpp \
 				AConf.cpp \
 				HttpConf.cpp \
 				ServerConf.cpp \
-				LocationConf.cpp
+				LocationConf.cpp \
+				parse_utils.cpp
 PARSING_HPP	=	./src/parsing/Parser.hpp \
 				./src/parsing/AConf.hpp \
 				./src/parsing/HttpConf.hpp \
 				./src/parsing/ServerConf.hpp \
-				./src/parsing/LocationConf.hpp
+				./src/parsing/LocationConf.hpp \
+				./src/parsing/parse_utils.hpp
 
 SOCKETS_CPP	=	Socket.cpp \
 				ListeningSocket.cpp \
