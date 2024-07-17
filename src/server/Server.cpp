@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/16 00:58:20 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/17 19:44:46 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,29 +282,36 @@ void Server::addToMonitorsFds(int connectedSocketFd) {
 void Server::handleEventsOnConnectedSockets(unsigned int i) {
 
 			std::cout << "this->_monitoredFds[" << i << "].fd = "  << this->_monitoredFds[i].fd << std::endl;
-			std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
-			std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
-			std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
+			// std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
+			// std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
+			// std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
 	try {
 		if (this->_monitoredFds[i].revents & POLLIN) {
 			//naivd_code from here ->
 			HTTPRequest	httpreq(_settings); //navid_code
-			httpreq.handleRequest(this->_monitoredFds[i].fd);
-			// char receive[20048];
-			// receive[20047] = '\0';
-			// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
-			// if (result == -1)
-			// 	throw Exception("Receive Failed", RECEIVE_FAILED);
-			// // close(this->_monitoredFds[i].fd);
-			// // this->_monitoredFdsNum--;
-			// this->parseRequest(static_cast<std::string>(receive));
-			// this->printRequest();
-			_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
-            std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
+			if (httpreq.handleRequest(this->_monitoredFds[i].fd)){
+
+				// char receive[20048];
+				// receive[20047] = '\0';
+				// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
+				// if (result == -1)
+				// 	throw Exception("Receive Failed", RECEIVE_FAILED);
+				// // close(this->_monitoredFds[i].fd);
+				// // this->_monitoredFdsNum--;
+				// this->parseRequest(static_cast<std::string>(receive));
+				// this->printRequest();
+
+				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
+				std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
+			}
+			else {
+				Exception httpRequestException("httpRequest failed!", HTTP_REQUEST_FAILED);
+				throw httpRequestException;
+			}
 		}
 
 		if (this->_monitoredFds[i].revents & POLLOUT) {
-			std::cout << MAGENTA "sending the response\n" RESET;
+
 			// std::string htmlContent = this->readHtmlFile("./src/index.html");
 			// std::ostringstream ss;
 			// ss << "HTTP/1.1 200 OK\r\n";
@@ -317,24 +324,32 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 			// send(this->_monitoredFds[i].fd, ss.str().c_str(), size, 0);
 			// close(this->_monitoredFds[i].fd);
 			// this->_monitoredFdsNum--;
-			std::string response = _responses[this->_monitoredFds[i].fd];
 			// ss << response;
 			// ss << htmlContent;
             // Send the response
-            send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-			// send(this->_monitoredFds[i].fd, ss.str().c_str(), ss.str().size(), 0);
+			
+			std::string response = _responses[this->_monitoredFds[i].fd];
+			//****************print the provided response in file***********************
+			std::cout << RED "****sending the response\n" RESET;
+			// writHtmlFile(response, "./src/request/response.txt");
+			std::ofstream outfile("./src/request/response.txt");
+			outfile << response << std::endl;
+			outfile.close();
+            //**************************************************************************
+			
+			send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
             close(this->_monitoredFds[i].fd);
             this->_monitoredFds[i].fd = -1;
             this->_monitoredFdsNum--;
 
             // Remove the response from the map
             _responses.erase(this->_monitoredFds[i].fd);
-			std::cout << RED << response << RESET;
+
 		}
 		// ->! to here
-		// else {
-		// 	throw Exception("Exception in connected socket!", EVENT_ERROR);
-		// }
+		else {
+			throw Exception("Exception in connected socket!", EVENT_ERROR);
+		}
 	}catch(Exception const &exception) {
 		throw exception;
 	}

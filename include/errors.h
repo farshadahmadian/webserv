@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/09 12:10:33 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/17 11:09:29 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@ enum server_err {
 	ACCEPTING_FAILED,
 	POLL_FAILED,
 	EVENT_ERROR,
-	RECEIVE_FAILED,
+	CLIENTSOCKET_RECEIVE_FAILED,
+	HTTP_REQUEST_FAILED //navid_code
 };
 
 #endif /* __ERRORS_H__ */

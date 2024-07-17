@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/16 00:30:49 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/17 19:35:23 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <ctime>
+#include <iomanip>
 #include <fstream>
 #include <unistd.h>    // For read, write, close
 #include <iostream>    // For std::cout, std::endl
@@ -47,7 +50,7 @@ public:
 	bool parse();
 	int validate();
 	std::string getResponse();
-	void handleRequest(int clientSocket);
+	bool handleRequest(int clientSocket);
 	std::string readHtmlFile(std::string path);
 	
 
@@ -70,6 +73,9 @@ private:
 	std::string  httpStatusCode(int code);
 };
 
+std::string generateETag(const std::string& filePath, std::string &date, std::string &lastmdf);
+std::string formatTimeHTTP(std::time_t rawTime);
+void	writHtmlFile(std::string request, std::string path);
 #endif
 
 
