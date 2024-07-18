@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 11:35:44 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:50:46 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:35:42 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@ std::string& trim( std::string& s, const char* to_trim ) {
 	return (ltrim(rtrim(s, to_trim), to_trim));
 }
 
-bool isValidHost( std::string value ) { // extract in utils
+bool isValidServerName( std::string value ) { // extract in utils
 	size_t n_dots = 0;
 
-	std::cout << "IP: " << "[" << value << "]" << std::endl;
+	// std::cout << "IP: " << "[" << value << "]" << std::endl;
 	// while (!value.empty()) {
 	// 	std::cout << "* N dots: " << n_dots << std::endl;
 	// 	size_t dot_position = value.find_first_of('.');
@@ -61,5 +61,23 @@ bool isValidNumber( std::string key, std::string value ) { // extract into utils
 	if (key == "port") {
 		// limits
 	}
+	return (true);
+}
+
+
+bool isValidMethod( std::string s ) {
+	std::string method;
+	size_t space_pos;
+
+	while (s.find_first_of(" \t\v\f\r") != std::string::npos) {
+		space_pos = s.find_first_of(" \t\v\f\r");
+		method = s.substr(0, space_pos);
+		if (method != "GET" && method != "POST" && method != "DELETE")
+			return (false);
+		s.erase(0, space_pos + 1);
+		ltrim(s, " \t\v\f\r");
+	}
+	if (s != "GET" && s != "POST" && s != "DELETE")
+		return (false);
 	return (true);
 }

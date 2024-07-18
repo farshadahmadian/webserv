@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:49:13 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:40:02 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void Parser::parse( std::ifstream& confFile ) {
 			openContext(directive);
 			continue;
 		}
-		if (!isValidDirective(directive)) {
+		if (!isValidSetting(directive)) {
 			throw ParseExcept(E_INVDIR, _line_counter);
 		}
 		closeContext();																// if the current level of indentation is lower than the one before, one or two context are closed
@@ -128,7 +128,7 @@ bool Parser::isValidContext( std::string directive ) {
 	return (false);
 }
 
-bool Parser::isValidDirective( std::string directive ) {
+bool Parser::isValidSetting( std::string directive ) {
 	const std::string* sharedList = AConf::sharedSettings;
 	for (size_t i = 0; i < N_SHARED_DIR; i++) {
 		if (sharedList[i] == directive)
@@ -202,6 +202,8 @@ std::string Parser::extractValue( std::string& line ) {
 	return (value);
 }
 
+const HttpConf& Parser::getHttp( void ) const { return(_http); };
+
 // -------------------------------------------------------------------- DISPLAY
 void Parser::displayParseState( std::string line ) {
 	std::cout << "------------------------------------------------------------" << std::endl;
@@ -255,6 +257,7 @@ const char* Parser::ConfExcept::what() const throw() {
 	if (_n == E_CLIENTSIZE) return("client_body_buffer_size can only be a number between `???` and `???`");
 	if (_n == E_HOST) return("wrong ip format");
 	if (_n == E_PORT) return("port can only be a number between `???` and `???`");
+	if (_n == E_METHOD) return("only `GET` `POST` `DELETE` methods are allowed");
 	return ("Unknkow Conf exception");
 }
 

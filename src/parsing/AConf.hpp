@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:24:02 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:50:24 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 14:00:06 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ class AConf
 		AConf( context type );
 		virtual ~AConf( void ) {};
 
-		std::map<std::string, std::string> getSettings( void );
 		void setSharedSettingsDefaults( void );
 
 		virtual void addNestedBlock( context type ) = 0;
@@ -35,6 +34,7 @@ class AConf
 		virtual enum conf_err checkSettings( void ) = 0;
 
 	public:
+		const std::map<std::string, std::string> getSettings( void ) const;
 		enum conf_err checkSharedSettings( void );
 		static const std::string sharedSettings[N_SHARED_DIR];
 

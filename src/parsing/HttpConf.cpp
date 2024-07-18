@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:31:20 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:33:35 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:50:51 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 
 HttpConf::HttpConf( void ): AConf(HTTP) {};
 HttpConf::~HttpConf( void ) {};
+HttpConf::HttpConf( const HttpConf& obj ): AConf(HTTP) {
+	this->_type = obj._type;
+	this->_server = obj._server;
+	this->_settings = obj._settings;
+}
 
 const std::vector<ServerConf>& HttpConf::getServer( void ) const { return (_server); };
 

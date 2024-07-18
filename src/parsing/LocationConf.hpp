@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:33:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 10:22:42 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:54:16 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class LocationConf: public AConf
 	public:
 		LocationConf( std::map<std::string, std::string> settings );
 		~LocationConf( void );
+		LocationConf& operator=( const LocationConf& );
 
 		void setSpecificSettingsDefaults( void );
 		void setSetting( std::string key, std::string value, context active );
@@ -34,7 +35,6 @@ class LocationConf: public AConf
 	private:
 		// UN-USED CONSTRUCTORS
 		LocationConf( void );
-		LocationConf& operator=( const LocationConf& );
 };
 
 #endif /* __LOCATIONCONF_HPP__ */

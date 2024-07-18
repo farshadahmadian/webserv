@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 15:28:32 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 10:34:41 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:48:45 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class HttpConf: public AConf
 	public:
 		HttpConf( void );
 		~HttpConf( void );
+		HttpConf( const HttpConf& );
 
 		void setSetting( std::string key, std::string value, context active);
 		void addNestedBlock( context type );
@@ -34,7 +35,6 @@ class HttpConf: public AConf
 		std::vector<ServerConf> _server;
 
 		// UN-USED CONSTRUCTORS
-		HttpConf( const HttpConf& );
 		HttpConf& operator=( const HttpConf& );
 };
 

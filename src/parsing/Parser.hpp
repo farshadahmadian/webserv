@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:09:25 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:47:49 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Parser
 		Parser( int argc, char** argv );
 		~Parser( void );
 		void displayConf( void );
+		const HttpConf& getHttp( void ) const;
 
 	private:
 		HttpConf _http; // ----------------------------------------------- CONF
@@ -36,7 +37,7 @@ class Parser
 		void setCurrIndentation( std::string& line );
 		std::string extractDirective( std::string& line );
 		bool isValidContext( std::string directive );
-		bool isValidDirective( std::string directive );
+		bool isValidSetting( std::string directive );
 		void openContext( std::string contextToOpen );
 		void closeContext( void );
 		bool isCorrectContextOpen( void );

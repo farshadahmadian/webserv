@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:10:10 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:55:15 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 
 LocationConf::LocationConf( std::map<std::string, std::string> settings ): AConf(settings, LOCATION) {}
 LocationConf::~LocationConf ( void ) {};
+LocationConf& LocationConf::operator=( const LocationConf& rhs ) {
+	if (this != &rhs) {
+		this->_type = rhs._type;
+		this->_settings = rhs._settings;
+	}
+	return (*this);
+}
 
 const std::string LocationConf::locationSettings[N_LOCATION_DIR] = {
 	"uri",
@@ -34,6 +41,8 @@ void LocationConf::setSetting( std::string key, std::string value, context type 
 		_settings[key] = value;
 }
 
+
+
 enum conf_err LocationConf::checkSettings( void ) {
 	enum conf_err n = CONF_SUCCESS;
 
@@ -42,8 +51,9 @@ enum conf_err LocationConf::checkSettings( void ) {
 
 	// check specific
 	// URI				""					: still to decide						-
-	// METHOD			"GET"				: can only be GET POST DELETE			- to do
 	// CGI				""					: still to decide						-
+	if (!isValidMethod(_settings["method"])) return (E_METHOD);
+
 	return (n);
 }
 

@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:32:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:39:53 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:53:54 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,24 @@ ServerConf::ServerConf( std::map<std::string, std::string> settings ): AConf(set
 ServerConf::~ServerConf ( void ) {
 	setSpecificSettingsDefaults();
 };
+ServerConf& ServerConf::operator=( const ServerConf& rhs ) {
+	if (this != &rhs) {
+		this->_type = rhs._type;
+		this->_settings = rhs._settings;
+		this->_location = rhs._location;
+	}
+	return (*this);
+}
 
 const std::string ServerConf::serverSettings[N_SERVER_DIR] = {
-	"host",
 	"server_name",
 	"port"
 };
 
 void ServerConf::setSpecificSettingsDefaults( void ) {
-	_settings["host"] = DEFAULT_HOST;
 	_settings["server_name"] = DEFAULT_SERVER_NAME;
 	_settings["port"] = DEFAULT_PORT;
 }
-
-
-
-
 
 const std::vector<LocationConf>& ServerConf::getLocation( void ) const { return (_location); };
 
@@ -51,18 +53,16 @@ void ServerConf::setSetting( std::string key, std::string value, context type ) 
 		_location.back().setSetting(key, value, type);
 }
 
-
 enum conf_err ServerConf::checkSettings( void ) {
 	enum conf_err n = CONF_SUCCESS;
 
-	// check shared
 	n = checkSharedSettings();
 	if (n) return (n);
 
 	// check specific
-	// PORT			"8080"				: set limit
+	// PORT			"8080"				: set limit?
 	if (!isValidNumber(_settings["port"], "port")) return (E_PORT);
-	if (!isValidHost(_settings["host"])) return (E_HOST);
+	// if (!isValidServerName(_settings["host"])) return (E_HOST);
 
 	// iterate locations
 	std::vector<LocationConf>::iterator locationIt = _location.begin();

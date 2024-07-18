@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:02:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/17 11:09:47 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:52:06 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class ServerConf: public AConf
 	public:
 		ServerConf( std::map<std::string, std::string> settings );
 		~ServerConf( void );
+		ServerConf& operator=( const ServerConf& );
 
 		void setSpecificSettingsDefaults( void );
 		void setSetting( std::string key, std::string value, context active );
@@ -37,7 +38,6 @@ class ServerConf: public AConf
 
 		// UN-USED CONSTRUCTORS
 		ServerConf( void );
-		ServerConf& operator=( const ServerConf& );
 };
 
 #endif /* __SERVERCONF_HPP__ */

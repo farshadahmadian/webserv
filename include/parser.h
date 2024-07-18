@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 15:52:51 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/18 13:34:10 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 /* NUMBER OF DIRECTIVES */
 #define N_SHARED_DIR	5
-#define N_SERVER_DIR	3
+#define N_SERVER_DIR	2
 #define N_LOCATION_DIR	3
 
 /* SHARED DIRECTIVE DEFAULTS */
@@ -38,9 +38,8 @@
 #define DEFAULT_ROOT			"./www/"
 
 /* SERVER DIRECTIVE DEFAULTS */
-#define DEFAULT_HOST			"127.0.0.1"
+#define DEFAULT_SERVER_NAME		"127.0.0.1" /* need to decide something */
 #define DEFAULT_PORT			"8080"
-#define DEFAULT_SERVER_NAME		""
 
 /* LOCATION DIRECTIVE DEFAULTS */
 #define DEFAULT_URI				"" /* need to decide something */
