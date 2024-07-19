@@ -6,7 +6,7 @@
 #    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/17 11:50:12 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/07/19 11:05:01 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,11 +44,13 @@ SOCKETS_CPP	=	Socket.cpp \
 				ConnectedSocket.cpp
 SOCKETS_HPP	=	./src/sockets/socket/Socket.hpp \
 				./src/sockets/listening-socket/ListeningSocket.hpp \
-				./src/sockets/connected-socket/ConnectedSocket.hpp \
+				./src/sockets/connected-socket/ConnectedSocket.hpp
 
 SERVER_CPP	=	Server.cpp \
+				Poll.cpp \
 				Exception.cpp
 SERVER_HPP	=	./src/server/Server.hpp \
+				./src/server/Poll.hpp \
 				./src/exception/Exception.hpp
 
 # files to tidy up

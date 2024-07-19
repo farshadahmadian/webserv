@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 15:49:00 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/19 16:08:55 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,22 @@
 
 class Server {
 	private:
-		const std::string _serverName;
-		const std::string _root;
+		// new elements
+		const std::string _port;
+		std::vector<std::string> _serverNames;
+		std::vector<std::string> _roots;
+		std::vector<std::string> _indexes;
+		// std::vector<std::string> _keepaliveTimeouts;
+		// std::vector<std::string> _autoindexes;
+		// std::vector<std::string> _clientSizes;
+
 		ListeningSocket _listeningSocket;
 		// std::vector<ConnectedSocket> _connectedSockets;
 		std::map<int, ConnectedSocket> _connectedSockets;
 		unsigned int _monitoredFdsNum;
 		struct pollfd _monitoredFds[MAX_CONNECTIONS];
 		std::map<std::string, std::string> _request;
+
 
 		void handleEvents(void);
 		void handleEventsOnListeningSocket(unsigned int i);
@@ -47,17 +55,24 @@ class Server {
 		std::string readHtmlFile(std::string path);
 		void parseRequest(std::string request);
 		void printRequest(void);
-	
+
 		Server(	void ); // ---------------------------------- UNUSED CONSTRUCTORS
-		Server(	Server const &other );
 		Server& operator=( Server const &rhs );
 	public:
 		Server( std::map<std::string, std::string> settings );
 		~Server( void );
+		Server( const Server& other );
 
 		ListeningSocket const &getListeningSocket(void) const;
-		
+
 		void printConnectedSockets(void);
+
+		const std::string getPort( void ) const;
+		size_t getMonitoredFdsNum( void ) const;
+
+		void addServerName( std::string newName );
+		void addRoot( std::string newRoot );
+		void addIndex( std::string newIndex );
 
 		void setPortAvailable(void);
 		void bindSocket(void) const;

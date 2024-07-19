@@ -6,28 +6,56 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/18 14:47:51 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/19 16:32:29 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
+// new constructor to create the vectors
 Server::Server( std::map<std::string, std::string> settings ):
-	_serverName(settings["server_name"]),	// std::vector<string> _serverNames()
-	_root(settings["/"]),					// std::vector<string> _roots()
-	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["ip"], settings["port"])),
+	_port(settings["port"]),
+	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_monitoredFdsNum(0),
-	_request(std::map<std::string, std::string>()) {
+	_request(std::map<std::string, std::string>()) { // ----- the problem of the crash seems this! ------
 
-	// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
+	_serverNames.push_back(settings["server_name"]);
+	_roots.push_back(settings["root"]);
+	_indexes.push_back(settings["index"]);
+	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
+	// _autoindexes.push_back(settings["autoindex"]);
+	// _clientSizes.push_back(settings["client_body_buffer_size"]);
+
+	//// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
 	for (unsigned int i = 0; i < MAX_CONNECTIONS + 1; i++)
 		this->_monitoredFds[i].fd = -1;
 	this->_monitoredFds[0].fd = this->_listeningSocket.getSocketFd();
 	this->_monitoredFds[0].events = POLLIN;
 	this->_monitoredFdsNum++;
-	std::cout << GREEN <<  "* Server [ " << _serverName << " ] created successfully." <<  RESET << std::endl;
+
+	std::cout << GREEN <<  "* Server [ " << settings["server_name"] << " ] created successfully." <<  RESET << std::endl;
+}
+
+Server::Server(	const Server& other ):
+	_port(other._port),
+	_serverNames(other._serverNames),
+	_roots(other._roots),
+	_indexes(other._indexes),
+	// _keepaliveTimeouts(other._keepaliveTimeouts),
+	// _autoindexes(other._autoindexes),
+	// _clientSizes(other._clientSizes),
+	_listeningSocket(other._listeningSocket),
+	_connectedSockets(other._connectedSockets),
+	_monitoredFdsNum(other._monitoredFdsNum),
+	_request(other._request) { // ----- the problem of the crash seems this! ------
+
+	size_t i = 0;
+	while(i < _monitoredFdsNum) {
+		_monitoredFds[i] = other._monitoredFds[i];
+		i++;
+	}
 }
 
 Server::~Server(void) {
@@ -337,16 +365,28 @@ void Server::parseRequest(std::string request) {
 	// std::cout << "path = " << path << std::endl;
 	// std::cout << "httpVersion = " << httpVersion << std::endl;
 
-	this->_request["method"] = method;
-	this->_request["path"] = path;
-	this->_request["httpVersion"] = httpVersion;
+	// this->_request["method"] = method;
+	// this->_request["path"] = path;
+	// this->_request["httpVersion"] = httpVersion;
 }
 
 void Server::printRequest(void) {
 	std::map<std::string, std::string>::iterator iterator;
-	std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
+	// std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
 
-	for (iterator = this->_request.begin(); iterator != iteratorEnd; iterator++)
-		std::cout << iterator->first << " = " << iterator->second << std::endl;
+	// for (iterator = this->_request.begin(); iterator != iteratorEnd; iterator++)
+	// 	std::cout << iterator->first << " = " << iterator->second << std::endl;
 	return;
 }
+
+
+
+
+
+
+const std::string Server::getPort( void ) const { return (_port); };
+size_t Server::getMonitoredFdsNum( void ) const { return (_monitoredFdsNum); };
+
+void Server::addServerName( std::string newName ) { _serverNames.push_back(newName); };
+void Server::addRoot( std::string newRoot ) { _roots.push_back(newRoot); };
+void Server::addIndex( std::string newIndex ) { _indexes.push_back(newIndex); };

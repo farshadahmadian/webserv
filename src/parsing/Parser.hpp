@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 13:47:49 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/19 11:11:06 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ class Parser
 	public: // ---------------------------------------------- USED CONSTRUCTORS
 		Parser( int argc, char** argv );
 		~Parser( void );
+		Parser( const Parser& );
+
 		void displayConf( void );
 		const HttpConf& getHttp( void ) const;
 
@@ -51,7 +53,6 @@ class Parser
 		class ConfExcept;
 
 		Parser( void ); // -------------------------------- UNUSED CONSTRUCTORS
-		Parser( const Parser& );
 		void operator=( const Parser& );
 };
 

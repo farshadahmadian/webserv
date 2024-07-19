@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 13:55:15 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/19 15:26:42 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void LocationConf::setSpecificSettingsDefaults( void ) {
 void LocationConf::addNestedBlock( context type ) { (void)type; /* not implemented */}
 
 void LocationConf::setSetting( std::string key, std::string value, context type ) {
-	if (type == LOCATION)
+	if (type == LOCATION) {}
 		_settings[key] = value;
 }
 

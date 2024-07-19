@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 13:40:02 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/19 15:24:31 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,20 @@ Parser::Parser( int argc, char** argv ):
 	parse(confFile);
 	confFile.close();
 };
+Parser::Parser( const Parser& obj ) {
+	this->_http = obj._http;
+	this->_prevLvl = obj._prevLvl;
+	this->_currLvl = obj._currLvl;
+	this->_activeContext = obj._activeContext;
+	this->_line_counter = obj._line_counter;
+}
+
+	// HttpConf _http; // ----------------------------------------------- CONF
+
+	// 	context _prevLvl; // ------------------------------------------ PARSING
+	// 	context _currLvl;
+	// 	context _activeContext;
+	// 	int _line_counter;
 
 // -------------------------------------------------------------------- PARSING
 void Parser::checkFile( int argc, char** argv, std::ifstream& confFile ) {
@@ -260,8 +274,3 @@ const char* Parser::ConfExcept::what() const throw() {
 	if (_n == E_METHOD) return("only `GET` `POST` `DELETE` methods are allowed");
 	return ("Unknkow Conf exception");
 }
-
-// -------------------------------------------------------- UNUSED CONSTRUCTORS
-Parser::Parser( void ) {/* Not needed */};
-Parser::Parser( const Parser& ) {/* Not needed */};
-void Parser::operator=( const Parser& ) {/* Not needed */};

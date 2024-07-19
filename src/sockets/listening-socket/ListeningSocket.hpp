@@ -35,7 +35,7 @@ class ListeningSocket : public Socket {
 
 	public:
 		ListeningSocket(void);
-		ListeningSocket(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port);
+		ListeningSocket(unsigned int maxIncomingConnections, std::string const& ip, std::string const& port);
 		ListeningSocket(ListeningSocket const &other);
 		ListeningSocket &operator=(ListeningSocket const &rhs);
 		~ListeningSocket(void);

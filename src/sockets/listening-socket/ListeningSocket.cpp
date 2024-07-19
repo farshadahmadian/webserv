@@ -16,14 +16,14 @@
 
 
 // change default values
-ListeningSocket::ListeningSocket(void): 
-	Socket(), 
-	_maxIncomingConnections(10), 
-	_ip("127.0.0.1"), 
-	_port("8080"), 
+ListeningSocket::ListeningSocket(void):
+	Socket(),
+	_maxIncomingConnections(10),
+	_ip("127.0.0.1"),
+	_port("8080"),
 	_addressInfo(NULL) {
 
-	try {	
+	try {
 		this->_addressInfo = this->allocateAddrInfo();
 		int socketFd = this->createSocket();
 		this->setSocketFd(socketFd);
@@ -33,14 +33,26 @@ ListeningSocket::ListeningSocket(void):
 	return;
 }
 
-ListeningSocket::ListeningSocket(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : Socket(), _maxIncomingConnections(maxIncomingConnections), _ip(ip), _port(port), _addressInfo(NULL) {
+ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::string const& ip, std::string const& port):
+	Socket(),
+	_maxIncomingConnections(maxIncomingConnections),
+	_ip(ip),
+	_port(port),
+	_addressInfo(NULL) {
+
 	this->_addressInfo = this->allocateAddrInfo();
 	int socketFd = this->createSocket();
 	this->setSocketFd(socketFd);
 	return;
 }
 
-ListeningSocket::ListeningSocket(ListeningSocket const &other) : Socket(other),   _maxIncomingConnections(other._maxIncomingConnections), _ip(other._ip), _port(other._port), _addressInfo(NULL) {
+ListeningSocket::ListeningSocket( ListeningSocket const &other ):
+	Socket(other),
+	_maxIncomingConnections(other._maxIncomingConnections),
+	_ip(other._ip),
+	_port(other._port),
+	_addressInfo(NULL) {
+
 	this->_addressInfo = other.allocateAddrInfo();
 	return;
 }
@@ -63,7 +75,7 @@ ListeningSocket::~ListeningSocket(void) {
 	return;
 }
 
-struct addrinfo *ListeningSocket::allocateAddrInfo(void) const {
+struct addrinfo *ListeningSocket::allocateAddrInfo( void ) const {
 	struct addrinfo hints;
 	struct addrinfo *addrInfo;
 	memset(&hints, 0, sizeof(hints));
@@ -76,7 +88,7 @@ struct addrinfo *ListeningSocket::allocateAddrInfo(void) const {
 		Exception exception(errMsg, GET_ADDR_INFO_FAILD);
 		throw exception;
 	}
-	return addrInfo;
+	return (addrInfo);
 }
 
 int ListeningSocket::createSocket(void) const {
