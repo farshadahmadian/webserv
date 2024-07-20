@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/19 12:27:27 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/07/20 19:42:33 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
 
 # Directories
 SRC_DIR := src
-OBJ_DIR := obj
+OBJ_DIR := objs
 EXTRA_INC_DIR := include
 
 # Find all .cpp files in the SRC directory and subdirectories
