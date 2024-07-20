@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/17 19:39:16 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/20 13:44:32 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,23 +125,29 @@ std::string HTTPRequest::handleGet() {
 		headers << "Connection: close" <<"\r\n";
 		headers << "ETag: " + eTag <<"\r\n";
 		headers << "Accept-Ranges: bytes\r\n\r\n";
+		headers << "\r\n";
 		headers << readHtml;
     	return headers.str();
 	} else {
         // return httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
-        return httpStatusCode(404) + "Content-Type: text/html\r\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></body></html>";
+				std::ostringstream errorHeader;
+				errorHeader.clear();
+				errorHeader << httpStatusCode(404);
+				errorHeader << "Connection: close" <<"\r\n";
+				// errorHeader << "\r\n";
+        return errorHeader.str() + "Content-Type: text/html\r\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></body></html>";
 	}
 }
 
 
 std::string HTTPRequest::handlePost() {
     // Placeholder implementation
-    return httpStatusCode(200) + "Content-Type: text/html\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
+    return httpStatusCode(200) + "Connection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 }
 
 std::string HTTPRequest::handleDelete() {
     // Placeholder implementation
-    return httpStatusCode(200) + "Content-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
+    return httpStatusCode(200) + "Connection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
 }
 
 std::string HTTPRequest::httpStatusCode(int statusCode) {
@@ -156,8 +162,13 @@ std::string HTTPRequest::httpStatusCode(int statusCode) {
 }
 
 bool HTTPRequest::handleRequest(int clientSocket) {
-    char buffer[1024];
+    char buffer[102400];
     ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+
+		std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
+		if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+			return (true);
+			
     if (bytesRead < 0) {
 		throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
         close(clientSocket);
@@ -171,7 +182,7 @@ bool HTTPRequest::handleRequest(int clientSocket) {
     //****************************************************
 
 	if (!parse()) {
-        std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
+        std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
         send(clientSocket, response.c_str(), response.length(), 0);
 		close(clientSocket);
 		return (false);

@@ -36,6 +36,9 @@ ListeningSocket::ListeningSocket(void):
 ListeningSocket::ListeningSocket(unsigned int maxIncomingConnections, std::string const &ip, std::string const &port) : Socket(), _maxIncomingConnections(maxIncomingConnections), _ip(ip), _port(port), _addressInfo(NULL) {
 	this->_addressInfo = this->allocateAddrInfo();
 	int socketFd = this->createSocket();
+	// if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1) {
+  //       perror("fcntl F_SETFL");
+	// }
 	this->setSocketFd(socketFd);
 	return;
 }

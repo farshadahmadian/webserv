@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/17 19:44:46 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/20 13:47:42 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,9 @@ int Server::acceptFirstRequestInQueue(void) {
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-
+	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1) {
+        perror("fcntl F_SETFL");
+	}
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
 	if (connectedSocket.getSocketFd() == -1) {
@@ -164,7 +166,17 @@ void Server::startPoll(void) {
 					close(this->_monitoredFds[i].fd);
 					this->_monitoredFds[i].fd = -1;
 					this->_monitoredFds[i].revents = 0;
-					this->_monitoredFdsNum--;
+					// this->_monitoredFdsNum--;
+					for (unsigned int i = 0; i < this->_monitoredFdsNum; ) {
+						if (this->_monitoredFds[i].fd == -1) {
+								for (unsigned int j = i; j < this->_monitoredFdsNum - 1; ++j) {
+										this->_monitoredFds[j] = this->_monitoredFds[j + 1];
+								}
+								this->_monitoredFdsNum--;
+						} else {
+								i++;
+						}
+					}
 					this->_connectedSockets.erase(_monitoredFds[i].fd);
 				} 
 				// else {
@@ -282,9 +294,9 @@ void Server::addToMonitorsFds(int connectedSocketFd) {
 void Server::handleEventsOnConnectedSockets(unsigned int i) {
 
 			std::cout << "this->_monitoredFds[" << i << "].fd = "  << this->_monitoredFds[i].fd << std::endl;
-			// std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
-			// std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
-			// std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
+			std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
+			std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
+			std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
 	try {
 		if (this->_monitoredFds[i].revents & POLLIN) {
 			//naivd_code from here ->
@@ -308,6 +320,16 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
 				Exception httpRequestException("httpRequest failed!", HTTP_REQUEST_FAILED);
 				throw httpRequestException;
 			}
+		}
+
+		if ((this->_monitoredFds[i].revents & POLLOUT) && !(this->_monitoredFds[i].revents & POLLIN)) {
+			std::cout << "***** NO POLLIN\n";
+			// std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
+			// 	send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+      //       close(this->_monitoredFds[i].fd);
+      //       this->_monitoredFds[i].fd = -1;
+      //       this->_monitoredFdsNum--;
+						return;
 		}
 
 		if (this->_monitoredFds[i].revents & POLLOUT) {
@@ -338,12 +360,24 @@ void Server::handleEventsOnConnectedSockets(unsigned int i) {
             //**************************************************************************
 			
 			send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-            close(this->_monitoredFds[i].fd);
-            this->_monitoredFds[i].fd = -1;
-            this->_monitoredFdsNum--;
+			close(this->_monitoredFds[i].fd);
+			this->_monitoredFds[i].fd = -1;
+			// this->_monitoredFdsNum--;
+			
+   	 for (unsigned int i = 0; i < this->_monitoredFdsNum; ) {
+				if (this->_monitoredFds[i].fd == -1) {
+						for (unsigned int j = i; j < this->_monitoredFdsNum - 1; ++j) {
+								this->_monitoredFds[j].fd = this->_monitoredFds[j + 1].fd;
+								this->_monitoredFds[j + 1].fd = -1;
+						}
+						this->_monitoredFdsNum--;
+				} else {
+						i++;
+				}
+		}
 
-            // Remove the response from the map
-            _responses.erase(this->_monitoredFds[i].fd);
+			// Remove the response from the map
+			_responses.erase(this->_monitoredFds[i].fd);
 
 		}
 		// ->! to here

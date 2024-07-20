@@ -3,14 +3,14 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+         #
+#    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/13 00:21:28 by nnavidd          ###   ########.fr        #
+#    Updated: 2024/07/19 12:27:27 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME     := mutantstack
+NAME     := webserv
 CXX      := g++
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g
 CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
