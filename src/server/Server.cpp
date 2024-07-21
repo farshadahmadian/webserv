@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/21 11:08:09 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/21 12:12:59 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,7 +311,9 @@ void Server::addToMonitorsFds(int connectedSocketFd)
 		if (this->_monitoredFds[i].fd == -1)
 		{
 			this->_monitoredFds[i].fd = connectedSocketFd;
-			this->_monitoredFds[i].events = POLLIN | POLLOUT;
+			// this->_monitoredFds[i].events = POLLIN | POLLOUT;
+			this->_monitoredFds[i].revents = 0;
+			this->_monitoredFds[i].events = POLLIN;
 			return;
 		}
 	}
@@ -328,6 +330,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 	{
 		if (this->_monitoredFds[i].revents & POLLIN)
 		{
+			std::cout << "RECEIVING THE REQUEST..." << std::endl;
 			// naivd_code from here ->
 			HTTPRequest httpreq(_settings); // navid_code
 			if (httpreq.handleRequest(this->_monitoredFds[i].fd))
@@ -345,6 +348,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 
 				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
 				std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
+				this->_monitoredFds[i].events = POLLOUT;
 			}
 			else
 			{
@@ -353,16 +357,16 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			}
 		}
 
-		if ((this->_monitoredFds[i].revents & POLLOUT) && !(this->_monitoredFds[i].revents & POLLIN))
-		{
-			std::cout << "***** NO POLLIN\n";
-			// std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
-			// 	send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-			// close(this->_monitoredFds[i].fd);
-			// this->_monitoredFds[i].fd = -1;
-			// this->closeSocket();
-			return;
-		}
+		// if ((this->_monitoredFds[i].revents & POLLOUT) && !(this->_monitoredFds[i].revents & POLLIN))
+		// {
+		// 	std::cout << "***** NO POLLIN\n";
+		// 	// std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
+		// 	// 	send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+		// 	// close(this->_monitoredFds[i].fd);
+		// 	// this->_monitoredFds[i].fd = -1;
+		// 	// this->closeSocket();
+		// 	return;
+		// }
 
 		if (this->_monitoredFds[i].revents & POLLOUT)
 		{
@@ -397,17 +401,16 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
 			this->_monitoredFds[i].fd = -1;
 			this->closeSocket();
-
 			// this->_monitoredFdsNum--;
 
 			// Remove the response from the map
 			_responses.erase(this->_monitoredFds[i].fd);
 		}
 		// ->! to here
-		else
-		{
-			throw Exception("Exception in connected socket!", EVENT_ERROR);
-		}
+		// else
+		// {
+		// 	throw Exception("Exception in connected socket!", EVENT_ERROR);
+		// }
 	}
 	catch (Exception const &exception)
 	{
