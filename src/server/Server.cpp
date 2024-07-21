@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/21 09:45:05 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/21 15:47:53 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ int Server::acceptFirstRequestInQueue(void) {
 
 	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
-	return connectedSocketFd;
+	return (connectedSocketFd);
 }
 
 void Server::startPoll(void) {
@@ -264,7 +264,7 @@ void Server::handleEvents(void) {
 
 }
 
-void Server::handleEventsOnListeningSocket(unsigned int i) {
+void Server::handleEventsOnListeningSocket( unsigned int i ) {
 	try {
 		// if ((this->_monitoredFds[i].revents & POLLERR) || (this->_monitoredFds[i].revents & POLLHUP) || (this->_monitoredFds[i].revents & POLLNVAL)) {
 		// 	throw Exception("Event error", EVENT_ERROR);

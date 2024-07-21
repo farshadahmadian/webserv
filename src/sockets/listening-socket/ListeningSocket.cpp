@@ -33,7 +33,7 @@ ListeningSocket::ListeningSocket(void):
 	return;
 }
 
-ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::string const& ip, std::string const& port):
+ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::string const& ip, std::string const& port ):
 	Socket(),
 	_maxIncomingConnections(maxIncomingConnections),
 	_ip(ip),

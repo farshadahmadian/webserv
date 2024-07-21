@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/21 14:28:35 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/21 16:01:45 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,17 @@
 
 Poll::Poll( const Parser& configuration ):
 	_serverList(std::vector<Server>()),
-	_totalMonitored(0) {
+	_currentMonitored(0),
+	_totalMonitored(0),
+	_totalFds(NULL) {
 
 	createServers(configuration);
 	setFds();
-	setTotalMonitored();
 /* REMOVE */std::cout << std::endl << "---------------------------------------------------------" << std::endl;
 }
-Poll::~Poll( void ) {};
+Poll::~Poll( void ) {
+	delete [] _totalFds;
+};
 
 /*	By iterating through the instances which come from the configuration file,
 	the server are created. If multiple server have the same port, instad of being
@@ -55,6 +58,9 @@ bool Poll::mergeServerWithSamePort( std::map<std::string, std::string> serverCon
 			(*it).addServerName(serverConf["server_name"]);
 			(*it).addRoot(serverConf["root"]);
 			(*it).addIndex(serverConf["index"]);
+			// (*it).addAutoindex(serverConf["index"]);
+			// (*it).addKeepAlive(serverConf[""]);
+			// (*it).addClientSize(serverConf[""]);
 			return (true);
 		}
 		it++;
@@ -73,35 +79,13 @@ void Poll::init( void ) {
 	}
 }
 
-/*	For each Server, a struct poll fd is locally created, and the listening fd
-	of the current iterated Server, assigned to it.
-*/
-void Poll::setFds( void ) {
-	std::vector<Server>::iterator it = _serverList.begin();
-	while (it != _serverList.end()) {
-		struct pollfd newPoll;
-		newPoll.fd = (*it).getListeningSocket().getSocketFd();
-		newPoll.events = POLLIN;
-		_fds.push_back(newPoll);
-		it++;
-	}
-}
-
 void Poll::start( void ) {
 	std::cout << BLUE << "* Poll::start()" RESET << std::endl;
-
-	/*
-		prepare totalFds with all fds of all servers, and copy them here
-		struct pollfd totalFds[_totalMonitored]; ----> correct approach? is it ok to have 50 fds in
-		totalFdss, while only 3 of them are the listening?
-	*/
-	struct pollfd totalFds[_totalMonitored]; // ------ ??????
-
 
 	while (true)
 	{
 		try {
-			int eventsNum = poll(totalFds, _totalMonitored, 3000);
+			int eventsNum = poll(_totalFds, _currentMonitored, 3000);
 			std::cout << "* Event num: " << eventsNum << std::endl;
 
 			if (eventsNum < 0) {
@@ -113,7 +97,7 @@ void Poll::start( void ) {
 			}
 			if (eventsNum > 0) {
 				std::cout << "* handleEvents()" << std::endl;
-				// handleEvents();
+				handleEvent();
 			}
 		} catch(Exception const &exception) {
 			throw exception;
@@ -127,19 +111,68 @@ void Poll::start( void ) {
 }
 
 void Poll::handleEvent( void ) {
-	// std::vector<Server>::iterator it = _serverList.begin();
+	// std::vector<Server>::iterator serverIt = _serverList.begin();
 
-	// while (it != _serverList.end()) {
-
-	// 	it++;
+	// for (size_t i = 0; i < _currentMonitored; i++) {
+	// 	while (serverIt != _serverList.end()) {
+	// 		if (_totalFds[i].fd == (*serverIt).getListeningSocket().getSocketFd())
+	// 			handleListeningEvent(i, (*serverIt));
+	// 		else
+	// 			handleConnectedEvent(i, (*serverIt));
+	// 		serverIt++;
+	// 	}
 	// }
 }
 
-void Poll::setTotalMonitored( void ) {
-	std::vector<Server>::iterator it = _serverList.begin();
-	while (it != _serverList.end()) {
-		_totalMonitored += (*it).getMonitoredFdsNum();
-		it++;
+void Poll::handleListeningEvent( size_t i, Server& s ) {
+	std::cout << GREEN << "Port [" << s.getPort() << "] " << " * event happened on listeningSocket: " << _totalFds[i].fd << RESET << std::endl;
+	try {
+		if ((_totalFds[i].revents & POLLIN)) { // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
+			int connectedSocketFd = s.acceptFirstRequestInQueue();
+			updateFds(connectedSocketFd);
+		}
+	} catch ( Exception const &exception ) {
+		throw exception;
 	}
-	std::cout << BLUE << "* Poll::setTotalMonitored(): " << RESET << _totalMonitored << std::endl;
+}
+
+void Poll::handleConnectedEvent( size_t i, Server& s ) {
+	try {
+		if ((_totalFds[i].revents & POLLIN)) { // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
+			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+		}
+		if (_totalFds[i].revents & POLLOUT) {
+			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+
+		}
+	} catch ( Exception const &exception ) {
+		throw exception;
+	}
+}
+
+void Poll::updateFds( int connectedSocketFd ) {
+	for (size_t i = 0; i <= _totalMonitored ;i++) {
+		if (_totalFds[i].fd == -1) {
+			_totalFds[i].fd = connectedSocketFd;
+			_totalFds[i].events = POLLIN;// | POLLOUT;
+			break ;
+		}
+	}
+	_currentMonitored++;
+}
+
+void Poll::setFds( void ) {
+	size_t n_servers = _serverList.size();
+	_totalMonitored = (n_servers * MAX_CONNECTIONS) + n_servers ;
+	_currentMonitored = n_servers;
+
+	_totalFds = new struct pollfd[_totalMonitored];
+	std::vector<Server>::iterator it = _serverList.begin();
+	size_t i = 0;
+	while (it != _serverList.end()) {
+		_totalFds[i].fd = (*it).getListeningSocket().getSocketFd();
+		_totalFds[i].events = POLLIN;
+		it++;
+		i++;
+	}
 }

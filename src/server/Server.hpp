@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/21 09:31:38 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/21 15:32:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ class Server {
 		// std::vector<std::string> _clientSizes;
 
 		ListeningSocket _listeningSocket;
-		// std::vector<ConnectedSocket> _connectedSockets;
 		std::map<int, ConnectedSocket> _connectedSockets;
 		unsigned int _monitoredFdsNum;
 		struct pollfd _monitoredFds[MAX_CONNECTIONS];
