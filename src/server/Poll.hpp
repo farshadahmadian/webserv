@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/19 14:35:32 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/21 10:09:25 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,14 @@ class Poll
 
 	private:
 		std::vector<Server> _serverList;
+		std::vector<struct pollfd> _fds;
 		size_t _totalMonitored;
 
-		bool isPortAlreadyInUse( std::map<std::string, std::string> currentServerSettings );
-		void mergeServer( Server& s, std::map<std::string, std::string >serverConf );
-		size_t setTotalMonitored( void );
+		void createServers( const Parser& configuration );
+		bool mergeServerWithSamePort( std::map<std::string, std::string> serverConf );
+		void setTotalMonitored( void );
+		void setFds( void );
+		void handleEvent( void );
 
 		// handleServer()
 

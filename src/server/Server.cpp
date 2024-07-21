@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/19 16:32:29 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/21 09:45:05 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Server::Server( std::map<std::string, std::string> settings ):
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_monitoredFdsNum(0),
-	_request(std::map<std::string, std::string>()) { // ----- the problem of the crash seems this! ------
+	_request(std::map<std::string, std::string>()) { // ----- the problem of the crash seems this! ------ but not here
 
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
@@ -27,7 +27,7 @@ Server::Server( std::map<std::string, std::string> settings ):
 	// _autoindexes.push_back(settings["autoindex"]);
 	// _clientSizes.push_back(settings["client_body_buffer_size"]);
 
-	//// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
+	// //// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
 	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
 	for (unsigned int i = 0; i < MAX_CONNECTIONS + 1; i++)
 		this->_monitoredFds[i].fd = -1;
@@ -48,8 +48,8 @@ Server::Server(	const Server& other ):
 	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
 	_connectedSockets(other._connectedSockets),
-	_monitoredFdsNum(other._monitoredFdsNum),
-	_request(other._request) { // ----- the problem of the crash seems this! ------
+	_monitoredFdsNum(other._monitoredFdsNum) {
+	// _request(other._request) { // ----- the problem of the crash seems this! ------
 
 	size_t i = 0;
 	while(i < _monitoredFdsNum) {
