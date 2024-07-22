@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/22 09:35:33 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/22 09:50:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ int main(int argc, char **argv)
 		std::cout << "---------------------------------------------------------" << std::endl;
 
 		Poll pollOfservers(configuration);
-		// pollOfservers.init();
-		// pollOfservers.start();
+		pollOfservers.init();
+		pollOfservers.start();
 
 	}
 	catch (std::exception& e) {

@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/21 16:01:45 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/22 10:34:36 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Poll::Poll( const Parser& configuration ):
 	_totalFds(NULL) {
 
 	createServers(configuration);
-	setFds();
+	initFds();
 /* REMOVE */std::cout << std::endl << "---------------------------------------------------------" << std::endl;
 }
 Poll::~Poll( void ) {
@@ -95,28 +95,26 @@ void Poll::start( void ) {
 			if (eventsNum == 0) {
 				std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
 			}
-			if (eventsNum > 0) {
-				std::cout << "* handleEvents()" << std::endl;
+			if (eventsNum > 0) { // 2
+				std::cout << "* handleEvents(): " << std::endl;
 				handleEvent();
 			}
 		} catch(Exception const &exception) {
 			throw exception;
 		}
 	}
-	// for (unsigned int i = 0; i < _monitoredFdsNum; i++)	{
-	// 	handleListeningSocket();
-	// 	handleConnectingSocket();
-	// }
-	return;
 }
 
 void Poll::handleEvent( void ) {
-	// std::vector<Server>::iterator serverIt = _serverList.begin();
+	std::vector<Server>::iterator serverIt = _serverList.begin();
 
 	// for (size_t i = 0; i < _currentMonitored; i++) {
 	// 	while (serverIt != _serverList.end()) {
-	// 		if (_totalFds[i].fd == (*serverIt).getListeningSocket().getSocketFd())
+	// 		if (_totalFds[i].fd == (*serverIt).getListeningSocket().getSocketFd()) {
 	// 			handleListeningEvent(i, (*serverIt));
+	// 			serverIt++;
+	// 			break ;
+	// 		}
 	// 		else
 	// 			handleConnectedEvent(i, (*serverIt));
 	// 		serverIt++;
@@ -140,6 +138,7 @@ void Poll::handleConnectedEvent( size_t i, Server& s ) {
 	try {
 		if ((_totalFds[i].revents & POLLIN)) { // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
 			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+
 		}
 		if (_totalFds[i].revents & POLLOUT) {
 			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
@@ -161,7 +160,7 @@ void Poll::updateFds( int connectedSocketFd ) {
 	_currentMonitored++;
 }
 
-void Poll::setFds( void ) {
+void Poll::initFds( void ) {
 	size_t n_servers = _serverList.size();
 	_totalMonitored = (n_servers * MAX_CONNECTIONS) + n_servers ;
 	_currentMonitored = n_servers;

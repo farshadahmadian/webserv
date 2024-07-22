@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/21 15:49:25 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/22 10:00:55 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Poll
 
 		void createServers( const Parser& configuration );
 		bool mergeServerWithSamePort( std::map<std::string, std::string> serverConf );
-		void setFds( void );
+		void initFds( void );
 
 		void handleEvent( void );
 		void handleListeningEvent( size_t i, Server& s );
