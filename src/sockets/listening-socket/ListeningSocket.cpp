@@ -42,6 +42,9 @@ ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::stri
 
 	this->_addressInfo = this->allocateAddrInfo();
 	int socketFd = this->createSocket();
+	// if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1) {
+  //       perror("fcntl F_SETFL");
+	// }
 	this->setSocketFd(socketFd);
 	return;
 }

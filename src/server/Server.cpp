@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/21 15:47:53 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/22 09:42:27 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ Server::Server(	const Server& other ):
 	}
 }
 
-Server::~Server(void) {
+Server::~Server(void)
+{
 	// close(this->_listeningSocket.getSocketFd());
 
 	// std::map<int, ConnectedSocket>::iterator iterator;
@@ -73,16 +74,18 @@ Server::~Server(void) {
 
 ListeningSocket const &Server::getListeningSocket(void) const { return (this->_listeningSocket); }
 
-void Server::printConnectedSockets(void) {
+void Server::printConnectedSockets(void)
+{
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
 	std::cout << "Connected Sockets List:" << std::endl;
-	for(iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
+	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
 }
 
-void Server::setPortAvailable(void) {
+void Server::setPortAvailable(void)
+{
 	int reusePort = 1;
 	int setSocketOptionResult = setsockopt(this->_listeningSocket.getSocketFd(), SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
 	if (setSocketOptionResult == -1)
@@ -90,11 +93,12 @@ void Server::setPortAvailable(void) {
 		Exception exception("Setting socket options faild!", SOCKET_OPTIONS_FAILD);
 		throw exception;
 	}
-	std::cout << GREEN << "Listening Socket with fd("<< this->_listeningSocket.getSocketFd() <<") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
+	std::cout << GREEN << "Listening Socket with fd(" << this->_listeningSocket.getSocketFd() << ") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
 	return;
 }
 
-void Server::bindSocket(void) const {
+void Server::bindSocket(void) const
+{
 	int bindResult = bind(this->_listeningSocket.getSocketFd(), this->_listeningSocket.getAddressInfo()->ai_addr, this->_listeningSocket.getAddressInfo()->ai_addrlen);
 	if (bindResult != 0)
 	{
@@ -106,12 +110,13 @@ void Server::bindSocket(void) const {
 	// char ip[100];
 	// inet_ntop(this->_addressInfo->ai_family, &((reinterpret_cast<sockaddr_in *>(this->_addressInfo->ai_addr))->sin_addr), ip, 100);
 	std::string ip = static_cast<std::string>(inet_ntoa(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_addr)); // REMOVE
-	std::cout << GREEN << "Listening Socket is bound to " << ip.c_str() <<":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_port) << RESET << std::endl;
+	std::cout << GREEN << "Listening Socket is bound to " << ip.c_str() << ":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_port) << RESET << std::endl;
 
 	return;
 }
 
-void Server::listenToRequests(void) const {
+void Server::listenToRequests(void) const
+{
 	int listenResult = listen(this->_listeningSocket.getSocketFd(), static_cast<int>(this->_listeningSocket.getMaxIncomingConnections()));
 	if (listenResult == -1)
 	{
@@ -130,10 +135,14 @@ int Server::acceptFirstRequestInQueue(void) {
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-
+	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		perror("fcntl F_SETFL");
+	}
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
-	if (connectedSocket.getSocketFd() == -1) {
+	if (connectedSocket.getSocketFd() == -1)
+	{
 		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
 		throw exception;
 	}
@@ -145,120 +154,40 @@ int Server::acceptFirstRequestInQueue(void) {
 	return (connectedSocketFd);
 }
 
-void Server::startPoll(void) {
-	if (this->_monitoredFds[0].fd == -1) {
-		this->_monitoredFds[0].fd = _listeningSocket.getSocketFd();
-		this->_monitoredFds[0].events = POLLIN; this->_monitoredFdsNum++;
-	}
-
-	int eventsNum = poll(this->_monitoredFds, this->_monitoredFdsNum, 5000);
-
-	if (eventsNum < 0)
+void Server::handleEvents(void)
+{
+	try
 	{
-		Exception pollException("Error ocurred in poll", POLL_FAILED);
-		throw pollException;
-	}
-
-	if (eventsNum == 0)
-		std::cout << "Timeout! No event received" << std::endl;
-	else if (eventsNum > 0) {
-
 		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
 		{
-			short int reventResult = this->_monitoredFds[i].revents & POLLIN;
-			int connectedSocketFd = -1;
-
-			if (reventResult != 0) {
-			std::cout << "Listening socket wiht fd " << this->_monitoredFds[i].fd << " has data to be read" << std::endl;
-
-			if (this->_monitoredFdsNum <= MAX_CONNECTIONS && i == 0) {
-				connectedSocketFd = this->acceptFirstRequestInQueue();
-				this->_monitoredFdsNum++;
-				for (unsigned int j = 0; j < this->_monitoredFdsNum; j++)
-				{
-				std::cout << "_monitoredFdsNum = " << _monitoredFdsNum << std::endl;
-					if (this->_monitoredFds[j].fd == -1) {
-					this->_monitoredFds[j].fd = connectedSocketFd;
-					this->_monitoredFds[j].events = POLLIN;
-					}
-				}
-
-
-				} else if (i != 0) {
-					// char string[100];
-					std::cout << "this->_monitoredFds[" << i << "].revents = " << this->_monitoredFds[i].revents << std::endl;
-					// recv(connectedSocketFd, string, 100, MSG_FLUSH);
-					close(this->_monitoredFds[i].fd);
-					this->_monitoredFds[i].fd = -1;
-					this->_monitoredFds[i].revents = 0;
-					this->_monitoredFdsNum--;
-					this->_connectedSockets.erase(_monitoredFds[i].fd);
-				}
-				// else {
-				// 	std::cout << "Maximum connections number reached. Can't accept any more connections!" << std::endl;
-				// 	this->_monitoredFds[0].revents = 0;
-				// 	this->_monitoredFds[0].fd = -1;
-				// 	this->_monitoredFdsNum--;
-				// 	break;
-				// }
+			// navid_code from here ->
+			if (this->_monitoredFds[i].revents == 0)
+			{
+				continue;
 			}
-		}
-		// this->_monitoredFds[0].revents = 0;
-		// this->_monitoredFds[0].fd = -1;
-		// this->_monitoredFdsNum--;
-	}
-
-	return;
-}
-
-void Server::startPoll2(void) {
-	// if (this->_monitoredFds[0].fd  == - 1)
-	// {
-
-	// }
-
-	try {
-		int eventsNum = poll(this->_monitoredFds, this->_monitoredFdsNum, 3000);
-
-		if (eventsNum < 0) {
-			Exception pollException("Poll exception", POLL_FAILED);
-			throw pollException;
-		}
-
-		if (eventsNum == 0)
-			std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
-
-		if (eventsNum > 0)
-		{
-			handleEvents();
-		}
-	} catch(Exception const &exception) {
-		throw exception;
-	}
-
-	// for (unsigned int i = 0; i < _monitoredFdsNum; i++)	{
-		// handleListeningSocket();
-		// handleConnectingSocket();
-	// }
-	return;
-}
-
-
-void Server::handleEvents(void) {
-	try {
-		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
-		{
+			if (this->_monitoredFds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+			{
+				close(this->_monitoredFds[i].fd);
+				this->_connectedSockets.erase(this->_monitoredFds[i].fd);
+				this->_monitoredFds[i].fd = -1;
+				this->closeSocket();
+				continue;
+			}
+			// ->! to here
 			if (this->_monitoredFds[i].fd == this->_listeningSocket.getSocketFd())
 			{
 				std::cout << "handling event on the listening socket" << std::endl;
 				this->handleEventsOnListeningSocket(i);
 			}
-			else {
+			else
+			{
 				std::cout << "handling event on a connected socket" << std::endl;
 				this->handleEventsOnConnectedSockets(i);
 			}
 		}
-	}catch(Exception const &exception) {
+	}
+	catch (Exception const &exception)
+	{
 		throw exception;
 	}
 
@@ -270,7 +199,8 @@ void Server::handleEventsOnListeningSocket( unsigned int i ) {
 		// 	throw Exception("Event error", EVENT_ERROR);
 		// }
 
-		if ((this->_monitoredFds[i].revents & POLLIN) && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
+		if ((this->_monitoredFds[i].revents & POLLIN) && (this->_monitoredFdsNum <= MAX_CONNECTIONS))
+		{
 			int connectedSocketFd = this->acceptFirstRequestInQueue();
 			this->addToMonitorsFds(connectedSocketFd);
 			this->_monitoredFdsNum++;
@@ -278,82 +208,154 @@ void Server::handleEventsOnListeningSocket( unsigned int i ) {
 		// else {
 		// 	throw Exception("Exception in listening socket!", EVENT_ERROR);
 		// }
-	} catch(Exception const &exception) {
+	}
+	catch (Exception const &exception)
+	{
 		throw exception;
 	}
 
 	return;
 }
 
-void Server::addToMonitorsFds(int connectedSocketFd) {
-	for (unsigned int i = 0; i <= MAX_CONNECTIONS ;i++) {
+void Server::addToMonitorsFds(int connectedSocketFd)
+{
+	for (unsigned int i = 0; i <= MAX_CONNECTIONS; i++)
+	{
 		if (this->_monitoredFds[i].fd == -1)
 		{
 			this->_monitoredFds[i].fd = connectedSocketFd;
-			this->_monitoredFds[i].events = POLLIN | POLLOUT;
+			// this->_monitoredFds[i].events = POLLIN | POLLOUT;
+			this->_monitoredFds[i].revents = 0;
+			this->_monitoredFds[i].events = POLLIN;
 			return;
 		}
 	}
 }
 
-void Server::handleEventsOnConnectedSockets(unsigned int i) {
-			std::cout << "this->_monitoredFds[" << i << "].fd = "  << this->_monitoredFds[i].fd << std::endl;
-			std::cout << "this->_monitoredFds[i].revents = "  << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
-			std::cout << "this->_monitoredFds[i].revents & POLLIN = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
-			std::cout << "this->_monitoredFds[i].revents & POLOUT = "  << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
-	try {
-		if (this->_monitoredFds[i].revents & POLLIN) {
-			char receive[20048];
-			receive[20047] = '\0';
-			ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
-			std::cout << "received request:\n" << GREEN << receive << RESET << std::endl;
-			if (result == -1)
-				throw Exception("Receive Failed", RECEIVE_FAILED);
+void Server::handleEventsOnConnectedSockets(unsigned int i)
+{
+
+	std::cout << "this->_monitoredFds[" << i << "].fd = " << this->_monitoredFds[i].fd << std::endl;
+	std::cout << "this->_monitoredFds[i].revents = " << std::hex << "0x" << (this->_monitoredFds[i].revents) << std::dec << std::endl;
+	std::cout << "this->_monitoredFds[i].revents & POLLIN = " << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLIN) << std::dec << std::endl;
+	std::cout << "this->_monitoredFds[i].revents & POLOUT = " << std::hex << "0x" << (this->_monitoredFds[i].revents & POLLOUT) << std::dec << std::endl;
+	try
+	{
+		if (this->_monitoredFds[i].revents & POLLIN)
+		{
+			std::cout << "RECEIVING THE REQUEST..." << std::endl;
+			// naivd_code from here ->
+			HTTPRequest httpreq(_settings); // navid_code
+			if (httpreq.handleRequest(this->_monitoredFds[i].fd))
+			{
+
+				// char receive[20048];
+				// receive[20047] = '\0';
+				// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
+				// if (result == -1)
+				// 	throw Exception("Receive Failed", RECEIVE_FAILED);
+				// // close(this->_monitoredFds[i].fd);
+				// // this->_monitoredFdsNum--;
+				// this->parseRequest(static_cast<std::string>(receive));
+				// this->printRequest();
+
+				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
+				std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
+				this->_monitoredFds[i].events = POLLOUT;
+			}
+			else
+			{
+				Exception httpRequestException("httpRequest failed!", HTTP_REQUEST_FAILED);
+				throw httpRequestException;
+			}
+		}
+
+		// if ((this->_monitoredFds[i].revents & POLLOUT) && !(this->_monitoredFds[i].revents & POLLIN))
+		// {
+		// 	std::cout << "***** NO POLLIN\n";
+		// 	// std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
+		// 	// 	send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+		// 	// close(this->_monitoredFds[i].fd);
+		// 	// this->_monitoredFds[i].fd = -1;
+		// 	// this->closeSocket();
+		// 	return;
+		// }
+
+		if (this->_monitoredFds[i].revents & POLLOUT)
+		{
+
+			// std::string htmlContent = this->readHtmlFile("./src/index.html");
+			// std::ostringstream ss;
+			// ss << "HTTP/1.1 200 OK\r\n";
+			// ss << "Content-Type: text/html\r\n";
+			// ss << "Content-Length:" << htmlContent.size() << "\r\n";
+			// ss << "\r\n";
+			// ss << htmlContent;
+			// size_t size = ss.str().size();
+			// // std::cout << ss.str() << std::endl;
+			// send(this->_monitoredFds[i].fd, ss.str().c_str(), size, 0);
 			// close(this->_monitoredFds[i].fd);
 			// this->_monitoredFdsNum--;
-			this->parseRequest(static_cast<std::string>(receive));
-			this->printRequest();
+			// ss << response;
+			// ss << htmlContent;
+			// Send the response
 
-		}
+			std::string response = _responses[this->_monitoredFds[i].fd];
+			//****************print the provided response in file***********************
+			std::cout << RED "****sending the response\n" RESET;
+			// writHtmlFile(response, "./src/request/response.txt");
+			std::ofstream outfile("./src/request/response.txt");
+			outfile << response << std::endl;
+			outfile.close();
+			//**************************************************************************
 
-		if (this->_monitoredFds[i].revents & POLLOUT) {
-			std::cout << "sending the response\n";
-			std::string htmlContent = this->readHtmlFile("./src/index.html");
-			std::ostringstream ss;
-			ss << "HTTP/1.1 200 OK\r\n";
-			ss << "Content-Type: text/html\r\n";
-			ss << "Content-Length:" << htmlContent.size() << "\r\n";
-			ss << "\r\n";
-			ss << htmlContent;
-			size_t size = ss.str().size();
-			// std::cout << ss.str() << std::endl;
-			send(this->_monitoredFds[i].fd, ss.str().c_str(), size, 0);
-			close(this->_monitoredFds[i].fd);
-			this->_monitoredFdsNum--;
+			send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+			int closeResult = close(this->_monitoredFds[i].fd);
+			if (closeResult == -1)
+			{
+				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			}
+			std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
+			this->_connectedSockets.erase(this->_monitoredFds[i].fd);
+			this->_monitoredFds[i].fd = -1;
+			this->closeSocket();
+			// this->_monitoredFdsNum--;
+
+			// Remove the response from the map
+			_responses.erase(this->_monitoredFds[i].fd);
 		}
-		// else {
+		// ->! to here
+		// else
+		// {
 		// 	throw Exception("Exception in connected socket!", EVENT_ERROR);
 		// }
-	}catch(Exception const &exception) {
+	}
+	catch (Exception const &exception)
+	{
 		throw exception;
 	}
 	return;
 }
 
-std::string Server::readHtmlFile(std::string path) {
-	std::ifstream fileStream;
-	fileStream.open(path.c_str());
+std::string Server::readHtmlFile(std::string path)
+{
+	std::ifstream fileStream(path.c_str());
+	// fileStream.open(path.c_str());
 	if (fileStream.is_open())
 		std::cout << "file is open\n";
 	else
+	{
 		perror("error:");
+		return ("");
+	}
 	std::ostringstream ss;
 	ss << fileStream.rdbuf();
 	// std::cout << ss.str() << std::endl;
 	return ss.str();
 }
 
-void Server::parseRequest(std::string request) {
+void Server::parseRequest(std::string request)
+{
 	std::istringstream inputStringStream(request, std::ios::in);
 	std::cout << "Parsing the request:" << std::endl;
 	// std::cout << inputStringStream.str() << std::endl;
@@ -368,9 +370,13 @@ void Server::parseRequest(std::string request) {
 	// this->_request["method"] = method;
 	// this->_request["path"] = path;
 	// this->_request["httpVersion"] = httpVersion;
+	this->_request["method"] = method;
+	this->_request["path"] = path;
+	this->_request["httpVersion"] = httpVersion;
 }
 
-void Server::printRequest(void) {
+void Server::printRequest(void)
+{
 	std::map<std::string, std::string>::iterator iterator;
 	// std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
 
@@ -390,3 +396,22 @@ size_t Server::getMonitoredFdsNum( void ) const { return (_monitoredFdsNum); };
 void Server::addServerName( std::string newName ) { _serverNames.push_back(newName); };
 void Server::addRoot( std::string newRoot ) { _roots.push_back(newRoot); };
 void Server::addIndex( std::string newIndex ) { _indexes.push_back(newIndex); };
+void Server::closeSocket()
+{
+	for (unsigned int i = 0; i < this->_monitoredFdsNum;)
+	{
+		if (this->_monitoredFds[i].fd == -1)
+		{
+			for (unsigned int j = i; j < this->_monitoredFdsNum - 1; ++j)
+			{
+				this->_monitoredFds[j] = this->_monitoredFds[j + 1];
+				this->_monitoredFds[j + 1].fd = -1;
+			}
+			this->_monitoredFdsNum--;
+		}
+		else
+		{
+			i++;
+		}
+	}
+}
