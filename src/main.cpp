@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 00:11:31 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/21 12:47:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,36 +15,43 @@
 #include "./server/Server.hpp"
 #include "./parsing/Parser.hpp"
 
-/*  
+/*
 	- Check verbosity of the parser: displayConf can be verbose=1 while parser steps are verbose=2
 	- with verbose=0 there is not output for the configuration
 	- when default settings are choosen, warn the user
 */
 
-int main ( int argc, char** argv ) {
-	try {
+int main(int argc, char **argv)
+{
+	try
+	{
 		Parser configuration(argc, argv);
 		// configuration.displayConf();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
 		std::vector<ServerConf>::iterator serverIt = configuration.getHttp().getServer().begin();
-		while (serverIt != configuration.getHttp().getServer().end()) {
+		while (serverIt != configuration.getHttp().getServer().end())
+		{
 			// Server httpServer;
 			Server s((*serverIt).getSettings());
-			
+
 			s.setPortAvailable();
 			s.bindSocket();
 			s.listenToRequests();
 
+			int i = 0;
 			while (true)
 			{
+				i++;
+				std::cout << CYAN << "Iteration number: " << i << RESET << std::endl;
 				s.startPoll2();
-				// s.printConnectedSockets();
+				s.printConnectedSockets();
 			}
 			serverIt++;
 		}
-		
-	} catch(Exception const &exception) {
+	}
+	catch (Exception const &exception)
+	{
 		std::cerr << RED << exception.what() << RESET << std::endl;
 		return exception.getError();
 	}

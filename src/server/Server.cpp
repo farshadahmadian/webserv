@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/21 12:12:59 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/21 13:30:26 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void Server::printConnectedSockets(void)
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
-	// std::cout << "Connected Sockets List:" << std::endl;
+	std::cout << "Connected Sockets List:" << std::endl;
 	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
 }
@@ -185,7 +185,7 @@ void Server::startPoll(void)
 					this->_monitoredFds[i].revents = 0;
 					// this->_monitoredFdsNum--;
 					this->closeSocket();
-					this->_connectedSockets.erase(_monitoredFds[i].fd);
+					this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 				}
 				// else {
 				// 	std::cout << "Maximum connections number reached. Can't accept any more connections!" << std::endl;
@@ -255,6 +255,7 @@ void Server::handleEvents(void)
 			if (this->_monitoredFds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 			{
 				close(this->_monitoredFds[i].fd);
+				this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 				this->_monitoredFds[i].fd = -1;
 				this->closeSocket();
 				continue;
@@ -397,8 +398,13 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			//**************************************************************************
 
 			send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-			close(this->_monitoredFds[i].fd);
+			int closeResult = close(this->_monitoredFds[i].fd);
+			if (closeResult == -1)
+			{
+				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			}
 			std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
+			this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 			this->_monitoredFds[i].fd = -1;
 			this->closeSocket();
 			// this->_monitoredFdsNum--;
@@ -472,6 +478,7 @@ void Server::closeSocket()
 			for (unsigned int j = i; j < this->_monitoredFdsNum - 1; ++j)
 			{
 				this->_monitoredFds[j] = this->_monitoredFds[j + 1];
+				this->_monitoredFds[j + 1].fd = -1;
 			}
 			this->_monitoredFdsNum--;
 		}
