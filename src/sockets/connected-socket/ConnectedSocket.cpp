@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectedSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 14:43:17 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/23 15:07:01 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,16 @@ ConnectedSocket::ConnectedSocket(void) : Socket() {
 ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t const &incomingConnectionAddressSize): 
 	Socket(socketFd), 
 	_incomingRequestAddress(incomingRequestAddress), 
-	_incomingConnectionAddressSize(incomingConnectionAddressSize) {
+	_incomingConnectionAddressSize(incomingConnectionAddressSize),
+	_isConnected(true) {
 	return;
 }
 
 ConnectedSocket::ConnectedSocket(ConnectedSocket const &other): 
 	Socket(other), 
 	_incomingRequestAddress(other._incomingRequestAddress), 
-	_incomingConnectionAddressSize(other._incomingConnectionAddressSize) {
+	_incomingConnectionAddressSize(other._incomingConnectionAddressSize),
+	_isConnected(other._isConnected) {
 	return;
 }
 
@@ -36,6 +38,7 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->setSocketFd(rhs.getSocketFd());
 		this->_incomingRequestAddress = rhs._incomingRequestAddress;
 		this->_incomingConnectionAddressSize = rhs._incomingConnectionAddressSize;
+		this->_isConnected = rhs._isConnected;
 	}
 	return *this;
 }
@@ -50,4 +53,12 @@ sockaddr_storage const &ConnectedSocket::getIncomingRequestAddress(void) const {
 
 socklen_t const &ConnectedSocket::getIncomingConnectionAddressSize(void) const {
 	return this->_incomingConnectionAddressSize;
+}
+
+bool ConnectedSocket::getIsConnected(void) const {
+	return this->_isConnected;
+}
+
+void ConnectedSocket::setIsConnected(bool isConnected) {
+	this->_isConnected = isConnected;
 }

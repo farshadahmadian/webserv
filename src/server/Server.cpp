@@ -3,22 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/22 09:42:27 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/23 16:01:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 // new constructor to create the vectors
-Server::Server( std::map<std::string, std::string> settings ):
-	_port(settings["port"]),
-	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
-	_connectedSockets(std::map<int, ConnectedSocket>()),
-	_monitoredFdsNum(0),
-	_request(std::map<std::string, std::string>()) { // ----- the problem of the crash seems this! ------ but not here
+Server::Server(std::map<std::string, std::string> settings) : _port(settings["port"]),
+																															_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
+																															_connectedSockets(std::map<int, ConnectedSocket>()),
+																															_monitoredFdsNum(0)
+																															// _request(std::map<std::string, std::string>())
+{ // ----- the problem of the crash seems this! ------ but not here
 
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
@@ -35,24 +35,25 @@ Server::Server( std::map<std::string, std::string> settings ):
 	this->_monitoredFds[0].events = POLLIN;
 	this->_monitoredFdsNum++;
 
-	std::cout << GREEN <<  "* Server [ " << settings["server_name"] << " ] created successfully." <<  RESET << std::endl;
+	std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
 
-Server::Server(	const Server& other ):
-	_port(other._port),
-	_serverNames(other._serverNames),
-	_roots(other._roots),
-	_indexes(other._indexes),
-	// _keepaliveTimeouts(other._keepaliveTimeouts),
-	// _autoindexes(other._autoindexes),
-	// _clientSizes(other._clientSizes),
-	_listeningSocket(other._listeningSocket),
-	_connectedSockets(other._connectedSockets),
-	_monitoredFdsNum(other._monitoredFdsNum) {
-	// _request(other._request) { // ----- the problem of the crash seems this! ------
+Server::Server(const Server &other) : _port(other._port),
+																			_serverNames(other._serverNames),
+																			_roots(other._roots),
+																			_indexes(other._indexes),
+																			// _keepaliveTimeouts(other._keepaliveTimeouts),
+																			// _autoindexes(other._autoindexes),
+																			// _clientSizes(other._clientSizes),
+																			_listeningSocket(other._listeningSocket),
+																			_connectedSockets(other._connectedSockets),
+																			_monitoredFdsNum(other._monitoredFdsNum)
+																			// _request(other._request) // ----- the problem of the crash seems this! ------
+{
 
 	size_t i = 0;
-	while(i < _monitoredFdsNum) {
+	while (i < _monitoredFdsNum)
+	{
 		_monitoredFds[i] = other._monitoredFds[i];
 		i++;
 	}
@@ -79,9 +80,11 @@ void Server::printConnectedSockets(void)
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
-	std::cout << "Connected Sockets List:" << std::endl;
+	std::cout << "Connected Sockets List in: " << this->_listeningSocket.getSocketFd() << " ===> " << std::endl;
 	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
+
+	std::cout << "finish\n";
 }
 
 void Server::setPortAvailable(void)
@@ -128,7 +131,8 @@ void Server::listenToRequests(void) const
 	return;
 }
 
-int Server::acceptFirstRequestInQueue(void) {
+int Server::acceptFirstRequestInQueue(void)
+{
 
 	struct sockaddr_storage incomingConnectionAddress;
 	memset(&incomingConnectionAddress, 0, sizeof(incomingConnectionAddress));
@@ -190,11 +194,12 @@ void Server::handleEvents(void)
 	{
 		throw exception;
 	}
-
 }
 
-void Server::handleEventsOnListeningSocket( unsigned int i ) {
-	try {
+void Server::handleEventsOnListeningSocket(unsigned int i)
+{
+	try
+	{
 		// if ((this->_monitoredFds[i].revents & POLLERR) || (this->_monitoredFds[i].revents & POLLHUP) || (this->_monitoredFds[i].revents & POLLNVAL)) {
 		// 	throw Exception("Event error", EVENT_ERROR);
 		// }
@@ -370,32 +375,44 @@ void Server::parseRequest(std::string request)
 	// this->_request["method"] = method;
 	// this->_request["path"] = path;
 	// this->_request["httpVersion"] = httpVersion;
-	this->_request["method"] = method;
-	this->_request["path"] = path;
-	this->_request["httpVersion"] = httpVersion;
 }
 
 void Server::printRequest(void)
 {
 	std::map<std::string, std::string>::iterator iterator;
-	// std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
-
-	// for (iterator = this->_request.begin(); iterator != iteratorEnd; iterator++)
-	// 	std::cout << iterator->first << " = " << iterator->second << std::endl;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
+	std::cout << "PRINTING CONNECTED SOCKET LIST ON " << this->_listeningSocket.getSocketFd() << std::endl;
+	for (iterator = this->_request.begin(); iterator != iteratorEnd; iterator++)
+		std::cout << iterator->first << " = " << iterator->second << std::endl;
 	return;
 }
 
+const std::string Server::getPort(void) const { 
+	return (_port);
+};
 
+size_t Server::getMonitoredFdsNum(void) const { 
+	return (_monitoredFdsNum);
+};
 
+std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
+{
+	return this->_connectedSockets;
+}
 
+std::map<std::string, std::string> &Server::getSettings(void)
+{
+	return this->_settings;
+}
 
+std::map<int, std::string> &Server::getResponses(void)
+{
+	return this->_responses;
+}
 
-const std::string Server::getPort( void ) const { return (_port); };
-size_t Server::getMonitoredFdsNum( void ) const { return (_monitoredFdsNum); };
-
-void Server::addServerName( std::string newName ) { _serverNames.push_back(newName); };
-void Server::addRoot( std::string newRoot ) { _roots.push_back(newRoot); };
-void Server::addIndex( std::string newIndex ) { _indexes.push_back(newIndex); };
+void Server::addServerName(std::string newName) { _serverNames.push_back(newName); };
+void Server::addRoot(std::string newRoot) { _roots.push_back(newRoot); };
+void Server::addIndex(std::string newIndex) { _indexes.push_back(newIndex); };
 void Server::closeSocket()
 {
 	for (unsigned int i = 0; i < this->_monitoredFdsNum;)

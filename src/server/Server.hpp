@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/22 09:40:58 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/22 15:23:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,57 +31,62 @@
 
 #define MAX_CONNECTIONS 10
 
-class Server {
-	private:
-		// new elements
-		const std::string _port;
-		std::vector<std::string> _serverNames;
-		std::vector<std::string> _roots;
-		std::vector<std::string> _indexes;
-		// std::vector<std::string> _keepaliveTimeouts;
-		// std::vector<std::string> _autoindexes;
-		// std::vector<std::string> _clientSizes;
+class Server
+{
+private:
+	// new elements
+	const std::string _port;
+	std::vector<std::string> _serverNames;
+	std::vector<std::string> _roots;
+	std::vector<std::string> _indexes;
+	// std::vector<std::string> _keepaliveTimeouts;
+	// std::vector<std::string> _autoindexes;
+	// std::vector<std::string> _clientSizes;
 
-		ListeningSocket _listeningSocket;
-		std::map<int, ConnectedSocket> _connectedSockets;
-		unsigned int _monitoredFdsNum;
-		struct pollfd _monitoredFds[MAX_CONNECTIONS];	// obsolete
-		std::map<std::string, std::string> _request;
+	ListeningSocket _listeningSocket;
+	std::map<int, ConnectedSocket> _connectedSockets;
+	unsigned int _monitoredFdsNum;
+	struct pollfd _monitoredFds[MAX_CONNECTIONS]; // obsolete
+	std::map<std::string, std::string> _request;
 
-		std::map<int, std::string> _responses;			// navid_code
-		std::map<std::string, std::string> _settings;	// navid_code
+	std::map<int, std::string> _responses;				// navid_code
+	std::map<std::string, std::string> _settings; // navid_code
 
-		void handleEvents(void);
-		void handleEventsOnListeningSocket(unsigned int i);
-		void handleEventsOnConnectedSockets(unsigned int i);
-		void addToMonitorsFds(int connectedSocketFd);
-		std::string readHtmlFile(std::string path);
-		void parseRequest(std::string request);
-		void printRequest(void);
-		void closeSocket(void);
+	void handleEvents(void);
+	void handleEventsOnListeningSocket(unsigned int i);
+	void handleEventsOnConnectedSockets(unsigned int i);
+	void addToMonitorsFds(int connectedSocketFd);
+	std::string readHtmlFile(std::string path);
+	void parseRequest(std::string request);
+	void printRequest(void);
 
-		Server(	void ); // ---------------------------------- UNUSED CONSTRUCTORS
-		Server& operator=( Server const &rhs );
-	public:
-		Server( std::map<std::string, std::string> settings );
-		~Server( void );
-		Server( const Server& other );
+	Server(void); // ---------------------------------- UNUSED CONSTRUCTORS
+	Server &operator=(Server const &rhs);
 
-		ListeningSocket const &getListeningSocket(void) const;
+public:
+	Server(std::map<std::string, std::string> settings);
+	~Server(void);
+	Server(const Server &other);
 
-		void printConnectedSockets(void);
+	ListeningSocket const &getListeningSocket(void) const;
 
-		const std::string getPort( void ) const;
-		size_t getMonitoredFdsNum( void ) const;
+	void printConnectedSockets(void);
 
-		void addServerName( std::string newName );
-		void addRoot( std::string newRoot );
-		void addIndex( std::string newIndex );
+	const std::string getPort(void) const;
+	size_t getMonitoredFdsNum(void) const;
+	std::map<int, ConnectedSocket> &getConnectedSockets(void);
+	std::map<std::string, std::string> &getSettings(void);
+	std::map<int, std::string> &getResponses(void);
 
-		void setPortAvailable(void);
-		void bindSocket(void) const;
-		void listenToRequests(void) const;
-		int acceptFirstRequestInQueue(void);
+	void addServerName(std::string newName);
+	void addRoot(std::string newRoot);
+	void addIndex(std::string newIndex);
+
+	void setPortAvailable(void);
+	void bindSocket(void) const;
+	void listenToRequests(void) const;
+	int acceptFirstRequestInQueue(void);
+	void closeSocket(void);
 };
 
 #endif /* __SERVER_HPP__ */

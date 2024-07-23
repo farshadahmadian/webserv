@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectedSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/09 16:24:52 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/23 15:04:00 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class ConnectedSocket : public Socket {
 	private:
 		struct sockaddr_storage _incomingRequestAddress;
 		socklen_t _incomingConnectionAddressSize;
+		bool _isConnected;
 
 	public:
 		ConnectedSocket(void);
@@ -30,6 +31,8 @@ class ConnectedSocket : public Socket {
 
 		sockaddr_storage const &getIncomingRequestAddress(void) const;
 		socklen_t const &getIncomingConnectionAddressSize(void) const;
+		bool getIsConnected(void) const;
+		void setIsConnected(bool isConnected);
 };
 
 #endif

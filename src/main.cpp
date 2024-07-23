@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/22 09:50:24 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/23 15:31:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,19 @@ int main(int argc, char **argv)
 		// configuration.displayConf();
 		std::cout << "---------------------------------------------------------" << std::endl;
 
-		Poll pollOfservers(configuration);
-		pollOfservers.init();
-		pollOfservers.start();
-
+		Poll pollOfServers(configuration);
+		pollOfServers.init();
+		pollOfServers.start();
 	}
-	catch (std::exception& e) {
-		std::cerr << R("Error: ") << e.what() << std::endl;
-		return (1);
-	}
-	catch (Exception const &exception) {
+	catch (Exception const &exception)
+	{
 		std::cerr << RED << exception.what() << RESET << std::endl;
 		return exception.getError();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << R("Error: ") << e.what() << std::endl;
+		return (1);
 	}
 	return (0);
 }
