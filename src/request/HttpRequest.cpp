@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/21 09:41:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/25 09:24:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ bool HTTPRequest::parse()
 		}
 	}
 
+	
 	//****************print header map********************
 	std::cout << RED "****The headers map:\n";
 	std::map<std::string, std::string>::iterator itr = _headers.begin();
@@ -207,8 +208,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	_request = buffer;
 
 	//****************print request***********************
-	std::cout << RED "****received request:\n"
-						<< CYAN << _request << RESET << std::endl;
+	std::cout << RED "****received request:\n" << CYAN << _request << RESET << std::endl;
 	//****************************************************
 
 	if (!parse())
