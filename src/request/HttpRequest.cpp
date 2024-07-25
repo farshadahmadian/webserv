@@ -3,16 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/25 09:24:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:39:17 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HTTPRequest::HTTPRequest(std::map<std::string, std::string> serverConfig) : _serverConfig(serverConfig) {}
+HTTPRequest::HTTPRequest( void ) {}
+
+HTTPRequest::~HTTPRequest( void ) { std::cout << BLUE "HTTPRequest destructor called\n" RESET;}
+
+HTTPRequest::HTTPRequest(std::map<std::string, std::string> &serverConfig) :
+	_null(""),
+	_request(""),
+	_method(""),
+	_uri(""),
+	_version(""),
+	_body(""),
+	_serverConfig(serverConfig) {std::cout << BLUE "HTTPRequest constructor called\n" RESET;}
 
 bool HTTPRequest::isValidMethod(const std::string &mthd)
 {
@@ -32,6 +43,7 @@ bool HTTPRequest::parse()
 	// Parse request line
 	if (!std::getline(requestStream, line))
 	{
+		std::cout << "HIIIIIIIIIIII1111\n";
 		return false;
 	}
 	std::istringstream requestLine(line);
@@ -50,6 +62,7 @@ bool HTTPRequest::parse()
 	_headers["version"] = _version;
 	_headers["uri"] = _uri;
 	_headers["method"] = _method;
+
 	while (std::getline(requestStream, line) && line != "\r")
 	{
 		size_t pos = line.find(":");
@@ -63,29 +76,48 @@ bool HTTPRequest::parse()
 		}
 	}
 
-	
 	//****************print header map********************
-	std::cout << RED "****The headers map:\n";
-	std::map<std::string, std::string>::iterator itr = _headers.begin();
-	for (; itr != _headers.end(); itr++)
-		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+	displayHeaders();
 	//****************print srver config map**************
-	std::cout << RED "****The server config map:\n";
-	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
-	for (; itrr != _serverConfig.end(); itrr++)
-		std::cout << ORG << itrr->first << "->" MAGENTA << itrr->second << RESET << std::endl;
+	displayServerConfig();
 	//****************************************************
-
-	// parsing the post
-	//  if (_method == "POST") {
-	//      std::getline(requestStream, _body);
-	//  }
 
 	return true;
 }
 
+std::map<std::string, std::string> const &HTTPRequest::getHeaders() {return (_headers);}
+
+void HTTPRequest::displayRequest() const
+{
+	std::cout << RED "****received request:\n"
+		<< CYAN << _request << RESET << std::endl;
+}
+
+void HTTPRequest::displayHeaders()
+{
+	std::cout << RED "****The headers map:\n";
+	std::map<std::string, std::string>::iterator itr = _headers.begin();
+	for (; itr != _headers.end(); itr++)
+		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+}
+
+void HTTPRequest::displayServerConfig()
+{
+	std::cout << RED "****The server config map:\n";
+	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
+	for (; itrr != _serverConfig.end(); itrr++)
+		std::cout << ORG << itrr->first << "->" MAGENTA << itrr->second << RESET << std::endl;
+}
+
+void HTTPRequest::displayResponse(int fd)
+{
+
+	std::cout << MAGENTA "Respond: " << _responses[fd] << RESET <<std::endl;
+}
+
 int HTTPRequest::validate()
 {
+	
 	if (_headers.find("Host") == _headers.end())
 		return 400;
 	if (_headers.find("If-None-Match") != _headers.end())
@@ -125,7 +157,7 @@ std::string HTTPRequest::getResponse()
 std::string HTTPRequest::handleGet()
 {
 
-	std::string readHtml = readHtmlFile("./src/index.html");
+	std::string readHtml = readHtmlFile("./src/images/index.html");
 	std::ostringstream headers;
 	std::string date, lastMfd, eTag;
 
@@ -134,15 +166,15 @@ std::string HTTPRequest::handleGet()
 		eTag = generateETag("./src/index.html", date, lastMfd);
 		std::cout << RED "inside Get ......." RESET << std::endl;
 		headers << httpStatusCode(200);
-		headers << "Server: " + _serverConfig["server_name"] << "\r\n";
-		headers << "Date: " + date << "\r\n";
+		headers << "Server: " + _serverConfig["server_name"] << CRLF;
+		headers << "Date: " + date << CRLF;
 		headers << "Content-Type: text/html\r\n";
-		headers << "Content-Length: " << readHtml.size() << "\r\n";
-		headers << "Last-Modified: " + lastMfd << "\r\n";
-		headers << "Connection: close" << "\r\n";
-		headers << "ETag: " + eTag << "\r\n";
-		headers << "Accept-Ranges: bytes\r\n\r\n";
-		headers << "\r\n";
+		headers << "Content-Length: " << readHtml.size() << CRLF;
+		headers << "Last-Modified: " + lastMfd << CRLF;
+		headers << "Connection: close" << CRLF;
+		headers << "ETag: " + eTag << CRLF;
+		headers << "Accept-Ranges: bytes" CRLF CRLF;
+		headers << CRLF;
 		headers << readHtml;
 		return headers.str();
 	}
@@ -152,8 +184,8 @@ std::string HTTPRequest::handleGet()
 		std::ostringstream errorHeader;
 		errorHeader.clear();
 		errorHeader << httpStatusCode(404);
-		errorHeader << "Connection: close" << "\r\n";
-		// errorHeader << "\r\n";
+		errorHeader << "Connection: close" << CRLF;
+		// errorHeader << CR NL;
 		return errorHeader.str() + "Content-Type: text/html\r\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></body></html>";
 	}
 }
@@ -191,12 +223,13 @@ std::string HTTPRequest::httpStatusCode(int statusCode)
 
 bool HTTPRequest::handleRequest(int clientSocket)
 {
-	char buffer[1024];
+	char buffer[2048];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
-	// if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-	// return (true);
+	if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)){
+		return (false);
+	}
 
 	if (bytesRead < 0)
 	{
@@ -204,18 +237,22 @@ bool HTTPRequest::handleRequest(int clientSocket)
 		close(clientSocket);
 		return (false);
 	}
+
 	buffer[bytesRead] = '\0';
-	_request = buffer;
+	_request.assign(buffer);
 
 	//****************print request***********************
-	std::cout << RED "****received request:\n" << CYAN << _request << RESET << std::endl;
+	displayRequest();
 	//****************************************************
 
 	if (!parse())
 	{
+		
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
 		send(clientSocket, response.c_str(), response.length(), 0);
 		close(clientSocket);
+				std::cout << "HIIIIIIIIIII2222\n";
+
 		return (false);
 		// } else {
 		//     std::string response = getResponse();
@@ -223,6 +260,56 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	}
 	return (true);
 }
+
+void HTTPRequest::printStringToFile(std::string const & string,std::string const path)
+{
+	std::cout << RED "****sending the response\n" RESET;
+	std::ofstream outfile(path.c_str());
+	outfile << string << std::endl;
+	outfile.close();
+}
+
+
+bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
+{
+	if (pollEvent == POLL_IN) {
+		this->_responses[clientSocket] = getResponse();
+		std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
+		return (true);
+	}
+	if (pollEvent == POLL_OUT) {
+		std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
+		if (iter == this->_responses.end()) {
+			std::cerr << "No response found for socket fd " << clientSocket << std::endl;
+			return (false);
+		}
+		std::string response = this->_responses[clientSocket];
+
+		//****************print the provided response in command prompt***********************
+		displayResponse(clientSocket);
+		//****************print the provided response in file***********************
+		printStringToFile(response, "./src/request/response.txt");
+		//**************************************************************************
+
+		ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
+		if (bytesSent == -1) {
+			std::cerr << RED << "Sending response failed" << RESET << std::endl;
+			return (false);
+		}
+		int closeResult = close(clientSocket);
+		if (closeResult == -1)
+		{
+			std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			return (false);
+		}
+		std::cout << RED << "Socket [" << clientSocket << "] is closed." << RESET << std::endl;
+		
+		this->_responses.erase(clientSocket);
+		return (true);
+	}
+	return (false);
+}
+
 
 std::string HTTPRequest::readHtmlFile(std::string path)
 {
@@ -322,3 +409,4 @@ void writHtmlFile(std::string request, std::string path)
 	outFile.close();
 	exit(1);
 }
+

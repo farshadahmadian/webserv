@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/24 08:03:33 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:30:48 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,9 @@ private:
 	struct pollfd _monitoredFds[MAX_CONNECTIONS]; // obsolete
 	std::map<std::string, std::string> _request;
 
-	std::map<int, std::string> _responses;				// navid_code
-	std::map<std::string, std::string> _settings; // navid_code
+	// std::map<int, std::string> _responses;				// navid_code
+	// std::map<std::string, std::string> _settings; // navid_code
+	HTTPRequest _httpReq; //navid_code
 
 	void handleEvents(void);
 	void handleEventsOnListeningSocket(unsigned int i);
@@ -75,8 +76,8 @@ public:
 	const std::string getPort(void) const;
 	size_t getMonitoredFdsNum(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	std::map<std::string, std::string> &getSettings(void);
-	std::map<int, std::string> &getResponses(void);
+	// std::map<std::string, std::string> &getSettings(void);
+	// std::map<int, std::string> &getResponses(void);
 
 	void addServerName(std::string newName);
 	void addRoot(std::string newRoot);
@@ -87,6 +88,8 @@ public:
 	void listenToRequests(void) const;
 	int acceptFirstRequestInQueue(void);
 	void closeSocket(void);
+
+	HTTPRequest & getHttpReq(); //navid_code
 };
 
 #endif /* __SERVER_HPP__ */
