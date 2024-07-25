@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/23 15:31:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/24 12:49:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,6 @@ int main(int argc, char **argv)
 		std::cerr << R("Error: ") << e.what() << std::endl;
 		return (1);
 	}
+	// close listening socket fds
 	return (0);
 }

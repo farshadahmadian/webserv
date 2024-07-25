@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/23 19:54:44 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/24 08:02:08 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ private:
 	void addConnectedSocketToMonitoredList(int connectedSocketFd);
 	void removeClosedSocketsFromMap(Server &s);
 	void removeClosedSocketsFromPollFds(void);
+	void printCurrentPollFds(void);
+	void printAllPollFds(void);
 
 	// UN-USED CONSTRUCTORS
 	Poll(void);

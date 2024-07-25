@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/22 15:23:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/24 08:03:33 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 #include "../sockets/connected-socket/ConnectedSocket.hpp"
 #include "../server/Server.hpp"
 
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 3
 
 class Server
 {
