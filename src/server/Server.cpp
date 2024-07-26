@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/25 19:48:02 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,7 +258,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			// HTTPRequest httpreq(_settings); // navid_code
 			if (_httpReq.handleRequest(this->_monitoredFds[i].fd))
 			{
-				_httpReq.handleRespons(this->_monitoredFds[i].fd, POLL_IN);//navid_code
+				_httpReq.handleRespons(this->_monitoredFds[i].fd, POLLIN_TMP);//navid_code
 				
 				// char receive[20048];
 				// receive[20047] = '\0';
@@ -326,7 +326,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			// }
 			// std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
 			
-			_httpReq.handleRespons(this->_monitoredFds[i].fd, POLL_OUT); //navid_code
+			_httpReq.handleRespons(this->_monitoredFds[i].fd, POLLOUT_TMP); //navid_code
 			this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 			this->_monitoredFds[i].fd = -1;
 			this->closeSocket();

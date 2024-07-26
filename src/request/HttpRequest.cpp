@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/25 19:39:17 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ std::string HTTPRequest::getResponse()
 std::string HTTPRequest::handleGet()
 {
 
-	std::string readHtml = readHtmlFile("./src/images/index.html");
+	std::string readHtml = readHtmlFile("./src/index.html");
 	std::ostringstream headers;
 	std::string date, lastMfd, eTag;
 
@@ -168,10 +168,10 @@ std::string HTTPRequest::handleGet()
 		headers << httpStatusCode(200);
 		headers << "Server: " + _serverConfig["server_name"] << CRLF;
 		headers << "Date: " + date << CRLF;
-		headers << "Content-Type: text/html\r\n";
+		headers << "Content-Type: text/html" << CRLF;
 		headers << "Content-Length: " << readHtml.size() << CRLF;
 		headers << "Last-Modified: " + lastMfd << CRLF;
-		headers << "Connection: close" << CRLF;
+		// headers << "Connection: close" << CRLF;
 		headers << "ETag: " + eTag << CRLF;
 		headers << "Accept-Ranges: bytes" CRLF CRLF;
 		headers << CRLF;
@@ -263,7 +263,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 
 void HTTPRequest::printStringToFile(std::string const & string,std::string const path)
 {
-	std::cout << RED "****sending the response\n" RESET;
+	std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
 	std::ofstream outfile(path.c_str());
 	outfile << string << std::endl;
 	outfile.close();
@@ -272,25 +272,37 @@ void HTTPRequest::printStringToFile(std::string const & string,std::string const
 
 bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
 {
-	if (pollEvent == POLL_IN) {
+	if (pollEvent == POLLIN_TMP) {
 		this->_responses[clientSocket] = getResponse();
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
+		// std::cout << "***************************************\n";
 		std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
 		return (true);
 	}
-	if (pollEvent == POLL_OUT) {
-		std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
-		if (iter == this->_responses.end()) {
-			std::cerr << "No response found for socket fd " << clientSocket << std::endl;
-			return (false);
-		}
+	if (pollEvent == POLLOUT_TMP) {
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "po:"<< this->_responses[clientSocket] << RESET << std::endl;
+		// std::cout << "***************************************\n";
+		// std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "iter:"<< iter->second << RESET << std::endl;
+		// std::cout << "***************************************\n";
+		// // if (iter == this->_responses.end()) {
+		// if (!iter->first || iter->second == "") {
+		// 	// this->_responses.erase(clientSocket);
+
+		// 	std::cerr << "No response found for socket fd " << clientSocket << std::endl;
+		// 	return (false);
+		// }
 		std::string response = this->_responses[clientSocket];
+		// std::string response = iter->second;
 
 		//****************print the provided response in command prompt***********************
 		displayResponse(clientSocket);
 		//****************print the provided response in file***********************
 		printStringToFile(response, "./src/request/response.txt");
 		//**************************************************************************
-
 		ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
 		if (bytesSent == -1) {
 			std::cerr << RED << "Sending response failed" << RESET << std::endl;

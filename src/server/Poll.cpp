@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/25 19:33:38 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// HTTPRequest httpreq(s.getSettings()); // navid_code
 			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
-				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLL_IN); //navid_code
+				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
 				// char receive[20048];
 				// receive[20047] = '\0';
 				// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
@@ -274,7 +274,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// 	std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
 			// }
 			// std::cout << RED << "Socket [" << s.getConnectedSockets()[this->_totalFds[i].fd].getSocketFd() << "] is closed." << RESET << d::endl; 
-			s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLL_OUT);
+			s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);
 			s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
 			// s.getResponses().erase(this->_totalFds[i].fd);
 			this->_totalFds[i].fd = -1;

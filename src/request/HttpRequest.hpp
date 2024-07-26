@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/25 19:04:15 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@
 # define LF	"\n"
 # define CRLF "\r\n"
 
-# include "colors.h"
-# include "errors.h"
+// # include "../../include/colors.h"
+# include "../../include/errors.h"
 # include "../exception/Exception.hpp"
 # include "../parsing/HttpConf.hpp"
 
@@ -48,8 +48,8 @@
 
 
 enum POLLEvents {
-POLL_IN  = 0,
-POLL_OUT = 1,
+POLLIN_TMP  = 0,
+POLLOUT_TMP = 1,
 };
 
 class HTTPRequest {
