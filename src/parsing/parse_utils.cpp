@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_utils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/17 11:35:44 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 13:35:42 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:41:38 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ std::string& trim( std::string& s, const char* to_trim ) {
 
 bool isValidServerName( std::string value ) { // extract in utils
 	size_t n_dots = 0;
-
+	(void) n_dots;
+	(void) value;
 	// std::cout << "IP: " << "[" << value << "]" << std::endl;
 	// while (!value.empty()) {
 	// 	std::cout << "* N dots: " << n_dots << std::endl;

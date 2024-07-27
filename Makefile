@@ -6,64 +6,9 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/27 08:39:32 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/07/27 18:20:30 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-
-# NAME     := webserv
-# CXX      := g++
-# CXXFLAGS := -Wall -Wextra -std=c++98 -g #-Werror
-# CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
-
-# # Directories
-# SRC_DIR := src
-# OBJ_DIR := objs
-# EXTRA_INC_DIR := include
-
-# # Find all .cpp files in the SRC directory and subdirectories
-# CPP_FILES := $(shell find $(SRC_DIR) -type f -name '*.cpp')
-
-# # Find all directories containing .hpp files
-# INCLUDE_DIRS := $(shell find $(SRC_DIR) -type f -name '*.hpp' -exec dirname {} \; | sort -u)
-# INCLUDE_DIRS += $(shell find $(EXTRA_INC_DIR) -type f -name '*.h' -exec dirname {} \; | sort -u)
-
-# # Add include flags for each directory
-# INCLUDES := $(addprefix -I,$(INCLUDE_DIRS))
-
-# # Generate object file names, preserving directory structure
-# OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP_FILES))
-
-# all: $(NAME)
-
-# $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-# 	@mkdir -p $(dir $@)
-# 	@$(CXX) -c -o $@ $< $(CXXFLAGS) $(INCLUDES)
-
-# $(NAME): $(OBJ_FILES)
-# 	@$(CXX) $(CXXFLAGS) $(OBJ_FILES) -o $(NAME) $(LDFLAGS)
-# 	@echo "$(ORG)----- $(RESET)$(GREEN)$(NAME)$(RESET)$(ORG) as exe file is created!-----$(RESET)"
-
-# clean:
-# 	@rm -rf $(OBJ_DIR)
-
-# fclean: clean
-# 	@rm -rf $(NAME)
-
-# re: fclean all
-
-# .PHONY: all clean fclean re
-
-# BLUE    = \033[38;5;4m
-# GREEN   = \033[38;5;2m
-# ORG     = \033[38;5;214m
-# RED     = \033[38;5;196m
-# RESET   = \033[0m
-
-
-
-
-
-
 
 NAME		=	webserv
 
@@ -153,7 +98,7 @@ $(NAME): $(OBJS)
 
 $(OBJS_PATH)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(OBJS_PATH)
-	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	c++ $(CXXFLAGS) $(INCLUDE) -c $< -o $@ -DVERBOSE=$(VERBOSE)
 
 clean:
 	rm -rf $(OBJS_PATH)
