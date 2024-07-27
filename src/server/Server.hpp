@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/24 08:03:33 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:18:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include "../sockets/listening-socket/ListeningSocket.hpp"
 #include "../sockets/connected-socket/ConnectedSocket.hpp"
 #include "../server/Server.hpp"
+#include "HttpRequest.hpp"
 
 #define MAX_CONNECTIONS 3
 
@@ -51,6 +52,7 @@ private:
 
 	std::map<int, std::string> _responses;				// navid_code
 	std::map<std::string, std::string> _settings; // navid_code
+	HTTPRequest _httpRequest;
 
 	void handleEvents(void);
 	void handleEventsOnListeningSocket(unsigned int i);
@@ -77,6 +79,7 @@ public:
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
 	std::map<std::string, std::string> &getSettings(void);
 	std::map<int, std::string> &getResponses(void);
+	HTTPRequest &getHttpRequest(void);
 
 	void addServerName(std::string newName);
 	void addRoot(std::string newRoot);

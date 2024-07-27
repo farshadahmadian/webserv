@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/17 19:35:23 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:22:51 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,18 +41,19 @@
 #include <cstring>     // For memset
 #include <sstream>     // For std::istringstream
 #include <algorithm>   // For std::remove
-
+#include "Post.hpp"
 
 class HTTPRequest {
 public:
 	// HTTPRequest(const std::string& request);
+	HTTPRequest(void);
 	HTTPRequest(std::map<std::string, std::string> serverConfig);
 	bool parse();
 	int validate();
-	std::string getResponse();
+	std::string getResponse(int connectedSocketFd);
 	bool handleRequest(int clientSocket);
 	std::string readHtmlFile(std::string path);
-	
+	void setServerConfig(std::map<std::string, std::string> const &serverConfig);
 
 private:
 	std::string _request;
@@ -60,13 +61,13 @@ private:
 	std::string _uri;
 	std::string _version;
 	std::map<std::string, std::string> _headers;
-    std::string _body;
+	std::string _body;
 	std::map<std::string, std::string> _serverConfig;
+	Post _post;
 
-
-    std::string handleGet();
-    std::string handlePost();
-    std::string handleDelete();
+	std::string handleGet();
+	// std::string handlePost();
+	std::string handleDelete();
 
 	bool isValidMethod(const std::string& method);
 	bool isValidHttpVersion(const std::string& version);

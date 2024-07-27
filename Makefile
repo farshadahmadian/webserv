@@ -6,7 +6,7 @@
 #    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/23 09:17:24 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/07/27 08:39:32 by fahmadia         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -109,9 +109,11 @@ SERVER_HPP	=	./src/server/Server.hpp \
 				./src/server/Poll.hpp \
 				./src/exception/Exception.hpp
 
-REQUEST_CPP = HttpRequest.cpp
+REQUEST_CPP = HttpRequest.cpp \
+				Post.cpp
 REQUEST_HPP = HttpRequest.hpp \
-				HttpStatus.hpp
+				HttpStatus.hpp \
+				Post.hpp
 
 # files to tidy up
 EXTRA_CPP	=	memoryTest.cpp

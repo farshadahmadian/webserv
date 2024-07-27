@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/25 09:24:27 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:23:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,8 +230,11 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 
 			std::cout << "RECEIVING THE REQUEST..." << std::endl;
 			// naivd_code from here ->
-			HTTPRequest httpreq(s.getSettings()); // navid_code
-			if (httpreq.handleRequest(this->_totalFds[i].fd))
+			// HTTPRequest httpreq(s.getSettings()); // navid_code
+			s.getHttpRequest().setServerConfig(s.getSettings());
+
+			// if (httpreq.handleRequest(this->_totalFds[i].fd))
+			if (s.getHttpRequest().handleRequest(this->_totalFds[i].fd))
 			{
 
 				// char receive[20048];
@@ -244,7 +247,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 				// this->parseRequest(static_cast<std::string>(receive));
 				// this->printRequest();
 
-				s.getResponses()[this->_totalFds[i].fd] = httpreq.getResponse();
+				s.getResponses()[this->_totalFds[i].fd] = s.getHttpRequest().getResponse(this->_totalFds[i].fd);
 				std::cout << "Handled request on socket fd " << this->_totalFds[i].fd << std::endl;
 				// this->_totalFds[i].events = POLLOUT;
 			}

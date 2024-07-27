@@ -6,13 +6,17 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/25 09:24:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/27 18:05:19 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HTTPRequest::HTTPRequest(std::map<std::string, std::string> serverConfig) : _serverConfig(serverConfig) {}
+HTTPRequest::HTTPRequest(void) : _post(Post()) {
+	return;
+}
+
+HTTPRequest::HTTPRequest(std::map<std::string, std::string> serverConfig) : _serverConfig(serverConfig), _post(Post()) {}
 
 bool HTTPRequest::isValidMethod(const std::string &mthd)
 {
@@ -88,12 +92,12 @@ int HTTPRequest::validate()
 {
 	if (_headers.find("Host") == _headers.end())
 		return 400;
-	if (_headers.find("If-None-Match") != _headers.end())
-		return 304;
+	// if (_headers.find("If-None-Match") != _headers.end())
+	// 	return 304;
 	return 200;
 }
 
-std::string HTTPRequest::getResponse()
+std::string HTTPRequest::getResponse(int connectedSocketFd)
 {
 	int statusCode = validate();
 
@@ -113,7 +117,10 @@ std::string HTTPRequest::getResponse()
 	}
 	else if (_method == "POST")
 	{
-		return handlePost();
+		// return handlePost();
+		this->_post.handlePost(this->_request, connectedSocketFd);
+		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
+		return (this->_post.getResponses()[connectedSocketFd]);
 	}
 	else if (_method == "DELETE")
 	{
@@ -158,11 +165,11 @@ std::string HTTPRequest::handleGet()
 	}
 }
 
-std::string HTTPRequest::handlePost()
-{
-	// Placeholder implementation
-	return httpStatusCode(200) + "Connection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
-}
+// std::string HTTPRequest::handlePost()
+// {
+// 	// Placeholder implementation
+// 	return httpStatusCode(200) + "Connection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
+// }
 
 std::string HTTPRequest::handleDelete()
 {
@@ -191,7 +198,7 @@ std::string HTTPRequest::httpStatusCode(int statusCode)
 
 bool HTTPRequest::handleRequest(int clientSocket)
 {
-	char buffer[1024];
+	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
@@ -321,4 +328,9 @@ void writHtmlFile(std::string request, std::string path)
 	}
 	outFile.close();
 	exit(1);
+}
+
+void HTTPRequest::setServerConfig(std::map<std::string, std::string> const &serverConfig) {
+	this->_serverConfig = serverConfig;
+	return;
 }

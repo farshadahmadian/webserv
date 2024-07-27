@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/24 12:32:53 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:24:42 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,7 +264,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 				// this->parseRequest(static_cast<std::string>(receive));
 				// this->printRequest();
 
-				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse();
+				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse(this->_monitoredFds[i].fd);
 				std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
 				this->_monitoredFds[i].events = POLLOUT;
 			}
@@ -431,4 +431,8 @@ void Server::closeSocket()
 			i++;
 		}
 	}
+}
+
+HTTPRequest &Server::getHttpRequest(void) {
+	return this->_httpRequest;
 }

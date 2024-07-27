@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/24 12:49:10 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/27 17:27:27 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ int main(int argc, char **argv)
 
 		Poll pollOfServers(configuration);
 		pollOfServers.init();
-		pollOfServers.start();
+		pollOfServers.
+		start();
 	}
 	catch (Exception const &exception)
 	{
