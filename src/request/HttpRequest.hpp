@@ -6,7 +6,7 @@
 /*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/25 19:04:15 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/27 23:39:15 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ public:
 	bool handleRequest(int clientSocket);
 	bool handleRespons(int clientSocket, int const &pollEvent);
 	std::string readHtmlFile(std::string path);
-	std::map<std::string, std::string> const & getHeaders();
+	std::map<std::string, std::string> const & getRequest();
 	void printStringToFile(std::string const & string, std::string const path);
 	void displayRequest() const;
 	void displayHeaders();
@@ -72,14 +72,13 @@ public:
 	
 
 private:
-	std::string _null;
-	std::string _request;
+	std::string _requestString;
 	std::string _method;
 	std::string _uri;
 	std::string _version;
     std::string _body;
 	std::map<int, std::string> _responses;
-	std::map<std::string, std::string> _headers;
+	std::map<std::string, std::string> _requestMap;
 	std::map<std::string, std::string> _serverConfig;
 
 
