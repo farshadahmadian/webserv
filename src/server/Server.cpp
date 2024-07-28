@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/27 09:24:42 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/28 18:36:35 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,10 +139,16 @@ int Server::acceptFirstRequestInQueue(void)
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		perror("fcntl F_SETFL");
-	}
+	// if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	// {
+	// 	perror("fcntl F_SETFL");
+	// }
+
+	std::cout << YELLOW << "***********Incoming Connection Address Begin***********:" << RESET << std::endl;
+	std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr);
+	std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl;
+	std::cout << YELLOW << "***********Incoming Connection Address End***********:" << RESET << std::endl;
+
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
 	if (connectedSocket.getSocketFd() == -1)

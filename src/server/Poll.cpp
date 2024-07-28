@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/27 09:23:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/28 16:40:44 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,8 +193,8 @@ void Poll::handleListeningEvent(size_t i, Server &s)
 			int connectedSocketFd = s.acceptFirstRequestInQueue();
 
 			addConnectedSocketToMonitoredList(connectedSocketFd);
-			// this->_totalFds[i].revents = 0;
-			 this->printCurrentPollFds(); 
+			this->_totalFds[i].revents = 0;
+			this->printCurrentPollFds();
 		}
 	}
 	catch (Exception const &exception)
@@ -224,6 +224,31 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			this->removeClosedSocketsFromPollFds();
 			return ;
 		}
+
+
+
+		// std::cout << "WAITING ... " << std::endl;
+		// sleep(1);
+		// std::cout << "CONTINUING ... " << std::endl;
+		// if ((this->_totalFds[i].revents & POLLOUT) && !(this->_totalFds[i].revents & POLLIN)) {
+		// 	std::cout << YELLOW << "*************** NO POLLIN *************** " << RESET << std::endl;
+		// 	std::ostringstream outputString;
+		// 	outputString << "HTTP/1.1 408 Request Timeout\r\nConnection: closed\r\n\r\n";
+		// 	send(s.getConnectedSockets()[this->_totalFds[i].fd].getSocketFd(), outputString.str().c_str(), sizeof(outputString.str().size()), 0);
+
+		// 	int closeResult = close(this->_totalFds[i].fd);
+		// 	if (closeResult == -1)
+		// 	{
+		// 		std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+		// 	}
+		// 	s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
+		// 	this->_totalFds[i].fd = -1;
+		// 	this->removeClosedSocketsFromPollFds();
+		// 	return;
+		// }
+
+
+		
 		if ((_totalFds[i].revents & POLLIN))
 		{ // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
 			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
