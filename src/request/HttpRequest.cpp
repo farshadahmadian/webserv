@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/28 14:36:34 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 18:22:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,9 +269,9 @@ bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
 {
 	if (pollEvent == POLLIN_TMP) {
 		this->_responses[clientSocket] = getResponse();
-		std::cout << "***************************************\n";
-		std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
-		std::cout << "***************************************\n";
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
+		// std::cout << "***************************************\n";
 		std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
 		return (true);
 	}
