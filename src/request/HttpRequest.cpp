@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/28 11:10:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 13:24:32 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,8 @@ int HTTPRequest::validate()
 	
 	if (_requestMap.find("Host") == _requestMap.end())
 		return 400;
-	if (_requestMap.find("If-None-Match") != _requestMap.end())
-		return 304;
+	// if (_requestMap.find("If-None-Match") != _requestMap.end())
+	// 	return 304;
 	return 200;
 }
 
