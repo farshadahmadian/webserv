@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/24 08:02:08 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/28 16:27:27 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ private:
 	nfds_t _currentMonitored;
 	size_t _totalMonitored;
 	struct pollfd *_totalFds;
+
+	std::map<int, int> _POLLINCheck; //navid_check
 
 	void createServers(const Parser &configuration);
 	bool mergeServerWithSamePort(std::map<std::string, std::string> serverConf);

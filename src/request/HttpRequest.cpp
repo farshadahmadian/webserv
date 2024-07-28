@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/28 13:24:32 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 14:36:34 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,9 +269,9 @@ bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
 {
 	if (pollEvent == POLLIN_TMP) {
 		this->_responses[clientSocket] = getResponse();
-		// std::cout << "***************************************\n";
-		// std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
-		// std::cout << "***************************************\n";
+		std::cout << "***************************************\n";
+		std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
+		std::cout << "***************************************\n";
 		std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
 		return (true);
 	}
@@ -279,19 +279,17 @@ bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
 		// std::cout << "***************************************\n";
 		// std::cout << CYAN << "po:"<< this->_responses[clientSocket] << RESET << std::endl;
 		// std::cout << "***************************************\n";
-		// std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
+		std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
 		// std::cout << "***************************************\n";
 		// std::cout << CYAN << "iter:"<< iter->second << RESET << std::endl;
 		// std::cout << "***************************************\n";
-		// // if (iter == this->_responses.end()) {
+		if (iter == this->_responses.end()) {
 		// if (!iter->first || iter->second == "") {
-		// 	// this->_responses.erase(clientSocket);
-
-		// 	std::cerr << "No response found for socket fd " << clientSocket << std::endl;
-		// 	return (false);
-		// }
-		std::string response = this->_responses[clientSocket];
-		// std::string response = iter->second;
+			std::cerr << "No response found for socket fd " << clientSocket << std::endl;
+			return (false);
+		}
+		// std::string response = this->_responses[clientSocket];
+		std::string response = iter->second;
 
 		//****************print the provided response in command prompt***********************
 		displayResponse(clientSocket);
@@ -303,14 +301,6 @@ bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
 			std::cerr << RED << "Sending response failed" << RESET << std::endl;
 			return (false);
 		}
-		int closeResult = close(clientSocket);
-		if (closeResult == -1)
-		{
-			std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
-			return (false);
-		}
-		std::cout << RED << "Socket [" << clientSocket << "] is closed." << RESET << std::endl;
-		
 		this->_responses.erase(clientSocket);
 		return (true);
 	}
@@ -373,7 +363,6 @@ std::string formatTimeHTTP(std::time_t rawTime)
 
 void writHtmlFile(std::string request, std::string path)
 {
-
 	std::istringstream streamTest(request);
 	std::string stringTest;
 	std::ofstream outFile(path.c_str());
@@ -415,4 +404,3 @@ void writHtmlFile(std::string request, std::string path)
 	outFile.close();
 	exit(1);
 }
-
