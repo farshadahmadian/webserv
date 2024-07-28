@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 11:10:30 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ HTTPRequest::HTTPRequest( void ) {}
 HTTPRequest::~HTTPRequest( void ) { std::cout << BLUE "HTTPRequest destructor called\n" RESET;}
 
 HTTPRequest::HTTPRequest(std::map<std::string, std::string> &serverConfig) :
-	_null(""),
-	_request(""),
+	_requestString(""),
 	_method(""),
 	_uri(""),
 	_version(""),
@@ -37,19 +36,17 @@ bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 
 bool HTTPRequest::parse()
 {
-	std::istringstream requestStream(_request);
+	std::istringstream requestStream(_requestString);
 	std::string line;
 
 	// Parse request line
 	if (!std::getline(requestStream, line))
 	{
-		std::cout << "HIIIIIIIIIIII1111\n";
 		return false;
 	}
 	std::istringstream requestLine(line);
 	if (!(requestLine >> _method >> _uri >> _version))
 	{
-		// std::cout << "HIIIIIIIIII\n";
 		return false;
 	}
 
@@ -59,9 +56,9 @@ bool HTTPRequest::parse()
 	}
 
 	// Parse headers
-	_headers["version"] = _version;
-	_headers["uri"] = _uri;
-	_headers["method"] = _method;
+	_requestMap["version"] = _version;
+	_requestMap["uri"] = _uri;
+	_requestMap["method"] = _method;
 
 	while (std::getline(requestStream, line) && line != "\r")
 	{
@@ -72,7 +69,7 @@ bool HTTPRequest::parse()
 			std::string value = line.substr(pos + 1);
 			value.erase(std::remove(value.begin(), value.end(), '\r'), value.end());
 			value.erase(0, value.find_first_not_of(" "));
-			_headers[key] = value;
+			_requestMap[key] = value;
 		}
 	}
 
@@ -85,19 +82,19 @@ bool HTTPRequest::parse()
 	return true;
 }
 
-std::map<std::string, std::string> const &HTTPRequest::getHeaders() {return (_headers);}
+std::map<std::string, std::string> const &HTTPRequest::getRequest() {return (_requestMap);}
 
 void HTTPRequest::displayRequest() const
 {
 	std::cout << RED "****received request:\n"
-		<< CYAN << _request << RESET << std::endl;
+		<< CYAN << _requestString << RESET << std::endl;
 }
 
 void HTTPRequest::displayHeaders()
 {
 	std::cout << RED "****The headers map:\n";
-	std::map<std::string, std::string>::iterator itr = _headers.begin();
-	for (; itr != _headers.end(); itr++)
+	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
+	for (; itr != _requestMap.end(); itr++)
 		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
 }
 
@@ -118,9 +115,9 @@ void HTTPRequest::displayResponse(int fd)
 int HTTPRequest::validate()
 {
 	
-	if (_headers.find("Host") == _headers.end())
+	if (_requestMap.find("Host") == _requestMap.end())
 		return 400;
-	if (_headers.find("If-None-Match") != _headers.end())
+	if (_requestMap.find("If-None-Match") != _requestMap.end())
 		return 304;
 	return 200;
 }
@@ -158,25 +155,26 @@ std::string HTTPRequest::handleGet()
 {
 
 	std::string readHtml = readHtmlFile("./src/index.html");
-	std::ostringstream headers;
+	std::ostringstream reponseHeaders;
 	std::string date, lastMfd, eTag;
 
 	if (_uri == "/" || _uri == "/index.html" || _uri == "/favicon.ico")
 	{
 		eTag = generateETag("./src/index.html", date, lastMfd);
 		std::cout << RED "inside Get ......." RESET << std::endl;
-		headers << httpStatusCode(200);
-		headers << "Server: " + _serverConfig["server_name"] << CRLF;
-		headers << "Date: " + date << CRLF;
-		headers << "Content-Type: text/html" << CRLF;
-		headers << "Content-Length: " << readHtml.size() << CRLF;
-		headers << "Last-Modified: " + lastMfd << CRLF;
-		// headers << "Connection: close" << CRLF;
-		headers << "ETag: " + eTag << CRLF;
-		headers << "Accept-Ranges: bytes" CRLF CRLF;
-		headers << CRLF;
-		headers << readHtml;
-		return headers.str();
+		reponseHeaders << httpStatusCode(200);
+		reponseHeaders << "Server: " + _serverConfig["server_name"] << CRLF;
+		reponseHeaders << "Date: " + date << CRLF;
+		reponseHeaders << "Content-Type: text/html\r\n";
+		reponseHeaders << "Content-Length: " << readHtml.size() << CRLF;
+		reponseHeaders << "Last-Modified: " + lastMfd << CRLF;
+		reponseHeaders << "Connection: close" << CRLF;
+		reponseHeaders << "ETag: " + eTag << CRLF;
+		reponseHeaders << "Cache-Control: no-cache" << CRLF;
+		reponseHeaders << "Accept-Ranges: bytes" CRLF CRLF;
+		reponseHeaders << CRLF;
+		reponseHeaders << readHtml;
+		return reponseHeaders.str();
 	}
 	else
 	{
@@ -239,7 +237,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	}
 
 	buffer[bytesRead] = '\0';
-	_request.assign(buffer);
+	_requestString.assign(buffer);
 
 	//****************print request***********************
 	displayRequest();
@@ -247,12 +245,9 @@ bool HTTPRequest::handleRequest(int clientSocket)
 
 	if (!parse())
 	{
-		
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
 		send(clientSocket, response.c_str(), response.length(), 0);
 		close(clientSocket);
-				std::cout << "HIIIIIIIIIII2222\n";
-
 		return (false);
 		// } else {
 		//     std::string response = getResponse();
@@ -379,7 +374,6 @@ std::string formatTimeHTTP(std::time_t rawTime)
 void writHtmlFile(std::string request, std::string path)
 {
 
-	std::cout << RED "HIIIII\n" RESET;
 	std::istringstream streamTest(request);
 	std::string stringTest;
 	std::ofstream outFile(path.c_str());
