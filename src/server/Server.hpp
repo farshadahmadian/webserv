@@ -6,7 +6,7 @@
 /*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/25 19:30:48 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/28 23:43:56 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <map>
 #include <fstream>
 #include "../request/HttpRequest.hpp"
+#include "../request/HttpResponse.hpp"
 #include <sstream>
 #include "Exception.hpp"
 #include "../sockets/listening-socket/ListeningSocket.hpp"
@@ -52,6 +53,7 @@ private:
 	// std::map<int, std::string> _responses;				// navid_code
 	// std::map<std::string, std::string> _settings; // navid_code
 	HTTPRequest _httpReq; //navid_code
+	HTTPResponse _httpResp; //navid_code
 
 	void handleEvents(void);
 	void handleEventsOnListeningSocket(unsigned int i);
@@ -90,6 +92,7 @@ public:
 	void closeSocket(void);
 
 	HTTPRequest & getHttpReq(); //navid_code
+	HTTPResponse & getHttpResp(); //navid_code
 };
 
 #endif /* __SERVER_HPP__ */

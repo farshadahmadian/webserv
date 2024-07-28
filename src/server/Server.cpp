@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:15:53 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,9 @@ Server::~Server(void)
 
 HTTPRequest & Server::getHttpReq() {
 	return (_httpReq);
+}
+HTTPResponse & Server::getHttpResp() {
+	return (_httpResp);
 }
 
 ListeningSocket const &Server::getListeningSocket(void) const { return (this->_listeningSocket); }
