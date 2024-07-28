@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/28 18:23:43 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 19:21:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,8 +192,8 @@ void Poll::handleListeningEvent(size_t i, Server &s)
 			int connectedSocketFd = s.acceptFirstRequestInQueue();
 
 			addConnectedSocketToMonitoredList(connectedSocketFd);
-			// this->_totalFds[i].revents = 0;
-			 this->printCurrentPollFds(); 
+			this->_totalFds[i].revents = 0;
+			this->printCurrentPollFds(); 
 		}
 	}
 	catch (Exception const &exception)
@@ -359,6 +359,11 @@ void Poll::initFds(void)
 	{
 		_totalFds[i].fd = (*it).getListeningSocket().getSocketFd();
 		_totalFds[i].events = POLLIN;
+
+	// 	if (fcntl(_totalFds[i].fd, F_SETFL, O_NONBLOCK) == -1) {
+  //       perror("fcntl F_SETFL");
+	// }
+
 		it++;
 		i++;
 	}

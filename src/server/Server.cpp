@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/26 18:03:29 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/28 19:23:19 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,10 +144,10 @@ int Server::acceptFirstRequestInQueue(void)
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		perror("fcntl F_SETFL");
-	}
+	// if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	// {
+	// 	perror("fcntl F_SETFL");
+	// }
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
 	if (connectedSocket.getSocketFd() == -1)
@@ -158,6 +158,10 @@ int Server::acceptFirstRequestInQueue(void)
 
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
+	std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
+	std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
+	std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
+	std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
 	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
