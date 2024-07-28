@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/27 17:50:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/28 09:27:57 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,8 +160,14 @@ void Post::parsePostRequest(std::string request) {
 
 void Post::handlePost(std::string request, int connectedSocketFd) {
 	parsePostRequest(request);
+	std::string message = "Thank you " + this->_postData["name"] + ", file " + this->_postData["filename"] + " is Received.";
+	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
 	std::ostringstream ostring;
-	ostring << "HTTP/1.1 201 Created\r\n";
+	ostring << "HTTP/1.1 200 OK\r\n";
+	ostring << "Content-Type: text/html\r\n";
+	ostring << "Connection: close\r\n";
+	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+	ostring << html;
 	this->_responses[connectedSocketFd] = ostring.str(); 
 	this->printPostData();
 	return;
@@ -177,5 +183,4 @@ void Post::printPostData(void) {
 		std::cout << YELLOW << iterator->first << ": " << iterator->second << RESET << std::endl;
 		iterator++;
 	}
-	
 }
