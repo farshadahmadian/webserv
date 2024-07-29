@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/29 00:19:30 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/29 19:09:12 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,25 @@
 
 HTTPResponse::HTTPResponse() {
     // Constructor body (if necessary)
+    std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
 HTTPResponse::~HTTPResponse() {
-    std::cout << BLUE "HTTPResponse destructor called\n" RESET;
+    std::cout << CYAN "HTTPResponse destructor called\n" RESET;
 }
 
-HTTPResponse::HTTPResponse(std::map<std::string, std::string> &serverConfig, std::map<std::string, std::string> &requestMap) :
-    _serverConfig(serverConfig), _requestMap(requestMap) {
-    std::cout << BLUE "HTTPResponse constructor called\n" RESET;
+HTTPResponse::HTTPResponse(std::map<std::string, std::string> &serverConfig) :
+    _serverConfig(serverConfig) {
+    std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 int HTTPResponse::validate() {
     if (_requestMap.find("Host") == _requestMap.end()) {
         return 400;
     }
-    if (_requestMap.find("If-None-Match") != _requestMap.end()) {
-        return 304;
-    }
+    // if (_requestMap.find("If-None-Match") != _requestMap.end()) {
+    //     return 304;
+    // }
     return 200;
 }
 
@@ -57,26 +58,32 @@ std::string HTTPResponse::getResponse() {
     return httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>";
 }
 
-std::string HTTPResponse::handleGet() {
+std::string HTTPResponse::handleGet()
+{
     std::string readHtml = readHtmlFile("./src/index.html");
     std::ostringstream reponseHeaders;
     std::string date, lastMfd, eTag;
 
     std::string uri = _requestMap["uri"];
-    if (uri == "/" || uri == "/index.html" || uri == "/favicon.ico") {
-        eTag = generateETag("./src/index.html", date, lastMfd);
+   	if (uri == "/" || uri == "/index.html" || uri == "/favicon.ico")
+	{
+		eTag = generateETag("./src/index.html", date, lastMfd);
 
-        reponseHeaders << httpStatusCode(200) << "Date: " << date << CRLF
-                       << "Last-Modified: " << lastMfd << CRLF
-                       << "ETag: " << eTag << CRLF
-                       << "Content-Length: " << readHtml.size() << CRLF
-                       << "Content-Type: text/html" << CRLF
-                       << "Connection: keep-alive" << CRLF << CRLF;
-        if (_requestMap["method"] == "HEAD") {
+		reponseHeaders	<< httpStatusCode(200)
+						<< "Server: " << _serverConfig["server_name"] << CRLF
+						<< "Date: " << date << CRLF
+						<< "Content-Type: text/html\r\n"
+						<< "Content-Length: " << readHtml.size() << CRLF
+						<< "Last-Modified: " << lastMfd << CRLF
+						<< "Connection: keep-alive" << CRLF
+						<< "ETag: " << eTag << CRLF
+						<< "Cache-Control: no-cache" << CRLF
+						<< "Accept-Ranges: bytes" CRLF << CRLF;
+		if (_requestMap["method"] == "HEAD") {
             return reponseHeaders.str();
-        }
-        reponseHeaders << readHtml;
-        return reponseHeaders.str();
+		}
+		reponseHeaders << readHtml;
+		return reponseHeaders.str();
     }
 
     return httpStatusCode(404) + "Content-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>";
@@ -101,6 +108,17 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
         case 405: return "HTTP/1.1 405 Method Not Allowed\r\n";
         default:  return "HTTP/1.1 500 Internal Server Error\r\n";
     }
+}
+
+std::string HTTPResponse::readBinaryFile(std::string const & path) {
+    std::ifstream fileStream(path.c_str(), std::ios::binary);
+    if (!fileStream.is_open()) {
+        perror("error:");
+        return "";
+    }
+    std::ostringstream ss;
+    ss << fileStream.rdbuf();
+    return ss.str();
 }
 
 std::string HTTPResponse::readHtmlFile(const std::string &path) {
@@ -145,33 +163,30 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
 
 
 bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
-    if (pollEvent == POLLIN) {
+    if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse();
         std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
         return true;
     }
-    if (pollEvent == POLLOUT) {
+    if (pollEvent == POLLOUT_TMP) {
         std::map<int, std::string>::iterator iter = _responses.find(clientSocket);
-        // auto iter = _responses.find(clientSocket);
         if (iter == _responses.end()) {
             std::cerr << "No response found for socket fd " << clientSocket << std::endl;
             return false;
         }
-        std::string response = _responses[clientSocket];
+        std::string response = iter->second;
 
-        displayResponse(clientSocket);
+		//****************print the provided response in command prompt***********************
+		displayResponse(clientSocket);
+		//****************print the provided response in file***********************
+		printStringToFile(response, "./src/request/response.txt");
+		//**************************************************************************
 
         ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
         if (bytesSent == -1) {
             std::cerr << RED << "Sending response failed" << RESET << std::endl;
             return false;
         }
-        if (close(clientSocket) == -1) {
-            std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
-            return false;
-        }
-        std::cout << RED << "Socket [" << clientSocket << "] is closed." << RESET << std::endl;
-
         _responses.erase(clientSocket);
         return true;
     }
@@ -179,5 +194,17 @@ bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
 }
 
 void HTTPResponse::displayResponse(int fd) {
-    std::cout << ORG "****Response for fd [" << fd << "] is:" << MAGENTA << _responses[fd] << RESET << std::endl;
+    std::cout << ORG "****Response for fd [" << fd << "] is:\n" << MAGENTA << _responses[fd] << RESET << std::endl;
+}
+
+void HTTPResponse::printStringToFile(std::string const & string,std::string const path)
+{
+	std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
+	std::ofstream outfile(path.c_str());
+	outfile << string << std::endl;
+	outfile.close();
+}
+
+void HTTPResponse::setResponseRequestMap(std::map<std::string, std::string> & requestMap) {
+	_requestMap = requestMap;
 }

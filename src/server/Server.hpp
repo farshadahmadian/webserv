@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/28 23:43:56 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/29 18:47:49 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ public:
 	const std::string getPort(void) const;
 	size_t getMonitoredFdsNum(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	// std::map<std::string, std::string> &getSettings(void);
+	// std::map<std::string, std::string> &getServerConf(void);//navid_code
 	// std::map<int, std::string> &getResponses(void);
 
 	void addServerName(std::string newName);

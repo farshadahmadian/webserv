@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/29 00:22:40 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/29 19:09:32 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,32 +36,31 @@
 # include "colors.h"
 # include "error.h"
 
-// Define colors for terminal output (if necessary)
-// # define BLUE "\033[34m"
-// # define RED "\033[31m"
-// # define CYAN "\033[36m"
-// # define ORG "\033[33m"
-// # define MAGENTA "\033[35m"
-// # define RESET "\033[0m"
-// # define CRLF "\r\n"
+enum POLLEvents {
+POLLIN_TMP  = 0,
+POLLOUT_TMP = 1,
+};
 
 class HTTPResponse {
 public:
     HTTPResponse();
     ~HTTPResponse();
-    HTTPResponse(std::map<std::string, std::string> &serverConfig, std::map<std::string, std::string> &requestMap);
+    HTTPResponse(std::map<std::string, std::string> &serverConfig);
 
     std::string getResponse();
     bool handleRespons(int clientSocket, int const &pollEvent);
     void displayResponse(int fd);
+	void setResponseRequestMap(std::map<std::string, std::string> &requestMap);
 
 private:
     std::string handleGet();
     std::string handlePost();
     std::string handleDelete();
     std::string httpStatusCode(int statusCode);
+	std::string readBinaryFile(std::string const & path);
     std::string readHtmlFile(const std::string &path);
     std::string generateETag(const std::string &filePath, std::string &date, std::string &lastmdf);
+	void printStringToFile(std::string const & string,std::string const path);
     int validate();
 
     std::string getCurrentTimeHTTP();

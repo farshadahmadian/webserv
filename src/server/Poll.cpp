@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/28 18:23:43 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/29 18:54:23 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
 	_totalMonitored(0),
 	_totalFds(NULL)
 {
+	std::cout << BLUE << "Poll constructor called" RESET << std::endl;
 	createServers(configuration);
 	initFds();
 	/* REMOVE */ std::cout << std::endl
@@ -24,6 +25,7 @@ Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
 }
 Poll::~Poll(void)
 {
+	std::cout << BLUE << "Poll destructor called" RESET << std::endl;
 	delete[] _totalFds;
 	this->_totalFds = NULL;
 };
@@ -37,20 +39,26 @@ void Poll::createServers(const Parser &configuration)
 	std::vector<ServerConf>::const_iterator serverConfIt = configuration.getHttp().getServer().begin();
 	while (serverConfIt != configuration.getHttp().getServer().end())
 	{
+		std::cout << "HIII 111 from inside the createServers func in Poll\n";
 		if (_serverList.size() > 0)
 		{
+			std::cout << "HIII 222 from inside the createServers func in Poll\n";
 			std::map<std::string, std::string> currentServerSettings = (*serverConfIt).getSettings();
 			if (mergeServerWithSamePort(currentServerSettings))
 			{ // check if the port is already in use
+				std::cout << "HIII 333 from inside the createServers func in Poll\n";
 				serverConfIt++;
 				continue;
 			}
 		}
 		// Server s = new Server((*serverConfIt).getSettings());
 		Server s((*serverConfIt).getSettings());
+		std::cout << "HIII 444 from inside the createServers func in Poll\n";
 		_serverList.push_back(s); // ------ crash in Mac but not in Linux ------- THE MOST MISTERIOUS PROBLEM IN THE HISTORY OF CODING  -------------------- !!!!
 		serverConfIt++;
+		std::cout << "HIII 555 from inside the createServers func in Poll\n";
 	}
+		std::cout << "HIII 666 from inside the createServers func in Poll\n";
 }
 
 /*	Check if in the configuration there are multiple servers with the same port.
@@ -232,7 +240,8 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// HTTPRequest httpreq(s.getSettings()); // navid_code
 			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
-				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //
+				// s.initializeResponse();//navid_code
+				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
 
 				// _POLLINCheck[this->_totalFds[i].fd] = 1;
 				// char receive[20048];
@@ -244,7 +253,6 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 				// // this->_monitoredFdsNum--;
 				// this->parseRequest(static_cast<std::string>(receive));
 				// this->printRequest();
-
 				// s.getResponses()[this->_totalFds[i].fd] = httpreq.getResponse();
 				// std::cout << "Handled request on socket fd " << this->_totalFds[i].fd << std::endl;
 				// this->_totalFds[i].events = POLLOUT;
@@ -262,12 +270,11 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// std::string response = s.getResponses()[this->_totalFds[i].fd];
 			// //****************print the provided response in file***********************
 			//  std::cout << RED "****sending the response\n" RESET; 
-			// // writHtmlFile(response, "./src/request/response.txt");
+			// // writStringtoFile(response, "./src/request/response.txt");
 			// std::ofstream outfile("./src/request/response.txt");
 			// outfile << response << std::endl;
 			// outfile.close();
 			// //**************************************************************************
-
 			// send(this->_totalFds[i].fd, response.c_str(), response.size(), 0);
 			// int closeResult = close(this->_totalFds[i].fd);
 			// if (closeResult == -1)
@@ -275,8 +282,10 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// 	std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
 			// }
 			// std::cout << RED << "Socket [" << s.getConnectedSockets()[this->_totalFds[i].fd].getSocketFd() << "] is closed." << RESET << d::endl; 
-			// if (s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP)) {
-				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);
+			// if (s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP)) {
+
+				// s.initializeResponse();//navid_code
+				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
 				int closeResult = close(this->_totalFds[i].fd);
 				if (closeResult == -1)
 				{
