@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/30 08:17:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 09:14:36 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,7 @@ void Post::handlePost(std::string request, int connectedSocketFd) {
 void Post::printPostData(void) {
 	if (!_postData.size())
 	{
-		std::cout << MAGENTA << "POST DATA IS EMPTY" << RESET << std::endl;
+		std::cout << YELLOW << "POST DATA IS EMPTY" << RESET << std::endl;
 		return;
 	}
 

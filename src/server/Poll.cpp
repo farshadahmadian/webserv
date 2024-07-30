@@ -6,22 +6,21 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/28 16:40:44 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 09:06:04 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Poll.hpp"
 
 Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
-																					_currentMonitored(0),
-																					_totalMonitored(0),
-																					_totalFds(NULL)
+	_currentMonitored(0),
+	_totalMonitored(0),
+	_totalFds(NULL)
 {
-
 	createServers(configuration);
 	initFds();
 	/* REMOVE */ std::cout << std::endl
-												 << "---------------------------------------------------------" << std::endl;
+	<< "---------------------------------------------------------" << std::endl;
 }
 Poll::~Poll(void)
 {
@@ -256,12 +255,11 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			std::cout << "RECEIVING THE REQUEST..." << std::endl;
 			// naivd_code from here ->
 			// HTTPRequest httpreq(s.getSettings()); // navid_code
-			s.getHttpRequest().setServerConfig(s.getSettings());
-
-			// if (httpreq.handleRequest(this->_totalFds[i].fd))
-			if (s.getHttpRequest().handleRequest(this->_totalFds[i].fd))
+			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
+				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //
 
+				// _POLLINCheck[this->_totalFds[i].fd] = 1;
 				// char receive[20048];
 				// receive[20047] = '\0';
 				// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
@@ -272,8 +270,8 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 				// this->parseRequest(static_cast<std::string>(receive));
 				// this->printRequest();
 
-				s.getResponses()[this->_totalFds[i].fd] = s.getHttpRequest().getResponse(this->_totalFds[i].fd);
-				std::cout << "Handled request on socket fd " << this->_totalFds[i].fd << std::endl;
+				// s.getResponses()[this->_totalFds[i].fd] = httpreq.getResponse();
+				// std::cout << "Handled request on socket fd " << this->_totalFds[i].fd << std::endl;
 				// this->_totalFds[i].events = POLLOUT;
 			}
 			// else
@@ -286,30 +284,59 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 		{
 			std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
 
-			std::string response = s.getResponses()[this->_totalFds[i].fd];
-			//****************print the provided response in file***********************
-			 std::cout << RED "****sending the response\n" RESET; 
-			// writHtmlFile(response, "./src/request/response.txt");
-			std::ofstream outfile("./src/request/response.txt");
-			outfile << response << std::endl;
-			outfile.close();
-			//**************************************************************************
+			// std::string response = s.getResponses()[this->_totalFds[i].fd];
+			// //****************print the provided response in file***********************
+			//  std::cout << RED "****sending the response\n" RESET; 
+			// // writHtmlFile(response, "./src/request/response.txt");
+			// std::ofstream outfile("./src/request/response.txt");
+			// outfile << response << std::endl;
+			// outfile.close();
+			// //**************************************************************************
 
-			send(this->_totalFds[i].fd, response.c_str(), response.size(), 0);
-			int closeResult = close(this->_totalFds[i].fd);
-			if (closeResult == -1)
-			{
-				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
-			}
+			// send(this->_totalFds[i].fd, response.c_str(), response.size(), 0);
+			// int closeResult = close(this->_totalFds[i].fd);
+			// if (closeResult == -1)
+			// {
+			// 	std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			// }
 			// std::cout << RED << "Socket [" << s.getConnectedSockets()[this->_totalFds[i].fd].getSocketFd() << "] is closed." << RESET << d::endl; 
-			s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
-			s.getResponses().erase(this->_totalFds[i].fd);
-			this->_totalFds[i].fd = -1;
-			// s.closeSocket();
-			this->removeClosedSocketsFromPollFds();
-			// this->_monitoredFdsNum--;
+			// if (s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP)) {
+				s.getHttpReq().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);
+				int closeResult = close(this->_totalFds[i].fd);
+				if (closeResult == -1)
+				{
+					std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+				}
+				std::cout << RED << "Socket [" << this->_totalFds[i].fd << "] is closed." << RESET << std::endl;		
+				s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
+				// s.getResponses().erase(this->_totalFds[i].fd);
+				this->_totalFds[i].fd = -1;
+				// s.closeSocket();
+				this->removeClosedSocketsFromPollFds();
+				// this->_monitoredFdsNum--;
+				// Remove the response from the map
+				// return ;
+			// } else if (_POLLINCheck[this->_totalFds[i].fd] == 10)
+			// {
+			// 	std::cout << "pollout check is: " << _POLLINCheck[this->_totalFds[i].fd] << std::endl;
+			// 	int closeResult = close(this->_totalFds[i].fd);
+			// 	if (closeResult == -1)
+			// 	{
+			// 		std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			// 	}
+			// 	std::cout << RED << "Socket [" << this->_totalFds[i].fd << "] is closed." << RESET << std::endl;		
+			// 	s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
+			// 	// s.getResponses().erase(this->_totalFds[i].fd);
+			// 	this->_totalFds[i].fd = -1;
+			// 	// s.closeSocket();
+			// 	this->removeClosedSocketsFromPollFds();
+			// 	// this->_monitoredFdsNum--;
+			// 	// Remove the response from the map
+			// 	_POLLINCheck[this->_totalFds[i].fd] = 0;
 
-			// Remove the response from the map
+			// 	return ;
+			// }
+			// _POLLINCheck[this->_totalFds[i].fd]++;
 		}
 	}
 	catch (Exception const &exception)
@@ -357,6 +384,11 @@ void Poll::initFds(void)
 	{
 		_totalFds[i].fd = (*it).getListeningSocket().getSocketFd();
 		_totalFds[i].events = POLLIN;
+
+	// 	if (fcntl(_totalFds[i].fd, F_SETFL, O_NONBLOCK) == -1) {
+  //       perror("fcntl F_SETFL");
+	// }
+
 		it++;
 		i++;
 	}

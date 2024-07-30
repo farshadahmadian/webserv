@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/28 18:36:35 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 09:08:52 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,11 @@
 
 // new constructor to create the vectors
 Server::Server(std::map<std::string, std::string> settings) : _port(settings["port"]),
-																															_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
-																															_connectedSockets(std::map<int, ConnectedSocket>()),
-																															_monitoredFdsNum(0)
-																															// _request(std::map<std::string, std::string>())
+	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
+	_connectedSockets(std::map<int, ConnectedSocket>()),
+	_monitoredFdsNum(0),
+	_httpReq(settings)
+	// _request(std::map<std::string, std::string>())
 { // ----- the problem of the crash seems this! ------ but not here
 
 	_serverNames.push_back(settings["server_name"]);
@@ -39,16 +40,16 @@ Server::Server(std::map<std::string, std::string> settings) : _port(settings["po
 }
 
 Server::Server(const Server &other) : _port(other._port),
-																			_serverNames(other._serverNames),
-																			_roots(other._roots),
-																			_indexes(other._indexes),
-																			// _keepaliveTimeouts(other._keepaliveTimeouts),
-																			// _autoindexes(other._autoindexes),
-																			// _clientSizes(other._clientSizes),
-																			_listeningSocket(other._listeningSocket),
-																			_connectedSockets(other._connectedSockets),
-																			_monitoredFdsNum(other._monitoredFdsNum)
-																			// _request(other._request) // ----- the problem of the crash seems this! ------
+	_serverNames(other._serverNames),
+	_roots(other._roots),
+	_indexes(other._indexes),
+	// _keepaliveTimeouts(other._keepaliveTimeouts),
+	// _autoindexes(other._autoindexes),
+	// _clientSizes(other._clientSizes),
+	_listeningSocket(other._listeningSocket),
+	_connectedSockets(other._connectedSockets),
+	_monitoredFdsNum(other._monitoredFdsNum)
+	// _request(other._request) // ----- the problem of the crash seems this! ------
 {
 
 	size_t i = 0;
@@ -71,6 +72,10 @@ Server::~Server(void)
 
 	// delete this->_monitoredFds;
 	return;
+}
+
+HTTPRequest & Server::getHttpReq() {
+	return (_httpReq);
 }
 
 ListeningSocket const &Server::getListeningSocket(void) const { return (this->_listeningSocket); }
@@ -143,12 +148,6 @@ int Server::acceptFirstRequestInQueue(void)
 	// {
 	// 	perror("fcntl F_SETFL");
 	// }
-
-	std::cout << YELLOW << "***********Incoming Connection Address Begin***********:" << RESET << std::endl;
-	std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr);
-	std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl;
-	std::cout << YELLOW << "***********Incoming Connection Address End***********:" << RESET << std::endl;
-
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
 	if (connectedSocket.getSocketFd() == -1)
@@ -159,6 +158,10 @@ int Server::acceptFirstRequestInQueue(void)
 
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
+	std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
+	std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
+	std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
+	std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
 	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
@@ -256,10 +259,11 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 		{
 			std::cout << "RECEIVING THE REQUEST..." << std::endl;
 			// naivd_code from here ->
-			HTTPRequest httpreq(_settings); // navid_code
-			if (httpreq.handleRequest(this->_monitoredFds[i].fd))
+			// HTTPRequest httpreq(_settings); // navid_code
+			if (_httpReq.handleRequest(this->_monitoredFds[i].fd))
 			{
-
+				_httpReq.handleRespons(this->_monitoredFds[i].fd, POLLIN_TMP);//navid_code
+				
 				// char receive[20048];
 				// receive[20047] = '\0';
 				// ssize_t result = recv(this->_monitoredFds[i].fd, receive, sizeof(receive) - 1, 0);
@@ -270,7 +274,7 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 				// this->parseRequest(static_cast<std::string>(receive));
 				// this->printRequest();
 
-				_responses[this->_monitoredFds[i].fd] = httpreq.getResponse(this->_monitoredFds[i].fd);
+				// _responses[this->_monitoredFds[i].fd] = httpreq.getResponse(this->_monitoredFds[i].fd);
 				std::cout << "Handled request on socket fd " << this->_monitoredFds[i].fd << std::endl;
 				this->_monitoredFds[i].events = POLLOUT;
 			}
@@ -310,30 +314,30 @@ void Server::handleEventsOnConnectedSockets(unsigned int i)
 			// ss << response;
 			// ss << htmlContent;
 			// Send the response
-
-			std::string response = _responses[this->_monitoredFds[i].fd];
-			//****************print the provided response in file***********************
-			std::cout << RED "****sending the response\n" RESET;
-			// writHtmlFile(response, "./src/request/response.txt");
-			std::ofstream outfile("./src/request/response.txt");
-			outfile << response << std::endl;
-			outfile.close();
-			//**************************************************************************
-
-			send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
-			int closeResult = close(this->_monitoredFds[i].fd);
-			if (closeResult == -1)
-			{
-				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
-			}
-			std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
+			// std::string response = _responses[this->_monitoredFds[i].fd];
+			// //****************print the provided response in file***********************
+			// std::cout << RED "****sending the response\n" RESET;
+			// // writHtmlFile(response, "./src/request/response.txt");
+			// std::ofstream outfile("./src/request/response.txt");
+			// outfile << response << std::endl;
+			// outfile.close();
+			// //**************************************************************************
+			// send(this->_monitoredFds[i].fd, response.c_str(), response.size(), 0);
+			// int closeResult = close(this->_monitoredFds[i].fd);
+			// if (closeResult == -1)
+			// {
+			// 	std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
+			// }
+			// std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
+			
+			_httpReq.handleRespons(this->_monitoredFds[i].fd, POLLOUT_TMP); //navid_code
 			this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 			this->_monitoredFds[i].fd = -1;
 			this->closeSocket();
 			// this->_monitoredFdsNum--;
 
 			// Remove the response from the map
-			_responses.erase(this->_monitoredFds[i].fd);
+			// _responses.erase(this->_monitoredFds[i].fd);
 		}
 		// ->! to here
 		// else
@@ -406,15 +410,15 @@ std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
 	return this->_connectedSockets;
 }
 
-std::map<std::string, std::string> &Server::getSettings(void)
-{
-	return this->_settings;
-}
+// std::map<std::string, std::string> &Server::getSettings(void)
+// {
+// 	return this->_settings;
+// }
 
-std::map<int, std::string> &Server::getResponses(void)
-{
-	return this->_responses;
-}
+// std::map<int, std::string> &Server::getResponses(void)
+// {
+// 	return this->_responses;
+// }
 
 void Server::addServerName(std::string newName) { _serverNames.push_back(newName); };
 void Server::addRoot(std::string newRoot) { _roots.push_back(newRoot); };
@@ -437,8 +441,4 @@ void Server::closeSocket()
 			i++;
 		}
 	}
-}
-
-HTTPRequest &Server::getHttpRequest(void) {
-	return this->_httpRequest;
 }

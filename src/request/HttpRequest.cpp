@@ -6,17 +6,23 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/30 08:16:10 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 09:03:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HTTPRequest::HTTPRequest(void) : _post(Post()) {
-	return;
-}
+HTTPRequest::HTTPRequest( void ) {}
 
-HTTPRequest::HTTPRequest(std::map<std::string, std::string> serverConfig) : _serverConfig(serverConfig), _post(Post()) {}
+HTTPRequest::~HTTPRequest( void ) { std::cout << BLUE "HTTPRequest destructor called\n" RESET;}
+
+HTTPRequest::HTTPRequest(std::map<std::string, std::string> &serverConfig) :
+	_requestString(""),
+	_method(""),
+	_uri(""),
+	_version(""),
+	_body(""),
+	_serverConfig(serverConfig), _post(Post()) {std::cout << BLUE "HTTPRequest constructor called\n" RESET;}
 
 bool HTTPRequest::isValidMethod(const std::string &mthd)
 {
@@ -30,7 +36,7 @@ bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 
 bool HTTPRequest::parse()
 {
-	std::istringstream requestStream(_request);
+	std::istringstream requestStream(_requestString);
 	std::string line;
 
 	// Parse request line
@@ -41,7 +47,6 @@ bool HTTPRequest::parse()
 	std::istringstream requestLine(line);
 	if (!(requestLine >> _method >> _uri >> _version))
 	{
-		// std::cout << "HIIIIIIIIII\n";
 		return false;
 	}
 
@@ -51,9 +56,10 @@ bool HTTPRequest::parse()
 	}
 
 	// Parse headers
-	_headers["version"] = _version;
-	_headers["uri"] = _uri;
-	_headers["method"] = _method;
+	_requestMap["version"] = _version;
+	_requestMap["uri"] = _uri;
+	_requestMap["method"] = _method;
+
 	while (std::getline(requestStream, line) && line != "\r")
 	{
 		size_t pos = line.find(":");
@@ -63,36 +69,55 @@ bool HTTPRequest::parse()
 			std::string value = line.substr(pos + 1);
 			value.erase(std::remove(value.begin(), value.end(), '\r'), value.end());
 			value.erase(0, value.find_first_not_of(" "));
-			_headers[key] = value;
+			_requestMap[key] = value;
 		}
 	}
 
-	
 	//****************print header map********************
-	std::cout << RED "****The headers map:\n";
-	std::map<std::string, std::string>::iterator itr = _headers.begin();
-	for (; itr != _headers.end(); itr++)
-		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+	displayHeaders();
 	//****************print srver config map**************
-	std::cout << RED "****The server config map:\n";
-	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
-	for (; itrr != _serverConfig.end(); itrr++)
-		std::cout << ORG << itrr->first << "->" MAGENTA << itrr->second << RESET << std::endl;
+	displayServerConfig();
 	//****************************************************
-
-	// parsing the post
-	//  if (_method == "POST") {
-	//      std::getline(requestStream, _body);
-	//  }
 
 	return true;
 }
 
+std::map<std::string, std::string> const &HTTPRequest::getRequest() {return (_requestMap);}
+
+void HTTPRequest::displayRequest() const
+{
+	std::cout << RED "****received request:\n"
+		<< CYAN << _requestString << RESET << std::endl;
+}
+
+void HTTPRequest::displayHeaders()
+{
+	std::cout << RED "****The headers map:\n";
+	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
+	for (; itr != _requestMap.end(); itr++)
+		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+}
+
+void HTTPRequest::displayServerConfig()
+{
+	std::cout << RED "****The server config map:\n";
+	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
+	for (; itrr != _serverConfig.end(); itrr++)
+		std::cout << ORG << itrr->first << "->" MAGENTA << itrr->second << RESET << std::endl;
+}
+
+void HTTPRequest::displayResponse(int fd)
+{
+
+	std::cout << MAGENTA "Respond: " << _responses[fd] << RESET <<std::endl;
+}
+
 int HTTPRequest::validate()
 {
-	if (_headers.find("Host") == _headers.end())
+	
+	if (_requestMap.find("Host") == _requestMap.end())
 		return 400;
-	// if (_headers.find("If-None-Match") != _headers.end())
+	// if (_requestMap.find("If-None-Match") != _requestMap.end())
 	// 	return 304;
 	return 200;
 }
@@ -118,7 +143,7 @@ std::string HTTPRequest::getResponse(int connectedSocketFd)
 	else if (_method == "POST")
 	{
 		// return handlePost();
-		this->_post.handlePost(this->_request, connectedSocketFd);
+		this->_post.handlePost(this->_requestString, connectedSocketFd);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 		std::string response = this->_post.getResponses()[connectedSocketFd];
 		this->_post.getResponses().erase(connectedSocketFd);
@@ -138,25 +163,26 @@ std::string HTTPRequest::handleGet()
 {
 
 	std::string readHtml = readHtmlFile("./src/index.html");
-	std::ostringstream headers;
+	std::ostringstream reponseHeaders;
 	std::string date, lastMfd, eTag;
 
 	if (_uri == "/" || _uri == "/index.html" || _uri == "/favicon.ico")
 	{
 		eTag = generateETag("./src/index.html", date, lastMfd);
 		std::cout << RED "inside Get ......." RESET << std::endl;
-		headers << httpStatusCode(200);
-		headers << "Server: " + _serverConfig["server_name"] << "\r\n";
-		headers << "Date: " + date << "\r\n";
-		headers << "Content-Type: text/html\r\n";
-		headers << "Content-Length: " << readHtml.size() << "\r\n";
-		headers << "Last-Modified: " + lastMfd << "\r\n";
-		headers << "Connection: close" << "\r\n";
-		headers << "ETag: " + eTag << "\r\n";
-		headers << "Accept-Ranges: bytes\r\n\r\n";
-		headers << "\r\n";
-		headers << readHtml;
-		return headers.str();
+		reponseHeaders << httpStatusCode(200);
+		reponseHeaders << "Server: " + _serverConfig["server_name"] << CRLF;
+		reponseHeaders << "Date: " + date << CRLF;
+		reponseHeaders << "Content-Type: text/html\r\n";
+		reponseHeaders << "Content-Length: " << readHtml.size() << CRLF;
+		reponseHeaders << "Last-Modified: " + lastMfd << CRLF;
+		reponseHeaders << "Connection: close" << CRLF;
+		reponseHeaders << "ETag: " + eTag << CRLF;
+		reponseHeaders << "Cache-Control: no-cache" << CRLF;
+		reponseHeaders << "Accept-Ranges: bytes" CRLF CRLF;
+		reponseHeaders << CRLF;
+		reponseHeaders << readHtml;
+		return reponseHeaders.str();
 	}
 	else
 	{
@@ -164,8 +190,8 @@ std::string HTTPRequest::handleGet()
 		std::ostringstream errorHeader;
 		errorHeader.clear();
 		errorHeader << httpStatusCode(404);
-		errorHeader << "Connection: close" << "\r\n";
-		// errorHeader << "\r\n";
+		errorHeader << "Connection: close" << CRLF;
+		// errorHeader << CR NL;
 		return errorHeader.str() + "Content-Type: text/html\r\n\r\n<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></body></html>";
 	}
 }
@@ -207,8 +233,9 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
-	// if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-	// return (true);
+	if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)){
+		return (false);
+	}
 
 	if (bytesRead < 0)
 	{
@@ -216,11 +243,12 @@ bool HTTPRequest::handleRequest(int clientSocket)
 		close(clientSocket);
 		return (false);
 	}
+
 	buffer[bytesRead] = '\0';
-	_request = buffer;
+	_requestString.assign(buffer);
 
 	//****************print request***********************
-	std::cout << RED "****received request:\n" << CYAN << _request << RESET << std::endl;
+	displayRequest();
 	//****************************************************
 
 	if (!parse())
@@ -235,6 +263,58 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	}
 	return (true);
 }
+
+void HTTPRequest::printStringToFile(std::string const & string,std::string const path)
+{
+	std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
+	std::ofstream outfile(path.c_str());
+	outfile << string << std::endl;
+	outfile.close();
+}
+
+
+bool HTTPRequest::handleRespons(int clientSocket, int const &pollEvent)
+{
+	if (pollEvent == POLLIN_TMP) {
+		this->_responses[clientSocket] = getResponse(clientSocket);
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "pi:" << this->_responses[clientSocket] << RESET << std::endl;
+		// std::cout << "***************************************\n";
+		std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
+		return (true);
+	}
+	if (pollEvent == POLLOUT_TMP) {
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "po:"<< this->_responses[clientSocket] << RESET << std::endl;
+		// std::cout << "***************************************\n";
+		std::map<int, std::string>::iterator iter = this->_responses.find(clientSocket);
+		// std::cout << "***************************************\n";
+		// std::cout << CYAN << "iter:"<< iter->second << RESET << std::endl;
+		// std::cout << "***************************************\n";
+		if (iter == this->_responses.end()) {
+		// if (!iter->first || iter->second == "") {
+			std::cerr << "No response found for socket fd " << clientSocket << std::endl;
+			return (false);
+		}
+		// std::string response = this->_responses[clientSocket];
+		std::string response = iter->second;
+
+		//****************print the provided response in command prompt***********************
+		displayResponse(clientSocket);
+		//****************print the provided response in file***********************
+		printStringToFile(response, "./src/request/response.txt");
+		//**************************************************************************
+		ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
+		if (bytesSent == -1) {
+			std::cerr << RED << "Sending response failed" << RESET << std::endl;
+			return (false);
+		}
+		this->_responses.erase(clientSocket);
+		return (true);
+	}
+	return (false);
+}
+
 
 std::string HTTPRequest::readHtmlFile(std::string path)
 {
@@ -291,8 +371,6 @@ std::string formatTimeHTTP(std::time_t rawTime)
 
 void writHtmlFile(std::string request, std::string path)
 {
-
-	std::cout << RED "HIIIII\n" RESET;
 	std::istringstream streamTest(request);
 	std::string stringTest;
 	std::ofstream outFile(path.c_str());
@@ -333,9 +411,4 @@ void writHtmlFile(std::string request, std::string path)
 	}
 	outFile.close();
 	exit(1);
-}
-
-void HTTPRequest::setServerConfig(std::map<std::string, std::string> const &serverConfig) {
-	this->_serverConfig = serverConfig;
-	return;
 }

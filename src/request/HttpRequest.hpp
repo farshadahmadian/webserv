@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/27 09:22:51 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 09:03:37 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,12 @@
 // # define RED		"\033[38;5;196m"
 // # define RESET		"\033[0m"
 
-# include "colors.h"
-# include "errors.h"
+# define CR	"\r"
+# define LF	"\n"
+# define CRLF "\r\n"
+
+// # include "../../include/colors.h"
+# include "../../include/errors.h"
 # include "../exception/Exception.hpp"
 # include "../parsing/HttpConf.hpp"
 
@@ -43,25 +47,38 @@
 #include <algorithm>   // For std::remove
 #include "Post.hpp"
 
+enum POLLEvents {
+POLLIN_TMP  = 0,
+POLLOUT_TMP = 1,
+};
+
 class HTTPRequest {
 public:
-	// HTTPRequest(const std::string& request);
-	HTTPRequest(void);
-	HTTPRequest(std::map<std::string, std::string> serverConfig);
+	HTTPRequest( void );
+	~HTTPRequest( void );
+	HTTPRequest(std::map<std::string, std::string> &serverConfig);
 	bool parse();
 	int validate();
 	std::string getResponse(int connectedSocketFd);
 	bool handleRequest(int clientSocket);
+	bool handleRespons(int clientSocket, int const &pollEvent);
 	std::string readHtmlFile(std::string path);
-	void setServerConfig(std::map<std::string, std::string> const &serverConfig);
+	std::map<std::string, std::string> const & getRequest();
+	void printStringToFile(std::string const & string, std::string const path);
+	void displayRequest() const;
+	void displayHeaders();
+	void displayServerConfig();
+	void displayResponse(int fd);
+	
 
 private:
-	std::string _request;
+	std::string _requestString;
 	std::string _method;
 	std::string _uri;
 	std::string _version;
-	std::map<std::string, std::string> _headers;
 	std::string _body;
+	std::map<int, std::string> _responses;
+	std::map<std::string, std::string> _requestMap;
 	std::map<std::string, std::string> _serverConfig;
 	Post _post;
 
