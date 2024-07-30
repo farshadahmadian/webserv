@@ -3,30 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/29 19:09:32 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 00:49:18 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPRESPONSE_HPP
 # define HTTPRESPONSE_HPP
 
-# define CR	"\r"
-# define LF	"\n"
-# define CRLF "\r\n"
-
+# define CR    "\r"
+# define LF    "\n"
+# define CRLF  "\r\n"
 
 # include <iostream>
 # include <sstream>
 # include <fstream>
 # include <string>
 # include <map>
-# include <vector>
 # include <ctime>
-# include <cstring>
-# include <algorithm>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/stat.h>
@@ -37,30 +33,32 @@
 # include "error.h"
 
 enum POLLEvents {
-POLLIN_TMP  = 0,
-POLLOUT_TMP = 1,
+    POLLIN_TMP  = 0,
+    POLLOUT_TMP = 1,
 };
+
+class GetHandler; // Forward declaration
 
 class HTTPResponse {
 public:
     HTTPResponse();
-    ~HTTPResponse();
-    HTTPResponse(std::map<std::string, std::string> &serverConfig);
+    HTTPResponse(const std::map<std::string, std::string>& serverConfig);
+    virtual ~HTTPResponse();
 
     std::string getResponse();
     bool handleRespons(int clientSocket, int const &pollEvent);
     void displayResponse(int fd);
-	void setResponseRequestMap(std::map<std::string, std::string> &requestMap);
+    void setResponseRequestMap(const std::map<std::string, std::string>& requestMap);
 
-private:
-    std::string handleGet();
-    std::string handlePost();
-    std::string handleDelete();
+protected:
+    std::string createHandleGet();
+    std::string createHandlePost();
+    std::string createHandleDelete();
     std::string httpStatusCode(int statusCode);
-	std::string readBinaryFile(std::string const & path);
-    std::string readHtmlFile(const std::string &path);
-    std::string generateETag(const std::string &filePath, std::string &date, std::string &lastmdf);
-	void printStringToFile(std::string const & string,std::string const path);
+    std::string readBinaryFile(const std::string& path);
+    std::string readHtmlFile(const std::string& path);
+    std::string generateETag(const std::string& filePath, std::string& date, std::string& lastmdf);
+    void printStringToFile(const std::string& string, const std::string& path);
     int validate();
 
     std::string getCurrentTimeHTTP();
@@ -71,4 +69,4 @@ private:
     std::map<int, std::string> _responses;
 };
 
-#endif
+#endif // HTTPRESPONSE_HPP

@@ -3,36 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/29 19:09:12 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:06:15 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "./HttpResponse.hpp"
+#include "HttpResponse.hpp"
+#include "GetHandler.hpp"
 
 HTTPResponse::HTTPResponse() {
-    // Constructor body (if necessary)
     std::cout << CYAN "HTTPResponse constructor called\n" RESET;
+}
+
+HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
+    _serverConfig(serverConfig) {
+    std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 HTTPResponse::~HTTPResponse() {
     std::cout << CYAN "HTTPResponse destructor called\n" RESET;
 }
 
-HTTPResponse::HTTPResponse(std::map<std::string, std::string> &serverConfig) :
-    _serverConfig(serverConfig) {
-    std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
-}
-
 int HTTPResponse::validate() {
     if (_requestMap.find("Host") == _requestMap.end()) {
         return 400;
     }
-    // if (_requestMap.find("If-None-Match") != _requestMap.end()) {
-    //     return 304;
-    // }
     return 200;
 }
 
@@ -49,52 +46,26 @@ std::string HTTPResponse::getResponse() {
     }
 
     if (method == "GET" || method == "HEAD") {
-        return handleGet();
+        return createHandleGet();
     } else if (method == "POST") {
-        return handlePost();
+        return createHandlePost();
     } else if (method == "DELETE") {
-        return handleDelete();
+        return createHandleDelete();
     }
     return httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>";
 }
 
-std::string HTTPResponse::handleGet()
-{
-    std::string readHtml = readHtmlFile("./src/index.html");
-    std::ostringstream reponseHeaders;
-    std::string date, lastMfd, eTag;
-
-    std::string uri = _requestMap["uri"];
-   	if (uri == "/" || uri == "/index.html" || uri == "/favicon.ico")
-	{
-		eTag = generateETag("./src/index.html", date, lastMfd);
-
-		reponseHeaders	<< httpStatusCode(200)
-						<< "Server: " << _serverConfig["server_name"] << CRLF
-						<< "Date: " << date << CRLF
-						<< "Content-Type: text/html\r\n"
-						<< "Content-Length: " << readHtml.size() << CRLF
-						<< "Last-Modified: " << lastMfd << CRLF
-						<< "Connection: keep-alive" << CRLF
-						<< "ETag: " << eTag << CRLF
-						<< "Cache-Control: no-cache" << CRLF
-						<< "Accept-Ranges: bytes" CRLF << CRLF;
-		if (_requestMap["method"] == "HEAD") {
-            return reponseHeaders.str();
-		}
-		reponseHeaders << readHtml;
-		return reponseHeaders.str();
-    }
-
-    return httpStatusCode(404) + "Content-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>";
+std::string HTTPResponse::createHandleGet() {
+    GetHandler  Get(_requestMap, _serverConfig);
+    return (Get.GetMethod());
 }
 
-std::string HTTPResponse::handlePost() {
+std::string HTTPResponse::createHandlePost() {
     std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     return responseBody;
 }
 
-std::string HTTPResponse::handleDelete() {
+std::string HTTPResponse::createHandleDelete() {
     std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
     return responseBody;
 }
@@ -161,7 +132,6 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
     return etag.str();
 }
 
-
 bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
     if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse();
@@ -176,11 +146,10 @@ bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
         }
         std::string response = iter->second;
 
-		//****************print the provided response in command prompt***********************
-		displayResponse(clientSocket);
-		//****************print the provided response in file***********************
-		printStringToFile(response, "./src/request/response.txt");
-		//**************************************************************************
+        // Print the provided response in command prompt
+        displayResponse(clientSocket);
+        // Print the provided response in file
+        printStringToFile(response, "./src/request/response.txt");
 
         ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
         if (bytesSent == -1) {
@@ -197,14 +166,13 @@ void HTTPResponse::displayResponse(int fd) {
     std::cout << ORG "****Response for fd [" << fd << "] is:\n" << MAGENTA << _responses[fd] << RESET << std::endl;
 }
 
-void HTTPResponse::printStringToFile(std::string const & string,std::string const path)
-{
-	std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
-	std::ofstream outfile(path.c_str());
-	outfile << string << std::endl;
-	outfile.close();
+void HTTPResponse::printStringToFile(const std::string& string, const std::string& path) {
+    std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
+    std::ofstream outfile(path.c_str());
+    outfile << string << std::endl;
+    outfile.close();
 }
 
-void HTTPResponse::setResponseRequestMap(std::map<std::string, std::string> & requestMap) {
-	_requestMap = requestMap;
+void HTTPResponse::setResponseRequestMap(const std::map<std::string, std::string> & requestMap) {
+    _requestMap = requestMap;
 }
