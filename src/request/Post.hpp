@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/27 17:05:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 08:08:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,17 @@ class Post {
 
 		std::map<int, std::string> &getResponses(void);
 
+		std::map<std::string, std::string> &getPostData(void);
 		void handlePost(std::string request, int connectedSocketFd);
+		void printPostData(void);
+		void printPostResponses(void);
 	private:
 		std::map<int, std::string> _responses;
 		std::map<std::string, std::string> _postData;
 
 		void parsePostRequest(std::string request);
+		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
+		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 		std::string getDelimiter(std::string request);
 		std::string getBody(std::string request);
 		void getSubmittedFormInputs(std::string body, std::string formFieldsDelimiter);
@@ -43,7 +48,6 @@ class Post {
 		std::string getFileName(std::string string);
 		void saveFile(std::string string);
 
-		void printPostData(void);
 };
 
 #endif

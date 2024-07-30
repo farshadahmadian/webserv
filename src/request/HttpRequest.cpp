@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/27 18:05:19 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/30 08:16:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,12 @@ std::string HTTPRequest::getResponse(int connectedSocketFd)
 		// return handlePost();
 		this->_post.handlePost(this->_request, connectedSocketFd);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
-		return (this->_post.getResponses()[connectedSocketFd]);
+		std::string response = this->_post.getResponses()[connectedSocketFd];
+		this->_post.getResponses().erase(connectedSocketFd);
+		this->_post.getPostData().clear();
+		this->_post.printPostData();
+		this->_post.printPostResponses();
+		return (response);
 	}
 	else if (_method == "DELETE")
 	{
