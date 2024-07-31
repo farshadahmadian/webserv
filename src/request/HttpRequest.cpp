@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 08:11:58 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 09:57:05 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ HTTPRequest::HTTPRequest( void ) {}
 
 HTTPRequest::~HTTPRequest( void ) { std::cout << BLUE "HTTPRequest destructor called\n" RESET;}
 
-HTTPRequest::HTTPRequest(std::map<std::string, std::string> &serverConfig) :
+HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig) :
 	_requestString(""),
 	_method(""),
 	_uri(""),
@@ -81,17 +81,21 @@ bool HTTPRequest::parse()
 	return true;
 }
 
+std::string const & HTTPRequest::getRequestString() const {
+	return (_requestString);
+}
+
 std::map<std::string, std::string> & HTTPRequest::getRequestMap() {return (_requestMap);}
 
 void HTTPRequest::displayRequestString() const
 {
-	std::cout << RED "****received request:\n"
+	std::cout << RED "****Request String:\n"
 		<< CYAN << _requestString << RESET << std::endl;
 }
 
 void HTTPRequest::displayRequestMap()
 {
-	std::cout << RED "****The headers map:\n";
+	std::cout << RED "****Request Map:\n";
 	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
 	for (; itr != _requestMap.end(); itr++)
 		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
@@ -111,7 +115,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
-	if (bytesRead == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)){
+	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
 		return (false);
 	}
 

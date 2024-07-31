@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 08:28:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 09:55:46 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,18 @@ class GetHandler; // Forward declaration
 class HTTPResponse {
 public:
     HTTPResponse();
-    HTTPResponse(const std::map<std::string, std::string>& serverConfig);
+    HTTPResponse(std::map<std::string, std::string> const & serverConfig);
     virtual ~HTTPResponse();
 
-    std::string getResponse();
+    std::string getResponse(int const clientSocket);
     bool handleRespons(int clientSocket, int const &pollEvent);
     void displayResponse(int fd);
     void setResponseRequestMap(const std::map<std::string, std::string>& requestMap);
+    void setResponseRequestString(const std::string & requestString);
 
 protected:
     std::string createHandleGet();
-    std::string createHandlePost();
+    std::string createHandlePost(int const clinetSocket);
     std::string createHandleDelete();
     std::string httpStatusCode(int statusCode);
     std::string readBinaryFile(const std::string& path);
@@ -67,6 +68,7 @@ protected:
 
     std::map<std::string, std::string> _serverConfig;
     std::map<std::string, std::string> _requestMap;
+	std::string	_requestString;
     std::map<int, std::string> _responses;
 
 	private:

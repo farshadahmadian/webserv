@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 01:29:21 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/07/31 09:43:45 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ std::string GetHandler::GetMethod()
 		eTag = generateETag("./src/index.html", date, lastMfd);
 
 		reponseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
-						// << "Server: " << _serverConfig.at("server_name") << CRLF
+						// << "Server: " << _serverConfig["server_name"] << CRLF
 						<< "Last-Modified: " << lastMfd << CRLF
 						<< "ETag: " << eTag << CRLF
 						<< "Content-Length: " << readHtml.size() << CRLF

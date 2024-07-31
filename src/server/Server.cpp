@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/31 08:14:14 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 09:22:58 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ HTTPRequest& Server::getHttpReq() {
 
 HTTPResponse& Server::getHttpResp() {
 	_httpResp.setResponseRequestMap(_httpReq.getRequestMap());
+	_httpResp.setResponseRequestString(_httpReq.getRequestString());
     return (_httpResp);
 }
 //navid_code to here <---

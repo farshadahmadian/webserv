@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/30 09:14:36 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 09:25:38 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ std::string Post::getFileName(std::string string) {
 
 void Post::saveFile(std::string string) {
 	std::string fileName = this->_postData["name"] + "_file";
-	std::ofstream outputFileStream(fileName);
+	std::ofstream outputFileStream(fileName.c_str());
 
 	std::string toFind = "\r\n\r\n";
 	std::string temp = string.substr(string.find(toFind) + toFind.length(), std::string::npos);

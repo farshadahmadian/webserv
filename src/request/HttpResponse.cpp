@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 08:31:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 09:17:33 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int HTTPResponse::validate() {
     return 200;
 }
 
-std::string HTTPResponse::getResponse() {
+std::string HTTPResponse::getResponse(int const clinetSocket) {
     int statusCode = validate();
 
     std::string method = _requestMap["method"];
@@ -48,7 +48,7 @@ std::string HTTPResponse::getResponse() {
     if (method == "GET" || method == "HEAD") {
         return createHandleGet();
     } else if (method == "POST") {
-        return createHandlePost();
+        return createHandlePost(clinetSocket);
     } else if (method == "DELETE") {
         return createHandleDelete();
     }
@@ -60,13 +60,13 @@ std::string HTTPResponse::createHandleGet() {
     return (Get.GetMethod());
 }
 
-std::string HTTPResponse::createHandlePost() {
+std::string HTTPResponse::createHandlePost(int const clinetSocket) {
     // std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     // return responseBody;
-		this->_post.handlePost(this->_requestString, connectedSocketFd);
+		this->_post.handlePost(this->_requestString, clinetSocket);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
-		std::string response = this->_post.getResponses()[connectedSocketFd];
-		this->_post.getResponses().erase(connectedSocketFd);
+		std::string response = this->_post.getResponses()[clinetSocket];
+		this->_post.getResponses().erase(clinetSocket);
 		this->_post.getPostData().clear();
 		this->_post.printPostData();
 		this->_post.printPostResponses();
@@ -142,7 +142,7 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
 
 bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
     if (pollEvent == POLLIN_TMP) {
-        _responses[clientSocket] = getResponse();
+        _responses[clientSocket] = getResponse(clientSocket);
         std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
         return true;
     }
@@ -183,4 +183,7 @@ void HTTPResponse::printStringToFile(const std::string& string, const std::strin
 
 void HTTPResponse::setResponseRequestMap(const std::map<std::string, std::string> & requestMap) {
     _requestMap = requestMap;
+}
+void HTTPResponse::setResponseRequestString(std::string const & requeststring) {
+    _requestString = requeststring;
 }
