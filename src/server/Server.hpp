@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/31 08:13:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:09:31 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ private:
 	std::map<std::string, std::string> _request;
 
 	// std::map<int, std::string> _responses;				// navid_code
-	// std::map<std::string, std::string> _settings; // navid_code
+	std::map<std::string, std::string> _settings; // navid_code
 	HTTPRequest _httpReq; //navid_code
 	HTTPResponse _httpResp; //navid_code
 
@@ -79,7 +79,7 @@ public:
 	const std::string getPort(void) const;
 	size_t getMonitoredFdsNum(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	// std::map<std::string, std::string> &getServerConf(void);//navid_code
+	std::map<std::string, std::string> &getServerConf(void);//navid_code
 	// std::map<int, std::string> &getResponses(void);
 
 	void addServerName(std::string newName);

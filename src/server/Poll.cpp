@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/31 08:14:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:28:45 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void Poll::createServers(const Parser &configuration)
 		}
 		// Server s = new Server((*serverConfIt).getSettings());
 		Server s((*serverConfIt).getSettings());
+		std::cout <<"HHHHHHHHHOOOOO" << s.getServerConf()["root"] << std::endl; // It seems the created Servers are deleted after this scop according to the print statment here, and inside the constructor and deconstructor of Server, HTTPResponse, and HTTPRequest classes.
+		// s.getHttpReq().setServerConfig(s.getServerConf());
 		std::cout << "HIII 444 from inside the createServers func in Poll\n";
 		_serverList.push_back(s); // ------ crash in Mac but not in Linux ------- THE MOST MISTERIOUS PROBLEM IN THE HISTORY OF CODING  -------------------- !!!!
 		serverConfIt++;

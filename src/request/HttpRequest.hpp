@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:55:11 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:03:27 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ public:
 	bool parse();
 	int validate();
 	bool handleRequest(int clientSocket);
-	std::map<std::string, std::string> & getRequestMap();
+	std::map<std::string, std::string> const & getRequestMap();
 	std::string const & getRequestString() const;
+	void setServerConfig(std::map<std::string, std::string> const & serverconfig);
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();

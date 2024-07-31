@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 09:55:46 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 10:16:08 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ public:
     std::string getResponse(int const clientSocket);
     bool handleRespons(int clientSocket, int const &pollEvent);
     void displayResponse(int fd);
-    void setResponseRequestMap(const std::map<std::string, std::string>& requestMap);
-    void setResponseRequestString(const std::string & requestString);
+    void setResponseRequestMap(std::map<std::string, std::string> const & requestMap);
+    void setResponseRequestString(std::string const & requestString);
 
 protected:
     std::string createHandleGet();

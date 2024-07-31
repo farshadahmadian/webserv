@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:57:05 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:04:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,12 @@ std::string const & HTTPRequest::getRequestString() const {
 	return (_requestString);
 }
 
-std::map<std::string, std::string> & HTTPRequest::getRequestMap() {return (_requestMap);}
+std::map<std::string, std::string> const & HTTPRequest::getRequestMap() {return (_requestMap);}
+
+void HTTPRequest::setServerConfig(std::map<std::string, std::string> const & serverconfig) {
+	_serverConfig = serverconfig;
+}
+
 
 void HTTPRequest::displayRequestString() const
 {
@@ -103,6 +108,8 @@ void HTTPRequest::displayRequestMap()
 
 void HTTPRequest::displayServerConfig()
 {
+	std::cout << "HIIIIIIIIIIIII" << _serverConfig["server_name"] << std::endl;
+	std::cout << "HIIIIIIIIIIIII" << _serverConfig["root"] << std::endl;
 	std::cout << RED "****The server config map:\n";
 	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
 	for (; itrr != _serverConfig.end(); itrr++)

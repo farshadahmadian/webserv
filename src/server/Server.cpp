@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/31 09:22:58 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:09:58 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_monitoredFdsNum(0),
+	_settings(settings),
 	_httpReq(settings),
 	_httpResp(settings)
 	// _request(std::map<std::string, std::string>())
@@ -26,6 +27,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
+	// _httpReq.setServerConfig(settings);
 	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
 	// _autoindexes.push_back(settings["autoindex"]);
 	// _clientSizes.push_back(settings["client_body_buffer_size"]);
@@ -422,10 +424,10 @@ std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
 	return this->_connectedSockets;
 }
 
-// std::map<std::string, std::string> &Server::getServerConf(void)
-// {
-// 	return this->_settings;
-// }
+std::map<std::string, std::string> &Server::getServerConf(void)
+{
+	return this->_settings;
+}
 
 // std::map<int, std::string> &Server::getResponses(void)
 // {
