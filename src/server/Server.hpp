@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/30 09:07:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/07/31 08:13:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <map>
 #include <fstream>
 #include "../request/HttpRequest.hpp"
+#include "../request/HttpResponse.hpp"
 #include <sstream>
 #include "Exception.hpp"
 #include "../sockets/listening-socket/ListeningSocket.hpp"
@@ -53,6 +54,7 @@ private:
 	// std::map<int, std::string> _responses;				// navid_code
 	// std::map<std::string, std::string> _settings; // navid_code
 	HTTPRequest _httpReq; //navid_code
+	HTTPResponse _httpResp; //navid_code
 
 	void handleEvents(void);
 	void handleEventsOnListeningSocket(unsigned int i);
@@ -77,7 +79,7 @@ public:
 	const std::string getPort(void) const;
 	size_t getMonitoredFdsNum(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	// std::map<std::string, std::string> &getSettings(void);
+	// std::map<std::string, std::string> &getServerConf(void);//navid_code
 	// std::map<int, std::string> &getResponses(void);
 
 	void addServerName(std::string newName);
@@ -91,6 +93,7 @@ public:
 	void closeSocket(void);
 
 	HTTPRequest & getHttpReq(); //navid_code
+	HTTPResponse & getHttpResp(); //navid_code
 };
 
 #endif /* __SERVER_HPP__ */
