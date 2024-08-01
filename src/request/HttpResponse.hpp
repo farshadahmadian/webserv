@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 10:16:08 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:44:54 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,33 +46,37 @@ public:
     HTTPResponse(std::map<std::string, std::string> const & serverConfig);
     virtual ~HTTPResponse();
 
-    std::string getResponse(int const clientSocket);
-    bool handleRespons(int clientSocket, int const &pollEvent);
+    std::string getResponse(int const clientSocket); //---------------------------------------------------Return Error Or Call The Related HTTP Methods 
+    bool handleResponse(int clientSocket, int const &pollEvent); //
     void displayResponse(int fd);
-    void setResponseRequestMap(std::map<std::string, std::string> const & requestMap);
-    void setResponseRequestString(std::string const & requestString);
+    void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
+    void setRequestStringInResponse(std::string const & requestString);
 
 protected:
     std::string createHandleGet();
-    std::string createHandlePost(int const clinetSocket);
+    std::string createHandlePost(int const clientSocket);
     std::string createHandleDelete();
     std::string httpStatusCode(int statusCode);
     std::string readBinaryFile(const std::string& path);
     std::string readHtmlFile(const std::string& path);
-    std::string generateETag(const std::string& filePath, std::string& date, std::string& lastmdf);
+    std::string generateETag(const std::string& filePath, std::string& date, std::string& lastModified);
     void printStringToFile(const std::string& string, const std::string& path);
     int validate();
 
-    std::string getCurrentTimeHTTP();
+    std::string getCurrentTime();
     std::string formatTimeHTTP(std::time_t rawTime);
 
-    std::map<std::string, std::string> _serverConfig;
-    std::map<std::string, std::string> _requestMap;
-	std::string	_requestString;
-    std::map<int, std::string> _responses;
+    std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map
+    std::map<std::string, std::string> _requestMap; //---------------------------------------------------Keep A Reference Of Request Map
+	std::string	_requestString; //-----------------------------------------------------------------------Keep A Reference Of Request String
+    std::map<int, std::string> _responses; //------------------------------------------------------------A Map Of Responses Corresponding To Their Sockets
 
 	private:
 		Post _post;
 };
 
 #endif // HTTPRESPONSE_HPP
+
+
+// curl -o file url-to-favicon
+// cmp file /path/to/original

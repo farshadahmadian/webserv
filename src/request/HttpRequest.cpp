@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 14:04:06 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:17:09 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,17 @@ HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig
 	_version(""),
 	_serverConfig(serverConfig) {std::cout << BLUE "HTTPRequest constructor called\n" RESET;}
 
-bool HTTPRequest::isValidMethod(const std::string &mthd)
+bool HTTPRequest::isValidMethod(const std::string &method)
 {
-	return (mthd == "GET" || mthd == "POST" || mthd == "HEAD");
+	return (method == "GET" || method == "POST" || method == "HEAD");
 }
 
+/*Check The HTTP Version Validity*/
 bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 {
 	return (ver == "HTTP/1.1" || ver == "HTTP/1.0");
 }
-
+/*Parse The Received Request And Creat a Map Of Its Headers*/
 bool HTTPRequest::parse()
 {
 	std::istringstream requestStream(_requestString);
@@ -87,16 +88,16 @@ std::string const & HTTPRequest::getRequestString() const {
 
 std::map<std::string, std::string> const & HTTPRequest::getRequestMap() {return (_requestMap);}
 
-void HTTPRequest::setServerConfig(std::map<std::string, std::string> const & serverconfig) {
-	_serverConfig = serverconfig;
+void HTTPRequest::setServerConfig(std::map<std::string, std::string> const & serverConfig) {
+	_serverConfig = serverConfig;
 }
-
 
 void HTTPRequest::displayRequestString() const
 {
 	std::cout << RED "****Request String:\n"
 		<< CYAN << _requestString << RESET << std::endl;
 }
+
 
 void HTTPRequest::displayRequestMap()
 {
@@ -108,14 +109,13 @@ void HTTPRequest::displayRequestMap()
 
 void HTTPRequest::displayServerConfig()
 {
-	std::cout << "HIIIIIIIIIIIII" << _serverConfig["server_name"] << std::endl;
-	std::cout << "HIIIIIIIIIIIII" << _serverConfig["root"] << std::endl;
 	std::cout << RED "****The server config map:\n";
-	std::map<std::string, std::string>::iterator itrr = _serverConfig.begin();
-	for (; itrr != _serverConfig.end(); itrr++)
-		std::cout << ORG << itrr->first << "->" MAGENTA << itrr->second << RESET << std::endl;
+	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
+	for (; itr != _serverConfig.end(); itr++)
+		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
 
+/*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
 bool HTTPRequest::handleRequest(int clientSocket)
 {
 	char buffer[40960];
@@ -125,14 +125,12 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
 		return (false);
 	}
-
 	if (bytesRead < 0)
 	{
 		throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
 		close(clientSocket);
 		return (false);
 	}
-
 	buffer[bytesRead] = '\0';
 	_requestString.assign(buffer);
 
@@ -150,7 +148,8 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	return (true);
 }
 
-void writStringtoFile(std::string request, std::string path)
+/*It Writes The String To The File Path With Showing Its Scap Characters Inside In The ASCII.*/
+void writeStringToFile(std::string request, std::string path)
 {
 	std::istringstream streamTest(request);
 	std::string stringTest;

@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 09:17:33 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:22:54 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ HTTPResponse::~HTTPResponse() {
     std::cout << CYAN "HTTPResponse destructor called\n" RESET;
 }
 
+/*Validate The Request Header To Return The Corrsponding Status Code.*/
 int HTTPResponse::validate() {
     if (_requestMap.find("Host") == _requestMap.end()) {
         return 400;
@@ -33,7 +34,10 @@ int HTTPResponse::validate() {
     return 200;
 }
 
-std::string HTTPResponse::getResponse(int const clinetSocket) {
+/*Return Corresponding Status Code Response Or In Case 
+Of Responding With An Specific Method Is Required,
+It Invokes Corresponding Method.*/
+std::string HTTPResponse::getResponse(int const clientSocket) {
     int statusCode = validate();
 
     std::string method = _requestMap["method"];
@@ -48,25 +52,27 @@ std::string HTTPResponse::getResponse(int const clinetSocket) {
     if (method == "GET" || method == "HEAD") {
         return createHandleGet();
     } else if (method == "POST") {
-        return createHandlePost(clinetSocket);
+        return createHandlePost(clientSocket);
     } else if (method == "DELETE") {
         return createHandleDelete();
     }
     return httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>";
 }
 
+/*Creat An Instance of GetHandler Class And 
+Call The Get Method To Prepare The Response.*/
 std::string HTTPResponse::createHandleGet() {
     GetHandler  Get(_requestMap, _serverConfig);
     return (Get.GetMethod());
 }
 
-std::string HTTPResponse::createHandlePost(int const clinetSocket) {
+std::string HTTPResponse::createHandlePost(int const clientSocket) {
     // std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     // return responseBody;
-		this->_post.handlePost(this->_requestString, clinetSocket);
+		this->_post.handlePost(this->_requestString, clientSocket);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
-		std::string response = this->_post.getResponses()[clinetSocket];
-		this->_post.getResponses().erase(clinetSocket);
+		std::string response = this->_post.getResponses()[clientSocket];
+		this->_post.getResponses().erase(clientSocket);
 		this->_post.getPostData().clear();
 		this->_post.printPostData();
 		this->_post.printPostResponses();
@@ -78,6 +84,7 @@ std::string HTTPResponse::createHandleDelete() {
     return responseBody;
 }
 
+/*Return Message Corresponding To The Status Code Is Passed.*/
 std::string HTTPResponse::httpStatusCode(int statusCode) {
     switch (statusCode) {
         case 200: return "HTTP/1.1 200 OK\r\n";
@@ -89,6 +96,7 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
     }
 }
 
+/*Reading The Binary From The Path and Return a String*/
 std::string HTTPResponse::readBinaryFile(std::string const & path) {
     std::ifstream fileStream(path.c_str(), std::ios::binary);
     if (!fileStream.is_open()) {
@@ -100,6 +108,7 @@ std::string HTTPResponse::readBinaryFile(std::string const & path) {
     return ss.str();
 }
 
+/*Reading From The Path and Return a String*/
 std::string HTTPResponse::readHtmlFile(const std::string &path) {
     std::ifstream fileStream(path.c_str());
     if (!fileStream.is_open()) {
@@ -111,6 +120,7 @@ std::string HTTPResponse::readHtmlFile(const std::string &path) {
     return ss.str();
 }
 
+/*Return a String Of Current Time In a HTTP Header Format.*/
 std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
     std::tm *gmTime = std::gmtime(&rawTime);
     char buffer[100];
@@ -118,12 +128,14 @@ std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
     return std::string(buffer);
 }
 
-std::string HTTPResponse::getCurrentTimeHTTP() {
+
+std::string HTTPResponse::getCurrentTime() {
     std::time_t currentTime = std::time(NULL);
     return formatTimeHTTP(currentTime);
 }
 
-std::string HTTPResponse::generateETag(const std::string &filePath, std::string &date, std::string &lastmdf) {
+/*Generate ETag According To The FilePath Last Modifed And Size.*/
+std::string HTTPResponse::generateETag(const std::string &filePath, std::string &date, std::string &lastModified) {
     struct stat fileInfo;
 
     if (stat(filePath.c_str(), &fileInfo) != 0) {
@@ -134,13 +146,19 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
     std::ostringstream etag;
     etag << "\"" << fileInfo.st_mtime << "-" << fileInfo.st_size << "\"";
 
-    date = getCurrentTimeHTTP();
-    lastmdf = formatTimeHTTP(fileInfo.st_mtime);
+    date = getCurrentTime();
+    lastModified = formatTimeHTTP(fileInfo.st_mtime);
 
     return etag.str();
 }
 
-bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
+/*This Function Is Called Two Times, First After POLLIN To Generate
+The Response And Assign It To Its Socket In A Map Of Responses,
+Second After POLLOUT To Grab The Corresponding Response To The Socket
+And Sent It To Client. It Returns False If There Is No Response For Specific
+Socket Or There Is No POLLIN Or POLLOUT, Otherwise Remove The Sent Response
+From The Response Map And Return True. */
+bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent) {
     if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse(clientSocket);
         std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
@@ -170,10 +188,12 @@ bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
     return false;
 }
 
+/*Display Corresponding Response To The Fd Is Passed.*/
 void HTTPResponse::displayResponse(int fd) {
     std::cout << ORG "****Response for fd [" << fd << "] is:\n" << MAGENTA << _responses[fd] << RESET << std::endl;
 }
 
+/*Print A String In Passed File Path.*/
 void HTTPResponse::printStringToFile(const std::string& string, const std::string& path) {
     std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
     std::ofstream outfile(path.c_str());
@@ -181,9 +201,12 @@ void HTTPResponse::printStringToFile(const std::string& string, const std::strin
     outfile.close();
 }
 
-void HTTPResponse::setResponseRequestMap(const std::map<std::string, std::string> & requestMap) {
+/*Set The Map Request Result Of Request Handling In HTTP Response Class.*/
+void HTTPResponse::setRequestMapInResponse(const std::map<std::string, std::string> & requestMap) {
     _requestMap = requestMap;
 }
-void HTTPResponse::setResponseRequestString(std::string const & requeststring) {
-    _requestString = requeststring;
+
+/*Set The String Request Result Of Request Handling In HTTP Response Class.*/
+void HTTPResponse::setRequestStringInResponse(std::string const & requestString) {
+    _requestString = requestString;
 }

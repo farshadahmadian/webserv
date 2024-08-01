@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:43:45 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:54:56 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
 					   const std::map<std::string, std::string>& serverConfig) :
 	HTTPResponse(serverConfig) {
-	setResponseRequestMap(requestMap);
+	setRequestMapInResponse(requestMap);
 }
 
 GetHandler::~GetHandler() {}
@@ -23,7 +23,7 @@ GetHandler::~GetHandler() {}
 std::string GetHandler::GetMethod() 
 {
 	std::string readHtml = readHtmlFile("./src/index.html");
-	std::ostringstream reponseHeaders;
+	std::ostringstream responseHeaders;
 	std::string date, lastMfd, eTag;
 
 	std::string uri = _requestMap["uri"];
@@ -31,8 +31,8 @@ std::string GetHandler::GetMethod()
 	{
 		eTag = generateETag("./src/index.html", date, lastMfd);
 
-		reponseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
-						// << "Server: " << _serverConfig["server_name"] << CRLF
+		responseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
+						<< "Server: " << _serverConfig["server_name"] << CRLF
 						<< "Last-Modified: " << lastMfd << CRLF
 						<< "ETag: " << eTag << CRLF
 						<< "Content-Length: " << readHtml.size() << CRLF
@@ -40,26 +40,26 @@ std::string GetHandler::GetMethod()
 						<< "Content-Type: text/html" << CRLF
 						<< "Connection: keep-alive" << CRLF << CRLF;
 		if (_requestMap["method"] == "HEAD") {
-			return reponseHeaders.str();
+			return responseHeaders.str();
 		}
-		reponseHeaders << readHtml;
-		return reponseHeaders.str();
+		responseHeaders << readHtml;
+		return responseHeaders.str();
 	} else if (_requestMap["uri"] == "/favicon.ico") 
 	{
-		std::string faviconsize = readHtmlFile("./src/request/favicon.ico");
-		std::string favicon = readBinaryFile("./src/request/favicon.ico");
+		std::string favIconSize = readHtmlFile("./src/favicon.ico");
+		std::string favicon = readBinaryFile("./src/favicon.ico");
 		eTag = generateETag("./src/request/favicon.ico", date, lastMfd);
 
-		reponseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
-						// << "Server: " << _serverConfig.at("server_name") << CRLF
+		responseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
+						<< "Server: " << _serverConfig.at("server_name") << CRLF
 						<< "Last-Modified: " << lastMfd << CRLF
 						<< "ETag: " << eTag << CRLF
-						<< "Content-Length: " << faviconsize.size() << CRLF
+						<< "Content-Length: " << favIconSize.size() << CRLF
 						<< "Cache-Control: no-cache" << CRLF
 						<< "Content-Type: image/vnd.microsoft.icon" << CRLF
 						<< "Connection: keep-alive" << CRLF << CRLF;
-		reponseHeaders	<< favicon;
-		return reponseHeaders.str();
+		responseHeaders	<< favicon;
+		return responseHeaders.str();
 	} else
 		return httpStatusCode(404) + "Content-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>";
 }

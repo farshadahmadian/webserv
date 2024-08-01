@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:41:44 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/08 10:53:57 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:05:40 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,29 @@
 #include "HttpRequest.hpp"
 #include <unistd.h>
 
-void handleRequest(int clientSocket) {
-    char buffer[1024];
-    int bytesRead = read(clientSocket, buffer, sizeof(buffer) - 1);
-    if (bytesRead < 0) {
-        perror("read");
-        close(clientSocket);
-        return;
-    }
-    buffer[bytesRead] = '\0';
-    std::string request(buffer);
+// void handleRequest(int clientSocket) {
+//     char buffer[1024];
+//     int bytesRead = read(clientSocket, buffer, sizeof(buffer) - 1);
+//     if (bytesRead < 0) {
+//         perror("read");
+//         close(clientSocket);
+//         return;
+//     }
+//     buffer[bytesRead] = '\0';
+//     std::string request(buffer);
 
-    HTTPRequest httpRequest(request);
+//     HTTPRequest httpRequest(request);
 
-    if (!httpRequest.parse()) {
-        std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
-        write(clientSocket, response.c_str(), response.length());
-    } else {
-        std::string response = httpRequest.getResponse();
-        write(clientSocket, response.c_str(), response.length());
-    }
+//     if (!httpRequest.parse()) {
+//         std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
+//         write(clientSocket, response.c_str(), response.length());
+//     } else {
+//         std::string response = httpRequest.getResponse();
+//         write(clientSocket, response.c_str(), response.length());
+//     }
 
-    close(clientSocket);
-}
+//     close(clientSocket);
+// }
 
 
 int main() {

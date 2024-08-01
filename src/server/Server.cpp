@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/31 14:09:58 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:13:27 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_monitoredFdsNum(0),
-	_settings(settings),
+	// _settings(settings),
 	_httpReq(settings),
 	_httpResp(settings)
 	// _request(std::map<std::string, std::string>())
@@ -53,7 +53,9 @@ Server::Server(const Server &other) :
 	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
 	_connectedSockets(other._connectedSockets),
-	_monitoredFdsNum(other._monitoredFdsNum)
+	_monitoredFdsNum(other._monitoredFdsNum),
+	_httpReq(other._httpReq),
+	_httpResp(other._httpResp)
 	// _request(other._request) // ----- the problem of the crash seems this! ------
 {
 	std::cout << RED << "Server copy constructor called" RESET << std::endl;
@@ -81,13 +83,16 @@ Server::~Server(void)
 	return;
 }
 //navid_code from here -->
+
+/*Retrieve HTTP Request Private Instance In Server Class.*/
 HTTPRequest& Server::getHttpReq() {
     return (_httpReq);
 }
 
+/*Retrieve HTTP Response Private Instance In Server Class.*/
 HTTPResponse& Server::getHttpResp() {
-	_httpResp.setResponseRequestMap(_httpReq.getRequestMap());
-	_httpResp.setResponseRequestString(_httpReq.getRequestString());
+	_httpResp.setRequestMapInResponse(_httpReq.getRequestMap());
+	_httpResp.setRequestStringInResponse(_httpReq.getRequestString());
     return (_httpResp);
 }
 //navid_code to here <---
@@ -276,7 +281,7 @@ void Server::addToMonitorsFds(int connectedSocketFd)
 // 			// HTTPRequest httpreq(_settings); // navid_code
 // 			if (_httpReq.handleRequest(this->_monitoredFds[i].fd))
 // 			{
-// 				_httpResp.handleRespons(this->_monitoredFds[i].fd, POLLIN_TMP);//navid_code
+// 				_httpResp.handleResponse(this->_monitoredFds[i].fd, POLLIN_TMP);//navid_code
 				
 // 				// char receive[20048];
 // 				// receive[20047] = '\0';
@@ -331,7 +336,7 @@ void Server::addToMonitorsFds(int connectedSocketFd)
 // 			// std::string response = _responses[this->_monitoredFds[i].fd];
 // 			// //****************print the provided response in file***********************
 // 			// std::cout << RED "****sending the response\n" RESET;
-// 			// // writStringtoFile(response, "./src/request/response.txt");
+// 			// // writeStringToFile(response, "./src/request/response.txt");
 // 			// std::ofstream outfile("./src/request/response.txt");
 // 			// outfile << response << std::endl;
 // 			// outfile.close();
@@ -344,7 +349,7 @@ void Server::addToMonitorsFds(int connectedSocketFd)
 // 			// }
 // 			// std::cout << RED << "Socket [" << this->_monitoredFds[i].fd << "] is closed." << RESET << std::endl;
 			
-// 			_httpResp->handleRespons(this->_monitoredFds[i].fd, POLLOUT_TMP); //navid_code
+// 			_httpResp->handleResponse(this->_monitoredFds[i].fd, POLLOUT_TMP); //navid_code
 // 			this->_connectedSockets.erase(this->_monitoredFds[i].fd);
 // 			this->_monitoredFds[i].fd = -1;
 // 			this->closeSocket();
@@ -424,10 +429,10 @@ std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
 	return this->_connectedSockets;
 }
 
-std::map<std::string, std::string> &Server::getServerConf(void)
-{
-	return this->_settings;
-}
+// std::map<std::string, std::string> &Server::getServerConf(void)
+// {
+// 	return this->_settings;
+// }
 
 // std::map<int, std::string> &Server::getResponses(void)
 // {

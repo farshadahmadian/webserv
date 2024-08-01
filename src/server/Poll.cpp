@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/31 14:28:45 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:16:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,28 +39,21 @@ void Poll::createServers(const Parser &configuration)
 	std::vector<ServerConf>::const_iterator serverConfIt = configuration.getHttp().getServer().begin();
 	while (serverConfIt != configuration.getHttp().getServer().end())
 	{
-		std::cout << "HIII 111 from inside the createServers func in Poll\n";
 		if (_serverList.size() > 0)
 		{
-			std::cout << "HIII 222 from inside the createServers func in Poll\n";
 			std::map<std::string, std::string> currentServerSettings = (*serverConfIt).getSettings();
 			if (mergeServerWithSamePort(currentServerSettings))
 			{ // check if the port is already in use
-				std::cout << "HIII 333 from inside the createServers func in Poll\n";
 				serverConfIt++;
 				continue;
 			}
 		}
 		// Server s = new Server((*serverConfIt).getSettings());
 		Server s((*serverConfIt).getSettings());
-		std::cout <<"HHHHHHHHHOOOOO" << s.getServerConf()["root"] << std::endl; // It seems the created Servers are deleted after this scop according to the print statment here, and inside the constructor and deconstructor of Server, HTTPResponse, and HTTPRequest classes.
 		// s.getHttpReq().setServerConfig(s.getServerConf());
-		std::cout << "HIII 444 from inside the createServers func in Poll\n";
 		_serverList.push_back(s); // ------ crash in Mac but not in Linux ------- THE MOST MISTERIOUS PROBLEM IN THE HISTORY OF CODING  -------------------- !!!!
 		serverConfIt++;
-		std::cout << "HIII 555 from inside the createServers func in Poll\n";
 	}
-		std::cout << "HIII 666 from inside the createServers func in Poll\n";
 }
 
 /*	Check if in the configuration there are multiple servers with the same port.
@@ -268,7 +261,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
 				// s.initializeResponse();//navid_code
-				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
+				s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
 
 				// _POLLINCheck[this->_totalFds[i].fd] = 1;
 				// char receive[20048];
@@ -297,7 +290,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// std::string response = s.getResponses()[this->_totalFds[i].fd];
 			// //****************print the provided response in file***********************
 			//  std::cout << RED "****sending the response\n" RESET; 
-			// // writStringtoFile(response, "./src/request/response.txt");
+			// // writeStringToFile(response, "./src/request/response.txt");
 			// std::ofstream outfile("./src/request/response.txt");
 			// outfile << response << std::endl;
 			// outfile.close();
@@ -309,10 +302,10 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			// 	std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
 			// }
 			// std::cout << RED << "Socket [" << s.getConnectedSockets()[this->_totalFds[i].fd].getSocketFd() << "] is closed." << RESET << d::endl; 
-			// if (s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP)) {
+			// if (s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP)) {
 
 				// s.initializeResponse();//navid_code
-				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
+				s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
 				int closeResult = close(this->_totalFds[i].fd);
 				if (closeResult == -1)
 				{
