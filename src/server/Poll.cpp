@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/01 08:36:54 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/01 16:38:39 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void Poll::start(void)
 		{
 			int eventsNum = poll(_totalFds, _currentMonitored, 3000);
 			std::cout << "* Event num: " << eventsNum << std::endl; 
-			this->printCurrentPollFds(); 
+			this->printCurrentPollFds();
 			if (eventsNum < 0)
 			{
 				Exception pollException("Poll exception", POLL_FAILED);
@@ -139,7 +139,7 @@ void Poll::handleEvent(void)
 			handleListeningEvent(i, (*serverIt));
 			serverIt++;
 			i++;
-			 std::cout << RED << "Iteration count on servers: " << i << RESET << std::endl; 
+			//  std::cout << RED << "Iteration count on servers: " << i << RESET << std::endl; 
 		}
 	}
 	serverIt = this->_serverList.begin();
@@ -155,8 +155,9 @@ void Poll::handleEvent(void)
 			i++;
 		}
 		removeClosedSocketsFromMap(*serverIt);
-			serverIt->printConnectedSockets();
-			this->printCurrentPollFds();
+		serverIt->printConnectedSockets();
+		// this->printCurrentPollFds();
+		this->printAllPollFds();
 		serverIt++;
 	}
 }
@@ -193,17 +194,21 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 {
 	try
 	{
-		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL))
+		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP))
 		{
 			std::cout << PURPLE << "**************################## close fd, remove from pollfds list, remove from connectedSockets list **************##################" << RESET << std::endl;
 			std::cout << PURPLE << "**************################## this->_totalFds[i].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << " **************##################" << RESET << std::endl;
 			std::cout << PURPLE << "**************################## this->_totalFds[i].revents & POLLHUP = " << (this->_totalFds[i].revents & POLLHUP) << " **************##################" << RESET << std::endl;
 			std::cout << PURPLE << "**************################## this->_totalFds[i].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << " **************##################" << RESET << std::endl;
 			int closeResult = close(this->_totalFds[i].fd);
+		
 			if (closeResult == -1)
 			{
 				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!!" << RESET << std::endl;
 			}
+		}
+
+		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) {
 			s.getConnectedSockets()[this->_totalFds[i].fd].setIsConnected(false);
 			this->_totalFds[i].fd = -1;
 			// s.closeSocket();
@@ -221,6 +226,7 @@ void Poll::handleConnectedEvent(size_t i, Server &s)
 			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
 				// s.initializeResponse();//navid_code
+				this->_totalFds[i].events = POLLIN | POLLOUT;
 				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
 			}
 		}
@@ -255,9 +261,9 @@ void Poll::addConnectedSocketToMonitoredList(int connectedSocketFd)
 		if (_totalFds[i].fd == -1)
 		{
 			_totalFds[i].fd = connectedSocketFd;
-			 std::cout << "******************* BEFORE :" << _totalFds[i].revents << " ****** " << std::endl; 
 			// _totalFds[i].revents = 0;
-			_totalFds[i].events = POLLIN | POLLOUT;
+			// _totalFds[i].events = POLLIN | POLLOUT;
+			_totalFds[i].events = POLLIN;
 			break;
 		}
 	}

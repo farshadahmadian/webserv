@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/01 08:37:45 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/01 14:13:15 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,9 @@ Server::Server(const Server &other) :
 	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
 	_connectedSockets(other._connectedSockets),
-	_monitoredFdsNum(other._monitoredFdsNum)
+	_monitoredFdsNum(other._monitoredFdsNum),
+	_httpReq(other._httpReq),
+	_httpResp(other._httpResp)
 	// _request(other._request) // ----- the problem of the crash seems this! ------
 {
 	std::cout << RED << "Server copy constructor called" RESET << std::endl;
@@ -97,11 +99,10 @@ void Server::printConnectedSockets(void)
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
-	std::cout << "Connected Sockets List in: " << this->_listeningSocket.getSocketFd() << " ===> " << std::endl;
+	std::cout << "Connected Sockets List in Server: " << this->_listeningSocket.getSocketFd() << " ===> " << std::endl;
 	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
 
-	std::cout << "finish\n";
 }
 
 void Server::setPortAvailable(void)
@@ -166,10 +167,10 @@ int Server::acceptFirstRequestInQueue(void)
 
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
-	std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
-	std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
-	std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
-	std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
+	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
+	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
+	// std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
+	// std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
 	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
