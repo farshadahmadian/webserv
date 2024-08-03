@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/01 23:22:54 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/03 11:52:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,16 @@
 #include "GetHandler.hpp"
 
 HTTPResponse::HTTPResponse() {
-    std::cout << CYAN "HTTPResponse constructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
     _serverConfig(serverConfig), _post(Post()) {
-    std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 HTTPResponse::~HTTPResponse() {
-    std::cout << CYAN "HTTPResponse destructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse destructor called\n" RESET;
 }
 
 /*Validate The Request Header To Return The Corrsponding Status Code.*/
