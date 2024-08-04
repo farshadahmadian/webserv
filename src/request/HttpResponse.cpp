@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/07/31 09:17:33 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/03 12:25:35 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,16 @@
 #include "GetHandler.hpp"
 
 HTTPResponse::HTTPResponse() {
-    std::cout << CYAN "HTTPResponse constructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
     _serverConfig(serverConfig), _post(Post()) {
-    std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 HTTPResponse::~HTTPResponse() {
-    std::cout << CYAN "HTTPResponse destructor called\n" RESET;
+    // std::cout << CYAN "HTTPResponse destructor called\n" RESET;
 }
 
 int HTTPResponse::validate() {
@@ -37,7 +37,7 @@ std::string HTTPResponse::getResponse(int const clinetSocket) {
     int statusCode = validate();
 
     std::string method = _requestMap["method"];
-    std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
+    // std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
     if (statusCode == 400) {
         return httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
     }
@@ -143,7 +143,7 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
 bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
     if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse(clientSocket);
-        std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
+        // std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
         return true;
     }
     if (pollEvent == POLLOUT_TMP) {
@@ -155,7 +155,7 @@ bool HTTPResponse::handleRespons(int clientSocket, int const &pollEvent) {
         std::string response = iter->second;
 
         // Print the provided response in command prompt
-        displayResponse(clientSocket);
+        // displayResponse(clientSocket);
         // Print the provided response in file
         printStringToFile(response, "./src/request/response.txt");
 
@@ -175,7 +175,7 @@ void HTTPResponse::displayResponse(int fd) {
 }
 
 void HTTPResponse::printStringToFile(const std::string& string, const std::string& path) {
-    std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
+    // std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
     std::ofstream outfile(path.c_str());
     outfile << string << std::endl;
     outfile.close();

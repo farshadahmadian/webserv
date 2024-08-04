@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/23 15:07:01 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/03 15:00:48 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	Socket(socketFd), 
 	_incomingRequestAddress(incomingRequestAddress), 
 	_incomingConnectionAddressSize(incomingConnectionAddressSize),
-	_isConnected(true) {
+	_isConnected(true),
+	_iterationNum(0) {
 	return;
 }
 
@@ -28,7 +29,8 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	Socket(other), 
 	_incomingRequestAddress(other._incomingRequestAddress), 
 	_incomingConnectionAddressSize(other._incomingConnectionAddressSize),
-	_isConnected(other._isConnected) {
+	_isConnected(other._isConnected),
+	_iterationNum(0) {
 	return;
 }
 
@@ -39,6 +41,7 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_incomingRequestAddress = rhs._incomingRequestAddress;
 		this->_incomingConnectionAddressSize = rhs._incomingConnectionAddressSize;
 		this->_isConnected = rhs._isConnected;
+		this->_iterationNum = rhs._iterationNum;
 	}
 	return *this;
 }

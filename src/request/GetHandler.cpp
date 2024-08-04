@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:43:45 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/03 09:43:58 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ std::string GetHandler::GetMethod()
 		eTag = generateETag("./src/index.html", date, lastMfd);
 
 		reponseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
-						// << "Server: " << _serverConfig["server_name"] << CRLF
+						<< "Server: " << _serverConfig["server_name"] << CRLF
 						<< "Last-Modified: " << lastMfd << CRLF
 						<< "ETag: " << eTag << CRLF
 						<< "Content-Length: " << readHtml.size() << CRLF
@@ -46,12 +46,12 @@ std::string GetHandler::GetMethod()
 		return reponseHeaders.str();
 	} else if (_requestMap["uri"] == "/favicon.ico") 
 	{
-		std::string faviconsize = readHtmlFile("./src/request/favicon.ico");
-		std::string favicon = readBinaryFile("./src/request/favicon.ico");
-		eTag = generateETag("./src/request/favicon.ico", date, lastMfd);
+		std::string faviconsize = readHtmlFile("./src/favicon.ico");
+		std::string favicon = readBinaryFile("./src/favicon.ico");
+		eTag = generateETag("./src/favicon.ico", date, lastMfd);
 
 		reponseHeaders	<< httpStatusCode(200) << "Date: " << date << CRLF
-						// << "Server: " << _serverConfig.at("server_name") << CRLF
+						<< "Server: " << _serverConfig.at("server_name") << CRLF
 						<< "Last-Modified: " << lastMfd << CRLF
 						<< "ETag: " << eTag << CRLF
 						<< "Content-Length: " << faviconsize.size() << CRLF

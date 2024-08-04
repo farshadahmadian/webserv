@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/23 15:04:00 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/03 15:08:01 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class ConnectedSocket : public Socket {
 		bool _isConnected;
 
 	public:
+		int _iterationNum;
 		ConnectedSocket(void);
 		ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t  const &incomingConnectionAddressSize);
 		ConnectedSocket(ConnectedSocket const &other);

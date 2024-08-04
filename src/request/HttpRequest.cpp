@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:57:05 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/03 14:04:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,18 @@
 
 HTTPRequest::HTTPRequest( void ) {}
 
-HTTPRequest::~HTTPRequest( void ) { std::cout << BLUE "HTTPRequest destructor called\n" RESET;}
+HTTPRequest::~HTTPRequest( void ) { 
+	// std::cout << BLUE "HTTPRequest destructor called\n" RESET;
+}
 
 HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig) :
 	_requestString(""),
 	_method(""),
 	_uri(""),
 	_version(""),
-	_serverConfig(serverConfig) {std::cout << BLUE "HTTPRequest constructor called\n" RESET;}
+	_serverConfig(serverConfig) {
+		// std::cout << BLUE "HTTPRequest constructor called\n" RESET;
+	}
 
 bool HTTPRequest::isValidMethod(const std::string &mthd)
 {
@@ -73,9 +77,9 @@ bool HTTPRequest::parse()
 	}
 
 	//****************print header map********************
-	displayRequestMap();
+	// displayRequestMap();
 	//****************print srver config map**************
-	displayServerConfig();
+	// displayServerConfig();
 	//****************************************************
 
 	return true;
@@ -113,8 +117,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 {
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-
-	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
+	// std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
 		return (false);
 	}
@@ -128,9 +131,10 @@ bool HTTPRequest::handleRequest(int clientSocket)
 
 	buffer[bytesRead] = '\0';
 	_requestString.assign(buffer);
+	// std::cout << _requestString << std::endl;
 
 	//****************print request***********************
-	displayRequestString();
+	// displayRequestString();
 	//****************************************************
 
 	if (!parse())

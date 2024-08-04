@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/01 14:13:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/04 13:13:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_httpResp(settings)
 	// _request(std::map<std::string, std::string>())
 { // ----- the problem of the crash seems this! ------ but not here
-	std::cout << BLUE << "Server settings map constructor called" RESET << std::endl;
+	// std::cout << BLUE << "Server settings map constructor called" RESET << std::endl;
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
@@ -38,7 +38,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	this->_monitoredFds[0].events = POLLIN;
 	this->_monitoredFdsNum++;
 
-	std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
+	// std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
 
 Server::Server(const Server &other) : 
@@ -56,7 +56,7 @@ Server::Server(const Server &other) :
 	_httpResp(other._httpResp)
 	// _request(other._request) // ----- the problem of the crash seems this! ------
 {
-	std::cout << RED << "Server copy constructor called" RESET << std::endl;
+	// std::cout << RED << "Server copy constructor called" RESET << std::endl;
 
 	size_t i = 0;
 	while (i < _monitoredFdsNum)
@@ -77,7 +77,7 @@ Server::~Server(void)
 	// 	close(iterator->second.getSocketFd());
 
 	// delete this->_monitoredFds;
-	std::cout << BLUE << "Server destructor called" RESET << std::endl;
+	// std::cout << BLUE << "Server destructor called" RESET << std::endl;
 	return;
 }
 //navid_code from here -->
@@ -114,7 +114,7 @@ void Server::setPortAvailable(void)
 		Exception exception("Setting socket options faild!", SOCKET_OPTIONS_FAILD);
 		throw exception;
 	}
-	std::cout << GREEN << "Listening Socket with fd(" << this->_listeningSocket.getSocketFd() << ") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
+	// std::cout << GREEN << "Listening Socket with fd(" << this->_listeningSocket.getSocketFd() << ") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
 	return;
 }
 
@@ -127,7 +127,7 @@ void Server::bindSocket(void) const
 		throw exception;
 	}
 	std::string ip = static_cast<std::string>(inet_ntoa(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_addr)); // REMOVE
-	std::cout << GREEN << "Listening Socket is bound to " << ip.c_str() << ":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_port) << RESET << std::endl;
+	// std::cout << GREEN << "Listening Socket is bound to " << ip.c_str() << ":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_port) << RESET << std::endl;
 
 	return;
 }
@@ -141,7 +141,7 @@ void Server::listenToRequests(void) const
 		throw exception;
 	}
 
-	std::cout << GREEN << "Listening socket is litening to requests" << RESET << std::endl;
+	// std::cout << GREEN << "Listening socket is litening to requests" << RESET << std::endl;
 	return;
 }
 
@@ -157,6 +157,11 @@ int Server::acceptFirstRequestInQueue(void)
 	// {
 	// 	perror("fcntl F_SETFL");
 	// }
+	// if (connectedSocketFd == -1)
+	// {
+	// 	Exception exception("Accepting the request failed", ACCEPTING_FAILED);
+	// 	throw exception;
+	// }
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 
 	if (connectedSocket.getSocketFd() == -1)
@@ -171,7 +176,7 @@ int Server::acceptFirstRequestInQueue(void)
 	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
 	// std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
 	// std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
-	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
+	// std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
 }
