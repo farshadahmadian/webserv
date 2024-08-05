@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/03 11:52:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/05 11:37:59 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 #include "GetHandler.hpp"
+#include "Exception.hpp"
 
 HTTPResponse::HTTPResponse() {
     // std::cout << CYAN "HTTPResponse constructor called\n" RESET;
@@ -34,7 +35,7 @@ int HTTPResponse::validate() {
     return 200;
 }
 
-/*Return Corresponding Status Code Response Or In Case 
+/*Return Corresponding Status Code Response Or In Case
 Of Responding With An Specific Method Is Required,
 It Invokes Corresponding Method.*/
 std::string HTTPResponse::getResponse(int const clientSocket) {
@@ -59,7 +60,7 @@ std::string HTTPResponse::getResponse(int const clientSocket) {
     return httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>";
 }
 
-/*Creat An Instance of GetHandler Class And 
+/*Creat An Instance of GetHandler Class And
 Call The Get Method To Prepare The Response.*/
 std::string HTTPResponse::createHandleGet() {
     GetHandler  Get(_requestMap, _serverConfig);
@@ -118,6 +119,107 @@ std::string HTTPResponse::readHtmlFile(const std::string &path) {
     std::ostringstream ss;
     ss << fileStream.rdbuf();
     return ss.str();
+}
+
+static void free_dptr( char** env ) {
+	size_t i = 0;
+	if (!env)
+		return ;
+	while (env[i]) {
+		free(env[i]);
+		env[i] = NULL;
+		i++;
+	}
+	free(env);
+	env = NULL;
+}
+
+/* CGI EXECUTION */
+std::string HTTPResponse::cgi( std::string& uri ) {
+	std::cout <<"?? ? ? ? ? ? ? ?" << std::endl;
+	std::cout << uri << std::endl;
+	std::string path = _serverConfig["root"] + _requestMap["uri"];
+	std::string responseBody = "";
+	char** env = createEnv(); // what needed for ????
+
+	if (!env) {
+		throw Exception("createEnv() failed to allocate", CGI_FAIL);
+		return (""); // what do in this case
+	}
+
+	int fd_pipe[2];
+	int remember_stdin = dup(STDIN_FILENO);
+	if (pipe(fd_pipe) == -1) {
+		throw Exception("createEnv() failed to fork", CGI_FAIL);
+		return (""); // what do in this case
+	}
+	pid_t forked_ps = fork();
+	if (forked_ps == -1) {
+		throw Exception("createEnv() failed to fork", CGI_FAIL);
+		return (""); // what do in this case
+	}
+	else if (forked_ps == 0) { // child
+		close(fd_pipe[0]);
+		dup2(fd_pipe[1], STDOUT_FILENO);
+		execve(path.c_str(), NULL, NULL); // make dynamic
+		close(fd_pipe[1]);
+		throw Exception("createEnv(): command not found", CGI_FAIL);
+		return (""); // what do in this case
+	}
+	else { // parent
+		close(fd_pipe[1]);
+		dup2(fd_pipe[0], STDIN_FILENO);
+
+		// read from the pipe
+		char buff[100];
+		int ret = 1;
+		while (ret > 0) {
+			bzero(buff, sizeof(buff));
+			ret = read(fd_pipe[0], buff, 100 - 1);
+			responseBody += buff;
+		}
+
+		int status;
+		waitpid(forked_ps, &status, 0); // probably will block everything ?
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+			dup2(remember_stdin, STDIN_FILENO);
+			close(fd_pipe[0]);
+			free_dptr(env);
+			return (responseBody);
+		}
+	}
+	close(fd_pipe[0]);
+	free_dptr(env);
+	return (""); // error --- the child doesnt execute this, the parent arrives in case the child failed
+}
+
+char** HTTPResponse::createEnv( void ) {
+	std::map<std::string, std::string>::iterator it = _requestMap.begin();
+
+	char** env = (char**)calloc(_requestMap.size() + 1, sizeof(char*)); // + 1?
+	if (!env)
+		return (NULL);
+	env[_requestMap.size()] = NULL;
+
+	std::cout << "---------------{ cgi env }--------------------" << std::endl;
+	size_t i = 0;
+	while (it != _requestMap.end()) {
+		std::string env_var = (*it).first;
+		for (size_t i = 0; i < env_var.length(); i++) {
+			env_var[i] = std::toupper(env_var[i]);
+		}
+		env_var += "=" + (*it).second;
+		env[i] = strdup(env_var.c_str());
+		if (!env[i]) {
+			free_dptr(env);
+			return (NULL);
+		}
+		std::cout << BLUE << "[" << env_var <<  "]" << RESET << std::endl;
+		it++;
+		i++;
+	}
+	std::cout << "---------------------------------------------" << std::endl;
+	return (env);
 }
 
 /*Return a String Of Current Time In a HTTP Header Format.*/

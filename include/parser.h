@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 13:34:10 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/05 11:33:20 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 /* NUMBER OF DIRECTIVES */
 #define N_SHARED_DIR	5
-#define N_SERVER_DIR	2
+#define N_SERVER_DIR	3
 #define N_LOCATION_DIR	3
 
 /* SHARED DIRECTIVE DEFAULTS */

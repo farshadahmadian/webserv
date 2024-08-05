@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/03 11:50:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/05 11:39:31 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,20 @@ bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 {
 	return (ver == "HTTP/1.1" || ver == "HTTP/1.0");
 }
+
+bool HTTPRequest::isCgiRequest( void ) {
+	const std::string validExt[3] = { ".sh", ".py", ".pl" };
+
+	if (_uri.find_last_of('.') == std::string::npos)
+		return (false);
+	std::string extension = _uri.substr(_uri.find_last_of('.'), _uri.length() - 1);
+	for (size_t i = 0; i < 3; i++) {
+		if (extension == validExt[i])
+			return (true);
+	}
+	return (false);
+}
+
 /*Parse The Received Request And Creat a Map Of Its Headers*/
 bool HTTPRequest::parse()
 {
@@ -45,24 +59,24 @@ bool HTTPRequest::parse()
 
 	// Parse request line
 	if (!std::getline(requestStream, line))
-	{
 		return (false);
-	}
 	std::istringstream requestLine(line);
 	if (!(requestLine >> _method >> _uri >> _version))
-	{
 		return (false);
-	}
 
 	if (!isValidMethod(_method) || !isValidHttpVersion(_version))
-	{
 		return (false);
+
+	if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
+		if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
+			return (false); // which error should be ?
 	}
 
 	// Parse headers
 	_requestMap["version"] = _version;
 	_requestMap["uri"] = _uri;
 	_requestMap["method"] = _method;
+
 
 	while (std::getline(requestStream, line) && line != "\r")
 	{

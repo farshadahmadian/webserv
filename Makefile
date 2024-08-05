@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+         #
+#    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/07/20 19:42:33 by fahmadia         ###   ########.fr        #
+#    Updated: 2024/08/03 15:11:04 by ncasteln         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME     := webserv
 CXX      := g++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g
+CXXFLAGS := -Wall -Wextra  -std=c++98 -g #-Werror
 CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
 
 # Directories
@@ -94,7 +94,7 @@ RESET   = \033[0m
 # SERVER_CPP	=	Server.cpp \
 # 				Exception.cpp
 # SERVER_HPP	=	./src/server/Server.hpp \
-# 				./src/exception/Exception.hpp 
+# 				./src/exception/Exception.hpp
 
 # # files to tidy up
 # EXTRA_CPP	=	memoryTest.cpp

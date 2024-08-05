@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/22 09:47:08 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/05 09:33:20 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ enum server_err {
 	POLL_FAILED,
 	EVENT_ERROR,
 	CLIENTSOCKET_RECEIVE_FAILED,
+	CGI_FAIL,
 	HTTP_REQUEST_FAILED //navid_code
 };
 

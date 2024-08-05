@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:32:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/19 15:26:49 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/05 11:36:24 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ ServerConf& ServerConf::operator=( const ServerConf& rhs ) {
 
 const std::string ServerConf::serverSettings[N_SERVER_DIR] = {
 	"server_name",
-	"port"
+	"port",
+	"cgi"
 };
 
 void ServerConf::setSpecificSettingsDefaults( void ) {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/01 11:55:54 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/03 14:11:33 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ public:
 	HTTPRequest( void );
 	~HTTPRequest( void );
 	HTTPRequest(std::map<std::string, std::string> const & serverConfig);
-	
+
 	bool parse(); //------------------------------------------------Parse The Received Request and Create a Map
 	int	validate();
 	bool handleRequest(int clientSocket); //------------------------Receive The Request From The Socket
@@ -53,22 +53,20 @@ public:
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();
-	
+
 
 private:
 	std::string _requestString; //----------------------------------Keep The whole Request String
 	std::string _method;
 	std::string _uri;
 	std::string _version;
-	std::map<std::string, std::string> _requestMap; //--------------Keep a Map of Request 
+	std::map<std::string, std::string> _requestMap; //--------------Keep a Map of Request
 	std::map<std::string, std::string> _serverConfig; //------------Keep a Map of Server_Config
 
 	bool isValidMethod(const std::string& method); //---------------Check The Method of The Received Request
 	bool isValidHttpVersion(const std::string& version); //---------Check The Received Request HTTP Version validation
+	bool isCgiRequest( void );
 };
 
 void	writeStringToFile(std::string string, std::string filepath);
 #endif
-
-
-
