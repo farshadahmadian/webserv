@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/04 13:13:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 08:51:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,21 @@ ListeningSocket const &Server::getListeningSocket(void) const { return (this->_l
 
 void Server::printConnectedSockets(void)
 {
+	if (!(this->_connectedSockets.size()))
+	{
+		std::cout << "connectedSockets map in " << this->_listeningSocket.getSocketFd() << " is empty" << std::endl;
+		return;
+	}
 	std::map<int, ConnectedSocket>::iterator iterator;
 	std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
 
 	std::cout << "Connected Sockets List in Server: " << this->_listeningSocket.getSocketFd() << " ===> " << std::endl;
 	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
-		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << std::endl;
+	{
+		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << "isConencted = " << iterator->second.getIsConnected() << std::endl;
+		// if (iterator->first == -1) // remove
+		// 	exit(1);
+	}
 
 }
 
@@ -153,23 +162,16 @@ int Server::acceptFirstRequestInQueue(void)
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
-	// if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
-	// {
-	// 	perror("fcntl F_SETFL");
-	// }
-	// if (connectedSocketFd == -1)
-	// {
-	// 	Exception exception("Accepting the request failed", ACCEPTING_FAILED);
-	// 	throw exception;
-	// }
-	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
-
-	if (connectedSocket.getSocketFd() == -1)
+	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		perror("fcntl F_SETFL");
+	}
+	if (connectedSocketFd < 0)
 	{
 		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
 		throw exception;
 	}
-
+	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
 	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
