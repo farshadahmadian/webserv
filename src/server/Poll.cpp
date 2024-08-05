@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 12:48:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 14:03:37 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,24 +187,15 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " <<(this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
-			exit(10);
+			// exit(10);
 		}
 		if ((_totalFds[i].revents & POLLIN))
 		{
 			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * event happened on listeningSocket: " << _totalFds[i].fd << RESET << std::endl;
-			if (s.getConnectedSockets().size() >= MAX_CONNECTIONS) {
-				int connectedSocketFd = s.acceptFirstRequestInQueue();
-				s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
-				this->removeClosedSocketsFromMap(s);
-				this->_totalFds[i].revents = 0;
-				std::cout << "Server " << this->_totalFds[i].fd << " has reached the max " << MAX_CONNECTIONS << " capacity!" << std::endl;
-				if (connectedSocketFd >= 0)
-					close(connectedSocketFd);
+			if (this->isMaxConnection(s, i))
 				return;
-			}
 
 			int connectedSocketFd = s.acceptFirstRequestInQueue();
-
 			addConnectedSocketToMonitoredList(connectedSocketFd);
 			s.getConnectedSockets()[connectedSocketFd]._iterationNum = counter;
 			this->_totalFds[i].revents = 0;
@@ -223,28 +214,9 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 	{
 		nfds_t i = this->mapConnectedSocketFdToPollFd(connectedSocketFd);
 		if ((_totalFds[i].revents & POLLIN))
-		{
-			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-			// std::cout << "RECEIVING THE REQUEST..." << std::endl;
-			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
-			{
-				if (!(this->_totalFds[i].revents & POLLHUP)) {
-					this->_totalFds[i].events = POLLOUT;
-					s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP);
-				}
-			}
-		}
+			this->receiveRequest(s, i);
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP))
 		{
-			// std::cout << PURPLE << "this->_totalFds["<< i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " << std::hex << "0x" << (this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLIN = " << (this->_totalFds[i].revents & POLLIN) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLOUT = " << (this->_totalFds[i].revents & POLLOUT) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLRDNORM = " << (this->_totalFds[i].revents & POLLRDNORM) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLRDBAND = " << (this->_totalFds[i].revents & POLLRDBAND) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLWRITE = " << (this->_totalFds[i].revents & POLLWRITE) << RESET << std::endl;
-			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents = " << std::hex << "0x" << (this->_totalFds[i].revents) << std::dec << RESET << std::endl;
 			int closeResult = 0;
 			if (this->_totalFds[i].fd >= 0)
 				closeResult = close(this->_totalFds[i].fd);
@@ -256,28 +228,13 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 			}
 		}
 		else if (_totalFds[i].revents & POLLOUT)
-		{
-			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
-				
-				int closeResult = 0;
-				if (this->_totalFds[i].fd >= 0)
-					closeResult = close(this->_totalFds[i].fd);
-				if (closeResult == -1)
-				{
-					std::cout << RED << "CLOSING FAILED! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
-				}
-				s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
-				// this->removeClosedSocketsFromMap(s);
-				this->_totalFds[i].fd = -1;
-				this->removeClosedSocketsFromPollFds();
-		}
+			this->sendResponse(s, i, connectedSocketFd);
 		if (((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) && (this->_totalFds[i].fd != -1)) {
 			s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 			// this->removeClosedSocketsFromMap(s);
 			this->_totalFds[i].fd = -1;
 			this->removeClosedSocketsFromPollFds();
-			return ;
+			return;
 		}
 	}
 	catch (Exception const &exception)
@@ -453,4 +410,47 @@ void Poll::cleanConnectedSockets(int counter) {
 			this->removeClosedSocketsFromMap(*serverIt);
 			this->removeClosedSocketsFromPollFds();
 	}
+}
+
+bool Poll::isMaxConnection(Server &s, size_t i) {
+	if (s.getConnectedSockets().size() >= MAX_CONNECTIONS) {
+		int connectedSocketFd = s.acceptFirstRequestInQueue();
+		s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
+		this->removeClosedSocketsFromMap(s);
+		this->_totalFds[i].revents = 0;
+		std::cout << "Server " << this->_totalFds[i].fd << " has reached the max " << MAX_CONNECTIONS << " capacity!" << std::endl;
+		if (connectedSocketFd >= 0)
+			close(connectedSocketFd);
+		return true;
+	}
+	return false;
+}
+
+void Poll::receiveRequest(Server &s, size_t i) {
+	// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+	// std::cout << "RECEIVING THE REQUEST..." << std::endl;
+	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
+	{
+		if (!(this->_totalFds[i].revents & POLLHUP)) {
+			this->_totalFds[i].events = POLLOUT;
+			s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP);
+		}
+	}
+}
+
+void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd) {
+	// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+	s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
+	
+	int closeResult = 0;
+	if (this->_totalFds[i].fd >= 0)
+		closeResult = close(this->_totalFds[i].fd);
+	if (closeResult == -1)
+	{
+		std::cout << RED << "CLOSING FAILED! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
+	}
+	s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
+	// this->removeClosedSocketsFromMap(s);
+	this->_totalFds[i].fd = -1;
+	this->removeClosedSocketsFromPollFds();
 }
