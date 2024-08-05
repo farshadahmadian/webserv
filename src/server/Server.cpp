@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/05 08:51:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 12:47:30 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,26 +17,15 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_port(settings["port"]),
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
-	_monitoredFdsNum(0),
 	_httpReq(settings),
 	_httpResp(settings)
-	// _request(std::map<std::string, std::string>())
-{ // ----- the problem of the crash seems this! ------ but not here
-	// std::cout << BLUE << "Server settings map constructor called" RESET << std::endl;
+{ 
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
 	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
 	// _autoindexes.push_back(settings["autoindex"]);
 	// _clientSizes.push_back(settings["client_body_buffer_size"]);
-
-	// //// this->_monitoredFds = new struct pollfd[MAX_CONNECTIONS + 1];
-	memset(this->_monitoredFds, 0, sizeof(struct pollfd) * (MAX_CONNECTIONS + 1));
-	for (unsigned int i = 0; i < MAX_CONNECTIONS + 1; i++)
-		this->_monitoredFds[i].fd = -1;
-	this->_monitoredFds[0].fd = this->_listeningSocket.getSocketFd();
-	this->_monitoredFds[0].events = POLLIN;
-	this->_monitoredFdsNum++;
 
 	// std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
@@ -51,19 +40,10 @@ Server::Server(const Server &other) :
 	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
 	_connectedSockets(other._connectedSockets),
-	_monitoredFdsNum(other._monitoredFdsNum),
 	_httpReq(other._httpReq),
 	_httpResp(other._httpResp)
-	// _request(other._request) // ----- the problem of the crash seems this! ------
 {
-	// std::cout << RED << "Server copy constructor called" RESET << std::endl;
-
-	size_t i = 0;
-	while (i < _monitoredFdsNum)
-	{
-		_monitoredFds[i] = other._monitoredFds[i];
-		i++;
-	}
+	return;
 }
 
 Server::~Server(void)
@@ -77,10 +57,14 @@ Server::~Server(void)
 	// 	close(iterator->second.getSocketFd());
 
 	// delete this->_monitoredFds;
-	// std::cout << BLUE << "Server destructor called" RESET << std::endl;
 	return;
 }
-//navid_code from here -->
+
+Server &Server::operator=(Server const &rhs) {
+	(void)rhs;
+	return *this;
+}
+
 HTTPRequest& Server::getHttpReq() {
     return (_httpReq);
 }
@@ -90,7 +74,6 @@ HTTPResponse& Server::getHttpResp() {
 	_httpResp.setResponseRequestString(_httpReq.getRequestString());
     return (_httpResp);
 }
-//navid_code to here <---
 
 ListeningSocket const &Server::getListeningSocket(void) const { return (this->_listeningSocket); }
 
@@ -106,11 +89,7 @@ void Server::printConnectedSockets(void)
 
 	std::cout << "Connected Sockets List in Server: " << this->_listeningSocket.getSocketFd() << " ===> " << std::endl;
 	for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
-	{
 		std::cout << "connectedSocket.key = " << iterator->first << " connectedSocket.value = " << iterator->second.getSocketFd() << "isConencted = " << iterator->second.getIsConnected() << std::endl;
-		// if (iterator->first == -1) // remove
-		// 	exit(1);
-	}
 
 }
 
@@ -149,8 +128,6 @@ void Server::listenToRequests(void) const
 		Exception exception("Listening to incoming connections failed!", LISTENING_FAILED);
 		throw exception;
 	}
-
-	// std::cout << GREEN << "Listening socket is litening to requests" << RESET << std::endl;
 	return;
 }
 
@@ -183,78 +160,6 @@ int Server::acceptFirstRequestInQueue(void)
 	return (connectedSocketFd);
 }
 
-void Server::handleEvents(void)
-{
-	try
-	{
-		for (unsigned int i = 0; i < this->_monitoredFdsNum; i++)
-		{
-			// navid_code from here ->
-			if (this->_monitoredFds[i].revents == 0)
-			{
-				continue;
-			}
-			if (this->_monitoredFds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
-			{
-				close(this->_monitoredFds[i].fd);
-				this->_connectedSockets.erase(this->_monitoredFds[i].fd);
-				this->_monitoredFds[i].fd = -1;
-				this->closeSocket();
-				continue;
-			}
-			// ->! to here
-			if (this->_monitoredFds[i].fd == this->_listeningSocket.getSocketFd())
-			{
-				std::cout << "handling event on the listening socket" << std::endl;
-				this->handleEventsOnListeningSocket(i);
-			}
-			else
-			{
-				std::cout << "handling event on a connected socket" << std::endl;
-				// this->handleEventsOnConnectedSockets(i);
-			}
-		}
-	}
-	catch (Exception const &exception)
-	{
-		throw exception;
-	}
-}
-
-void Server::handleEventsOnListeningSocket(unsigned int i)
-{
-	try
-	{
-		if ((this->_monitoredFds[i].revents & POLLIN) && (this->_monitoredFdsNum <= MAX_CONNECTIONS))
-		{
-			int connectedSocketFd = this->acceptFirstRequestInQueue();
-			this->addToMonitorsFds(connectedSocketFd);
-			this->_monitoredFdsNum++;
-		}
-	}
-	catch (Exception const &exception)
-	{
-		throw exception;
-	}
-
-	return;
-}
-
-void Server::addToMonitorsFds(int connectedSocketFd)
-{
-	for (unsigned int i = 0; i <= MAX_CONNECTIONS; i++)
-	{
-		if (this->_monitoredFds[i].fd == -1)
-		{
-			this->_monitoredFds[i].fd = connectedSocketFd;
-			// this->_monitoredFds[i].events = POLLIN | POLLOUT;
-			this->_monitoredFds[i].revents = 0;
-			this->_monitoredFds[i].events = POLLIN;
-			return;
-		}
-	}
-}
-
 std::string Server::readHtmlFile(std::string path)
 {
 	std::ifstream fileStream(path.c_str());
@@ -272,32 +177,8 @@ std::string Server::readHtmlFile(std::string path)
 	return ss.str();
 }
 
-void Server::parseRequest(std::string request)
-{
-	std::istringstream inputStringStream(request, std::ios::in);
-	std::cout << "Parsing the request:" << std::endl;
-	std::string method, path, httpVersion;
-	inputStringStream >> method;
-	inputStringStream >> path;
-	inputStringStream >> httpVersion;
-}
-
-void Server::printRequest(void)
-{
-	std::map<std::string, std::string>::iterator iterator;
-	std::map<std::string, std::string>::iterator iteratorEnd = this->_request.end();
-	std::cout << "PRINTING CONNECTED SOCKET LIST ON " << this->_listeningSocket.getSocketFd() << std::endl;
-	for (iterator = this->_request.begin(); iterator != iteratorEnd; iterator++)
-		std::cout << iterator->first << " = " << iterator->second << std::endl;
-	return;
-}
-
 const std::string Server::getPort(void) const { 
 	return (_port);
-};
-
-size_t Server::getMonitoredFdsNum(void) const { 
-	return (_monitoredFdsNum);
 };
 
 std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
@@ -308,22 +189,4 @@ std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
 void Server::addServerName(std::string newName) { _serverNames.push_back(newName); };
 void Server::addRoot(std::string newRoot) { _roots.push_back(newRoot); };
 void Server::addIndex(std::string newIndex) { _indexes.push_back(newIndex); };
-void Server::closeSocket()
-{
-	for (unsigned int i = 0; i < this->_monitoredFdsNum;)
-	{
-		if (this->_monitoredFds[i].fd == -1)
-		{
-			for (unsigned int j = i; j < this->_monitoredFdsNum - 1; ++j)
-			{
-				this->_monitoredFds[j] = this->_monitoredFds[j + 1];
-				this->_monitoredFds[j + 1].fd = -1;
-			}
-			this->_monitoredFdsNum--;
-		}
-		else
-		{
-			i++;
-		}
-	}
-}
+

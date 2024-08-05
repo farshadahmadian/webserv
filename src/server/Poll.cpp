@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 10:35:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 12:48:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,8 @@ Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
 	_totalMonitored(0),
 	_totalFds(NULL)
 {
-	// std::cout << BLUE << "Poll constructor called" RESET << std::endl;
 	createServers(configuration);
 	initFds();
-	// /* REMOVE */ std::cout << std::endl
-	// << "---------------------------------------------------------" << std::endl;
 }
 Poll::~Poll(void)
 {
@@ -56,14 +53,13 @@ void Poll::createServers(const Parser &configuration)
 		{
 			std::map<std::string, std::string> currentServerSettings = (*serverConfIt).getSettings();
 			if (mergeServerWithSamePort(currentServerSettings))
-			{ // check if the port is already in use
+			{
 				serverConfIt++;
 				continue;
 			}
 		}
-		// Server s = new Server((*serverConfIt).getSettings());
 		Server s((*serverConfIt).getSettings());
-		_serverList.push_back(s); // ------ crash in Mac but not in Linux ------- THE MOST MISTERIOUS PROBLEM IN THE HISTORY OF CODING  -------------------- !!!!
+		_serverList.push_back(s);
 		serverConfIt++;
 	}
 }
@@ -112,8 +108,6 @@ void Poll::start(void)
 	while (true)
 	{
 		counter++;
-
-
 		// std::cout << BLUE << "* Poll counter = " << counter <<  RESET << std::endl;
 		try
 		{
@@ -135,13 +129,6 @@ void Poll::start(void)
 				handleEvent(counter);
 			}
 		// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
-		// this->removeClosedSocketsFromMap(this->_serverList[0]);
-		// this->removeClosedSocketsFromMap(this->_serverList[1]);
-		// this->removeClosedSocketsFromMap(this->_serverList[2]);
-
-		// this->_serverList[0].printConnectedSockets();
-		// this->_serverList[1].printConnectedSockets();
-		// this->_serverList[2].printConnectedSockets();
 		}
 		catch (Exception const &exception)
 		{
@@ -180,27 +167,6 @@ void Poll::handleEvent(int counter)
 		for (connectedSocketIt = serverIt->getConnectedSockets().begin(); connectedSocketIt != connectedSocketItEnd; connectedSocketIt++)
 		{
 			handleConnectedEvent(connectedSocketIt->second.getSocketFd(), (*serverIt));
-			// if (this->_totalFds[i].fd != -1)
-			// connectedSocketIt->second._iterationNum++;
-			
-		// 	connectedSocketIt->second._iterationNum++;
-
-		// 	nfds_t fdNum = mapConnectedSocketFdToPollFd(connectedSocketIt->second.getSocketFd());
-
-		// 	if (this->_totalFds[fdNum].fd != -1 && (this->_totalFds[fdNum].events == POLLIN) && connectedSocketIt->second._iterationNum == 8) {
-		// 	int closeResult = close(this->_totalFds[i].fd);
-		// 	if (closeResult == -1)
-		// 	{
-		// 		std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
-		// 	}
-		// 	connectedSocketIt->second.setIsConnected(false);
-		// 	// this->removeClosedSocketsFromMap(s);
-		// 	this->_totalFds[i].fd = -1;
-		// 	this->removeClosedSocketsFromPollFds();
-		// }
-
-
-
 			i++;
 		}
 		this->removeClosedSocketsFromMap(*serverIt);
@@ -224,9 +190,8 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 			exit(10);
 		}
 		if ((_totalFds[i].revents & POLLIN))
-		{ // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
+		{
 			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * event happened on listeningSocket: " << _totalFds[i].fd << RESET << std::endl;
-			// std::cout << RED << "s.getConnectedSockets().size() = " << s.getConnectedSockets().size() << RESET << std::endl;
 			if (s.getConnectedSockets().size() >= MAX_CONNECTIONS) {
 				int connectedSocketFd = s.acceptFirstRequestInQueue();
 				s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
@@ -254,31 +219,26 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 
 void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 {
-		// if (this->_totalFds[i].fd != -1)
 	try
 	{
 		nfds_t i = this->mapConnectedSocketFdToPollFd(connectedSocketFd);
 		if ((_totalFds[i].revents & POLLIN))
-		{ // && (this->_monitoredFdsNum <= MAX_CONNECTIONS))	{
+		{
 			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-
 			// std::cout << "RECEIVING THE REQUEST..." << std::endl;
-			// naivd_code from here ->
-			// HTTPRequest httpreq(s.getSettings()); // navid_code
 			if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 			{
-				// s.initializeResponse();//navid_code
 				if (!(this->_totalFds[i].revents & POLLHUP)) {
 					this->_totalFds[i].events = POLLOUT;
-					s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP); //navid_code
+					s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLIN_TMP);
 				}
 			}
 		}
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP))
 		{
-			// std::cout << PURPLE << "**************################## this->_totalFds["<< i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << " **************##################" << RESET << std::endl;
-			// std::cout << PURPLE << "**************################## this->_totalFds[" << i << "].revents & POLLHUP = " << std::hex << "0x" << (this->_totalFds[i].revents & POLLHUP) << " **************##################" << RESET << std::endl;
-			// std::cout << PURPLE << "**************################## this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << " **************##################" << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds["<< i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " << std::hex << "0x" << (this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
 			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLIN = " << (this->_totalFds[i].revents & POLLIN) << RESET << std::endl;
 			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLOUT = " << (this->_totalFds[i].revents & POLLOUT) << RESET << std::endl;
 			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLRDNORM = " << (this->_totalFds[i].revents & POLLRDNORM) << RESET << std::endl;
@@ -291,14 +251,13 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 		
 			if (closeResult == -1)
 			{
-				std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!! fd: " << this->_totalFds[i].fd << RESET << std::endl;
+				std::cout << RED << "CLOSING FAILED! fd: " << this->_totalFds[i].fd << RESET << std::endl;
 				strerror(errno);
 			}
 		}
 		else if (_totalFds[i].revents & POLLOUT)
 		{
 			// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-				// s.initializeResponse();//navid_code
 				s.getHttpResp().handleRespons(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
 				
 				int closeResult = 0;
@@ -306,37 +265,20 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 					closeResult = close(this->_totalFds[i].fd);
 				if (closeResult == -1)
 				{
-					std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
+					std::cout << RED << "CLOSING FAILED! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
 				}
-				// std::cout << RED << "Socket [" << this->_totalFds[i].fd << "] is closed." << RESET << std::endl;		
 				s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 				// this->removeClosedSocketsFromMap(s);
-				// s.getResponses().erase(this->_totalFds[i].fd);
 				this->_totalFds[i].fd = -1;
-				// s.closeSocket();
 				this->removeClosedSocketsFromPollFds();
 		}
 		if (((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) && (this->_totalFds[i].fd != -1)) {
 			s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 			// this->removeClosedSocketsFromMap(s);
 			this->_totalFds[i].fd = -1;
-				// std::cout << "closed after error: " << this->_totalFds[i].fd << std::endl;
-			// s.closeSocket();
 			this->removeClosedSocketsFromPollFds();
 			return ;
 		}
-
-		// if (this->_totalFds[i].fd != -1 && (this->_totalFds[i].events == POLLIN) && s.getConnectedSockets()[connectedSocketFd]._iterationNum == 8) {
-		// 	int closeResult = close(this->_totalFds[i].fd);
-		// 	if (closeResult == -1)
-		// 	{
-		// 		std::cout << RED << "CLOSING FAILED!!!!!!!!!!!!!!! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
-		// 	}
-		// 	s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
-		// 	// this->removeClosedSocketsFromMap(s);
-		// 	this->_totalFds[i].fd = -1;
-		// 	this->removeClosedSocketsFromPollFds();
-		// }
 	}
 	catch (Exception const &exception)
 	{
@@ -388,7 +330,6 @@ void Poll::initFds(void)
 		if (fcntl(_totalFds[i].fd, F_SETFL, O_NONBLOCK) == -1) {
         perror("fcntl F_SETFL");
 		}
-
 		it++;
 		i++;
 	}
@@ -399,11 +340,9 @@ void Poll::removeClosedSocketsFromMap(Server &s) {
 		return;
 	std::map<int, ConnectedSocket>::iterator it = s.getConnectedSockets().begin();
 	while (it != s.getConnectedSockets().end()) {
-		// std::cout << "removeClosedSocketsFromMap inner loop\n";
 		if (it->second.getIsConnected() == false) {
 			std::map<int, ConnectedSocket>::iterator temp = it;
 			temp++;
-			// std::cout << "connectedSocket[" << it->second.getSocketFd() << "] is removed from server " << s.getListeningSocket().getSocketFd() << std::endl;
 			s.getConnectedSockets().erase(it);
 			it = temp;
 		}
@@ -422,7 +361,6 @@ void Poll::removeClosedSocketsFromPollFds(void) {
 				this->_totalFds[i].revents = 0;
 				for (nfds_t j = i; j < this->_currentMonitored - 1; ++j)
 				{
-					// std::cout << "removeClosedSocketsFromPollFds inner loop\n";
 					this->_totalFds[j].fd = this->_totalFds[j + 1].fd;
 					this->_totalFds[j].events = this->_totalFds[j + 1].events;
 					this->_totalFds[j].revents = this->_totalFds[j + 1].revents;
@@ -448,7 +386,6 @@ void Poll::printCurrentPollFds(void) {
 		std::cout << "totalFds[" << i << "].fd = " << this->_totalFds[i].fd << std::endl;
 		std::cout << "totalFds[" << i << "].events = " << std::hex << this->_totalFds[i].events << std::dec << std::endl;
 		std::cout << "totalFds[" << i << "].revents = " << std::hex << this->_totalFds[i].revents << std::dec << std::endl;
-
 		// std::cout << "totalFds[" << i << "].fd = " << this->_totalFds[i].fd << std::endl;
 		// std::cout << "totalFds[" << i << "].events = " << this->_totalFds[i].events << std::endl;
 		// std::cout << "totalFds[" << i << "].revents = " << this->_totalFds[i].revents << std::endl;
@@ -470,19 +407,18 @@ void Poll::printAllPollFds(void) {
 	return;
 }
 
-
 nfds_t Poll::mapConnectedSocketFdToPollFd(int connectedSocketFd) {
 	for (nfds_t i = 0; i < this->_currentMonitored; i++)
 	{
 		if (this->_totalFds[i].fd == connectedSocketFd)
 		{
-			std::cout << this->_totalFds[i].fd << " = " << connectedSocketFd << std::endl;
-			if (i == 0 || i == 1 || i == 2)
-				std::cout << "!" << std::endl;
+			// std::cout << this->_totalFds[i].fd << " = " << connectedSocketFd << std::endl;
+			// if (i == 0 || i == 1 || i == 2)
+			// 	std::cout << "!" << std::endl;
 			return i;
 		}
 	}
-	std::cout << "?" << std::endl;
+	// std::cout << "?" << std::endl;
 	return 0;
 }
 
@@ -497,9 +433,7 @@ void Poll::cleanConnectedSockets(int counter) {
 
 			while (connectedSocketIt != connectedSocketItEnd)
 			{
-				
-				// std::cout << "cleanConnectedSockets inner loop\n";
-				nfds_t pollNum = this->mapConnectedSocketFdToPollFd(connectedSocketIt->second.getSocketFd());
+								nfds_t pollNum = this->mapConnectedSocketFdToPollFd(connectedSocketIt->second.getSocketFd());
 				if (pollNum < this->_serverList.size() )
 				{
 					connectedSocketIt->second.setIsConnected(false);
@@ -508,23 +442,15 @@ void Poll::cleanConnectedSockets(int counter) {
 					continue;
 				}
 				if ((counter > connectedSocketIt->second._iterationNum + 8) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
-					// std::cout << RED << "serverIt->getListeningSocket() = " << serverIt->getListeningSocket().getSocketFd() << " connectedSocketIt->second.getSocketFd() = " << connectedSocketIt->second.getSocketFd() << " counter = " << counter << RESET << std::endl;
-					// std::map<int, ConnectedSocket>::iterator temp = connectedSocketIt;
-					// temp++;
-					// serverIt->getConnectedSockets().erase(connectedSocketIt);
 					if (this->_totalFds[pollNum].fd > 0) {
 						close(this->_totalFds[pollNum].fd);
 					}
 					connectedSocketIt->second.setIsConnected(false);
-
 					this->_totalFds[pollNum].fd = -1;
-					// connectedSocketIt = temp;
-					// break;
 				}
 				connectedSocketIt++;
 			}
 			this->removeClosedSocketsFromMap(*serverIt);
 			this->removeClosedSocketsFromPollFds();
 	}
-	
 }
