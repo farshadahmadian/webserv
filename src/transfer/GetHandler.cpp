@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 12:47:28 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 16:08:16 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ std::string GetHandler::GetMethod()
 	if (uri == "/" || uri == "/index.html") 
 		uri = "/index.html";
 	
-	std::string filePath = _serverConfig.at("root") + uri;
+	std::string filePath = _serverConfig.at("root") + uri;			//./www/serve + uri
+	std::cout << ":::::::: ----- " << filePath << std::endl;
 	std::string readHtml = readHtmlFile(filePath);
 
 	if (!readHtml.empty())
