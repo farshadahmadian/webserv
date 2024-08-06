@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/05 20:41:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/06 09:57:00 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ int Server::acceptFirstRequestInQueue(void)
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
 	this->_connectedSockets[connectedSocketFd].setConnectionStartTime();
+	this->_connectedSockets[connectedSocketFd].setState(this->_keepAliveTimeout ? KEEP_ALIVE : CLOSED);
 
 	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
 	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove

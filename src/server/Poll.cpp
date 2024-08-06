@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/06 09:18:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/06 10:00:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 
 			int connectedSocketFd = s.acceptFirstRequestInQueue();
 			addConnectedSocketToMonitoredList(connectedSocketFd);
-			s.getConnectedSockets()[connectedSocketFd]._iterationNum = counter;
+			s.getConnectedSockets()[connectedSocketFd].setIterationNum(counter);
 			this->_totalFds[i].revents = 0;
 			// this->printCurrentPollFds();
 		}
@@ -215,7 +215,7 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 	{
 		nfds_t i = this->mapConnectedSocketFdToPollFd(connectedSocketFd);
 		if ((_totalFds[i].revents & POLLIN))
-			this->receiveRequest(s, i);
+			this->receiveRequest(s, i, connectedSocketFd);
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP))
 		{
 			int closeResult = 0;
@@ -412,7 +412,7 @@ void Poll::cleanConnectedSockets(int counter) {
 				if (serverIt->getKeepAliveTimeout() && (serverIt->getKeepAliveTimeout() + connectedSocketIt->second.getConnectionStartTime() < now ) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
 					closeTimedoutSockets(pollNum, connectedSocketIt->second);
 				}
-				else if (!(serverIt->getKeepAliveTimeout()) && (counter > connectedSocketIt->second._iterationNum + 8) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
+				else if (!(serverIt->getKeepAliveTimeout()) && (counter > connectedSocketIt->second.getIterationNum() + 8) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
 					closeTimedoutSockets(pollNum, connectedSocketIt->second);
 				}
 
@@ -437,7 +437,8 @@ bool Poll::isMaxConnection(Server &s, size_t i) {
 	return false;
 }
 
-void Poll::receiveRequest(Server &s, size_t i) {
+void Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd) {
+	(void)connectedSocketFd;
 	// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
 	// std::cout << "RECEIVING THE REQUEST..." << std::endl;
 	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
