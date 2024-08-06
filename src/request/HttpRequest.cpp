@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/05 11:39:31 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/05 13:22:46 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ bool HTTPRequest::parse()
 
 	//****************print header map********************
 	displayRequestMap();
-	//****************print srver config map**************
+	//****************print server config map**************
 	displayServerConfig();
 	//****************************************************
 

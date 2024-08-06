@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/05 11:37:59 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/06 10:28:45 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ HTTPResponse::HTTPResponse() {
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
-    _serverConfig(serverConfig), _post(Post()) {
+    _serverConfig(serverConfig), _post(Post())  {
+    loadMimeTypes(MIME);
     // std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
@@ -190,7 +191,7 @@ std::string HTTPResponse::cgi( std::string& uri ) {
 	}
 	close(fd_pipe[0]);
 	free_dptr(env);
-	return (""); // error --- the child doesnt execute this, the parent arrives in case the child failed
+	return (""); // error --- the child doesn't execute this, the parent arrives in case the child failed
 }
 
 char** HTTPResponse::createEnv( void ) {
@@ -311,4 +312,34 @@ void HTTPResponse::setRequestMapInResponse(const std::map<std::string, std::stri
 /*Set The String Request Result Of Request Handling In HTTP Response Class.*/
 void HTTPResponse::setRequestStringInResponse(std::string const & requestString) {
     _requestString = requestString;
+}
+
+/*Read From The MIME FilePath, And Creat A Map Of MIME Types.*/
+void HTTPResponse::loadMimeTypes(const std::string& filePath) {
+    std::ifstream file(filePath.c_str());
+    if (!file) {
+        std::cerr << "Error opening MIME types file: " << filePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string extension, mimeType;
+        if (!(iss >> extension >> mimeType)) {
+            std::cerr << "Invalid format in MIME types file: " << line << std::endl;
+            continue;
+        }
+        _mimeMap[extension] = mimeType;
+    }
+}
+
+/*Receive The Extention, And Retrieve The Corresponding MIME Type From The MIME Map Variable.*/
+std::string HTTPResponse::getMimeType(const std::string& extension) const {
+    std::map<std::string, std::string>::const_iterator it = _mimeMap.find(extension);
+    if (it != _mimeMap.end()) {
+        return it->second;
+    } else {
+        return "application/octet-stream"; // Default MIME type
+    }
 }

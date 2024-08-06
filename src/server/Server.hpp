@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/01 16:39:20 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/06 00:02:52 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 #include <poll.h>
 #include <map>
 #include <fstream>
-#include "../request/HttpRequest.hpp"
-#include "../request/HttpResponse.hpp"
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
 #include <sstream>
 #include "Exception.hpp"
 #include "../sockets/listening-socket/ListeningSocket.hpp"
