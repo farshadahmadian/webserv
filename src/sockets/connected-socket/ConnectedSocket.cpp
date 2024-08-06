@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/23 15:07:01 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/06 10:02:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,10 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	Socket(socketFd), 
 	_incomingRequestAddress(incomingRequestAddress), 
 	_incomingConnectionAddressSize(incomingConnectionAddressSize),
-	_isConnected(true) {
+	_isConnected(true),
+	_iterationNum(0),
+	_connectionStartTime(std::time(NULL)),
+	_state(CREATED) {
 	return;
 }
 
@@ -28,7 +31,10 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	Socket(other), 
 	_incomingRequestAddress(other._incomingRequestAddress), 
 	_incomingConnectionAddressSize(other._incomingConnectionAddressSize),
-	_isConnected(other._isConnected) {
+	_isConnected(other._isConnected),
+	_iterationNum(other._iterationNum),
+	_connectionStartTime(other._connectionStartTime),
+	_state(other._state) {
 	return;
 }
 
@@ -39,6 +45,9 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_incomingRequestAddress = rhs._incomingRequestAddress;
 		this->_incomingConnectionAddressSize = rhs._incomingConnectionAddressSize;
 		this->_isConnected = rhs._isConnected;
+		this->_iterationNum = rhs._iterationNum;
+		this->_connectionStartTime = rhs._connectionStartTime;
+		this->_state = rhs._state;
 	}
 	return *this;
 }
@@ -61,4 +70,30 @@ bool ConnectedSocket::getIsConnected(void) const {
 
 void ConnectedSocket::setIsConnected(bool isConnected) {
 	this->_isConnected = isConnected;
+}
+
+time_t const &ConnectedSocket::getConnectionStartTime(void) const {
+	return this->_connectionStartTime;
+}
+
+int ConnectedSocket::getIterationNum() {
+	return this->_iterationNum;
+}
+
+t_state ConnectedSocket::getState(void) {
+	return this->_state;
+}
+
+void ConnectedSocket::setState(t_state state) {
+	this->_state = state;
+}
+
+void ConnectedSocket::setConnectionStartTime() {
+	this->_connectionStartTime = std::time(NULL);
+	return;
+}
+
+void ConnectedSocket::setIterationNum(int iterationNum) {
+	this->_iterationNum = iterationNum;
+	return;
 }
