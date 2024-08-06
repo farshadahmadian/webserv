@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 11:33:20 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/06 12:19:53 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 #define N_LOCATION_DIR	3
 
 /* SHARED DIRECTIVE DEFAULTS */
-#define DEFAULT_TIMEOUT			"75"
+#define DEFAULT_TIMEOUT			"10"
 #define DEFAULT_CLIENT_SIZE		"80"
 #define DEFAULT_INDEX			"index index.html"
 #define DEFAULT_AUTOINDEX		"off"

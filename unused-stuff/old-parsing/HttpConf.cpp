@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpConf.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:32:42 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/16 11:39:57 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/06 09:14:21 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void HttpConf::addNestedBlock( context type ) {
 }
 
 void HttpConf::setDefaults( void ) {
-	_settings["keepalive_timeout"] = "75";
+	_settings["keepalive_timeout"] = "10";
 	_settings["client_body_buffer_size"] = "80";
 	_settings["index"] = "index index.html";
 	_settings["autoindex"] = "off";

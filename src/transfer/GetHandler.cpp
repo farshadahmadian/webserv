@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 10:31:58 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 12:47:28 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,17 @@ std::string GetHandler::GetMethod()
 	std::string date, lastMfd, eTag;
 	std::string uri = _requestMap["uri"];
 	std::cout << ":::::::: ----- " << uri << std::endl;
-
-	if (uri == "/" || uri == "/index.html")
-	{
+	
+	if (uri == "/" || uri == "/index.html") 
 		uri = "/index.html";
-		std::string filePath = _serverConfig.at("root") + uri;
+	
+	std::string filePath = _serverConfig.at("root") + uri;
+	std::string readHtml = readHtmlFile(filePath);
+
+	if (!readHtml.empty())
+	{
 		std::string extension = filePath.substr(filePath.find_last_of("."));
 		std::string mimeType = getMimeType(extension);
-		std::cout << filePath << std::endl;
-		// exit(1);
-		std::string readHtml = readHtmlFile(filePath);
 		eTag = generateETag(filePath, date, lastMfd);
 
 		responseHeaders	<< httpStatusCode(200)
@@ -55,7 +56,7 @@ std::string GetHandler::GetMethod()
 	}
 	else if (uri == "/cgi-bin/myScript.sh") // need to be dynamical
 	{
-		std::string filePath = _serverConfig.at("root") + uri;
+		// std::string filePath = _serverConfig.at("root") + uri;
 		std::string extension = filePath.substr(filePath.find_last_of("."));
 		std::string mimeType = getMimeType(extension);
 		std::string cgiResult = cgi(uri); // ---- nico
@@ -78,7 +79,6 @@ std::string GetHandler::GetMethod()
 	}
 	else if (uri == "/favicon.ico")
 	{
-		std::string filePath = _serverConfig.at("root") + uri;
 		std::string extension = filePath.substr(filePath.find_last_of("."));
 		std::string mimeType = getMimeType(extension);
 		std::string favIconSize = readHtmlFile(filePath);

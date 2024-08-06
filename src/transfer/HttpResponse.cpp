@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/06 10:28:45 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 12:12:45 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ std::string HTTPResponse::getResponse(int const clientSocket) {
     int statusCode = validate();
 
     std::string method = _requestMap["method"];
-    std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
+    // std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
     if (statusCode == 400) {
         return httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
     }
@@ -82,19 +82,19 @@ std::string HTTPResponse::createHandlePost(int const clientSocket) {
 }
 
 std::string HTTPResponse::createHandleDelete() {
-    std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
+    std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
     return responseBody;
 }
 
 /*Return Message Corresponding To The Status Code Is Passed.*/
 std::string HTTPResponse::httpStatusCode(int statusCode) {
     switch (statusCode) {
-        case 200: return "HTTP/1.1 200 OK\r\n";
-        case 400: return "HTTP/1.1 400 Bad Request\r\n";
-        case 404: return "HTTP/1.1 404 Not Found\r\n";
-        case 304: return "HTTP/1.1 304 Not Modified\r\n";
-        case 405: return "HTTP/1.1 405 Method Not Allowed\r\n";
-        default:  return "HTTP/1.1 500 Internal Server Error\r\n";
+        case 200: return "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\n";
+        case 400: return "HTTP/1.1 400 Bad Request\r\nConnection: keep-alive\r\n";
+        case 404: return "HTTP/1.1 404 Not Found\r\nConnection: keep-alive\r\n";
+        case 304: return "HTTP/1.1 304 Not Modified\r\nConnection: keep-alive\r\n";
+        case 405: return "HTTP/1.1 405 Method Not Allowed\r\nConnection: keep-alive\r\n";
+        default:  return "HTTP/1.1 500 Internal Server Error\r\nConnection: keep-alive\r\n";
     }
 }
 
@@ -264,7 +264,7 @@ From The Response Map And Return True. */
 bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent) {
     if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse(clientSocket);
-        std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
+        // std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
         return true;
     }
     if (pollEvent == POLLOUT_TMP) {
@@ -276,7 +276,7 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent) {
         std::string response = iter->second;
 
         // Print the provided response in command prompt
-        displayResponse(clientSocket);
+        // displayResponse(clientSocket);
         // Print the provided response in file
         printStringToFile(response, "./src/request/response.txt");
 
@@ -298,7 +298,7 @@ void HTTPResponse::displayResponse(int fd) {
 
 /*Print A String In Passed File Path.*/
 void HTTPResponse::printStringToFile(const std::string& string, const std::string& path) {
-    std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
+    // std::cout << RED "****Printing response in file: " BLUE << path << RESET << std::endl;
     std::ofstream outfile(path.c_str());
     outfile << string << std::endl;
     outfile.close();

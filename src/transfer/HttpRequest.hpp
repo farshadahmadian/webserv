@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/05 19:20:50 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 12:21:47 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,10 @@ public:
 	std::map<std::string, std::string> const & getRequestMap();
 	std::string const & getRequestString() const;
 	void setServerConfig(std::map<std::string, std::string> const & serverConfig);
+	// bool parse();
+	// int validate();
+	std::map<std::string, std::string> &getServerConfig(void);
+
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();

@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/06 12:00:35 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 13:24:28 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
 #include <map>
 #include <fstream>
 #include <time.h>
-#include "../request/HttpRequest.hpp"
-#include "../request/HttpResponse.hpp"
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
 #include <sstream>
 #include "Exception.hpp"
 #include "../sockets/listening-socket/ListeningSocket.hpp"

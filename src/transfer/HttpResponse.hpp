@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/06 11:54:08 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 13:26:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # define CR   	"\r"
 # define LF   	"\n"
 # define CRLF 	"\r\n"
-# define MIME	"./src/request/MIME.type"
+# define MIME	"./src/transfer/MIME.type"
 
 # include <iostream>
 # include <sstream>
