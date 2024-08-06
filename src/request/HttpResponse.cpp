@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/04 15:34:57 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 20:40:51 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,18 +74,18 @@ std::string HTTPResponse::createHandlePost(int const clinetSocket) {
 }
 
 std::string HTTPResponse::createHandleDelete() {
-    std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
+    std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
     return responseBody;
 }
 
 std::string HTTPResponse::httpStatusCode(int statusCode) {
     switch (statusCode) {
-        case 200: return "HTTP/1.1 200 OK\r\nConnection: close\r\n";
-        case 400: return "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n";
-        case 404: return "HTTP/1.1 404 Not Found\r\nConnection: close\r\n";
-        case 304: return "HTTP/1.1 304 Not Modified\r\nConnection: close\r\n";
-        case 405: return "HTTP/1.1 405 Method Not Allowed\r\nConnection: close\r\n";
-        default:  return "HTTP/1.1 500 Internal Server Error\r\nConnection: close\r\n";
+        case 200: return "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\n";
+        case 400: return "HTTP/1.1 400 Bad Request\r\nConnection: keep-alive\r\n";
+        case 404: return "HTTP/1.1 404 Not Found\r\nConnection: keep-alive\r\n";
+        case 304: return "HTTP/1.1 304 Not Modified\r\nConnection: keep-alive\r\n";
+        case 405: return "HTTP/1.1 405 Method Not Allowed\r\nConnection: keep-alive\r\n";
+        default:  return "HTTP/1.1 500 Internal Server Error\r\nConnection: keep-alive\r\n";
     }
 }
 

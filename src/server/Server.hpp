@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/05 12:54:24 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 20:17:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <poll.h>
 #include <map>
 #include <fstream>
+#include <time.h>
 #include "../request/HttpRequest.hpp"
 #include "../request/HttpResponse.hpp"
 #include <sstream>
@@ -40,6 +41,7 @@ private:
 	std::vector<std::string> _serverNames;
 	std::vector<std::string> _roots;
 	std::vector<std::string> _indexes;
+	int _keepAliveTimeout;
 	// std::vector<std::string> _keepaliveTimeouts;
 	// std::vector<std::string> _autoindexes;
 	// std::vector<std::string> _clientSizes;
@@ -63,6 +65,9 @@ public:
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
 	HTTPRequest & getHttpReq(); //navid_code
 	HTTPResponse & getHttpResp(); //navid_code
+	int getKeepAliveTimeout(void) const;
+
+	void setKeepAliveTimeout(int keepAliveTimeout);
 
 	void addServerName(std::string newName);
 	void addRoot(std::string newRoot);

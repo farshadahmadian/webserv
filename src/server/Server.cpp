@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/05 12:47:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 20:41:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
+	_keepAliveTimeout = std::stoi(settings["keepalive_timeout"], NULL, 10);
 	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
 	// _autoindexes.push_back(settings["autoindex"]);
 	// _clientSizes.push_back(settings["client_body_buffer_size"]);
@@ -35,7 +36,7 @@ Server::Server(const Server &other) :
 	_serverNames(other._serverNames),
 	_roots(other._roots),
 	_indexes(other._indexes),
-	// _keepaliveTimeouts(other._keepaliveTimeouts),
+	_keepAliveTimeout(other._keepAliveTimeout),
 	// _autoindexes(other._autoindexes),
 	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
@@ -151,11 +152,13 @@ int Server::acceptFirstRequestInQueue(void)
 	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
 	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
+	this->_connectedSockets[connectedSocketFd].setConnectionStartTime();
+
 	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
 	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
 	// std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
 	// std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
-	// std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
+	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
 }
@@ -184,6 +187,15 @@ const std::string Server::getPort(void) const {
 std::map<int, ConnectedSocket> &Server::getConnectedSockets(void)
 {
 	return this->_connectedSockets;
+}
+
+int Server::getKeepAliveTimeout(void) const {
+	return this->_keepAliveTimeout;
+}
+
+void Server::setKeepAliveTimeout(int keepAliveTimeout) {
+	this->_keepAliveTimeout = keepAliveTimeout;
+	return;
 }
 
 void Server::addServerName(std::string newName) { _serverNames.push_back(newName); };

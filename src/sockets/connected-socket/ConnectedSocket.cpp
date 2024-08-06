@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/03 15:00:48 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 20:05:51 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_incomingRequestAddress(incomingRequestAddress), 
 	_incomingConnectionAddressSize(incomingConnectionAddressSize),
 	_isConnected(true),
-	_iterationNum(0) {
+	_iterationNum(0),
+	_connectionStartTime(std::time(NULL)) {
 	return;
 }
 
@@ -30,7 +31,8 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	_incomingRequestAddress(other._incomingRequestAddress), 
 	_incomingConnectionAddressSize(other._incomingConnectionAddressSize),
 	_isConnected(other._isConnected),
-	_iterationNum(0) {
+	_iterationNum(0),
+	_connectionStartTime(0) {
 	return;
 }
 
@@ -42,6 +44,7 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_incomingConnectionAddressSize = rhs._incomingConnectionAddressSize;
 		this->_isConnected = rhs._isConnected;
 		this->_iterationNum = rhs._iterationNum;
+		this->_connectionStartTime = rhs._connectionStartTime;
 	}
 	return *this;
 }
@@ -64,4 +67,13 @@ bool ConnectedSocket::getIsConnected(void) const {
 
 void ConnectedSocket::setIsConnected(bool isConnected) {
 	this->_isConnected = isConnected;
+}
+
+time_t const &ConnectedSocket::getConnectionStartTime(void) const {
+	return this->_connectionStartTime;
+}
+
+void ConnectedSocket::setConnectionStartTime() {
+	this->_connectionStartTime = std::time(NULL);
+	return;
 }

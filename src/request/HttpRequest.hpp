@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/07/31 09:55:11 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/05 19:02:45 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ public:
 	int validate();
 	bool handleRequest(int clientSocket);
 	std::map<std::string, std::string> & getRequestMap();
+	std::map<std::string, std::string> &getServerConfig(void);
 	std::string const & getRequestString() const;
+
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();

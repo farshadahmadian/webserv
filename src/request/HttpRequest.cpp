@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/03 14:04:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 19:02:39 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,10 @@ void HTTPRequest::displayRequestString() const
 {
 	std::cout << RED "****Request String:\n"
 		<< CYAN << _requestString << RESET << std::endl;
+}
+
+std::map<std::string, std::string> &HTTPRequest::getServerConfig(void) {
+	return this->_serverConfig;
 }
 
 void HTTPRequest::displayRequestMap()

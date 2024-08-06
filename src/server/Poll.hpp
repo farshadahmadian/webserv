@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 14:03:13 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/05 20:30:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ private:
 	bool isMaxConnection(Server &s, size_t i);
 	void receiveRequest(Server &s, size_t i);
 	void sendResponse(Server &s, size_t i, int connectedSocketFd);
+	void closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket);
 
 	// UN-USED CONSTRUCTORS
 	Poll(void);
