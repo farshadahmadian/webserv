@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 14:55:17 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 12:42:20 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,15 @@ bool HTTPRequest::parse()
 			_requestMap[key] = value;
 		}
 	}
+
+	if (_method == "POST") {
+        std::string body;
+        while (std::getline(requestStream, line)) {
+            body += line + "\n";
+        }
+        body.erase(body.find_last_not_of("\n") + 1); // Remove the last newline
+        _requestMap["Body"] = body;
+    }
 
 	//****************print header map********************
 	// displayRequestMap();

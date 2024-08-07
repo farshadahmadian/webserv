@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 09:04:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/07 13:08:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ public:
 	void displayResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
 	void setRequestStringInResponse(std::string const & requestString);
-    
+    void displayRequestMap();
+	void displayServerConfig();
 	//-------------------------------MIME------------------------------
     std::string getMimeType(const std::string& extension) const;
 
@@ -120,18 +121,6 @@ protected:
    								of the protocol version followed by a numeric status code and its
    								associated textual phrase, with each element separated by SP
    								characters. No CR or LF is allowed except in the final CRLF sequence.
-
-
-
-				general-header = Cache-Control             ; Section 14.9
-								| Connection               ; Section 14.10
-								| Date                     ; Section 14.18
-								| Pragma                   ; Section 14.32
-								| Trailer                  ; Section 14.40
-								| Transfer-Encoding        ; Section 14.41
-								| Upgrade                  ; Section 14.42
-								| Via                      ; Section 14.45
-								| Warning                  ; Section 14.46
 
 				general-header = Cache-Control             ; Section 14.9
 								| Connection               ; Section 14.10

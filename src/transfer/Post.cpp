@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/31 09:25:38 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 14:32:57 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ void Post::parsePostRequest(std::string request) {
 
 void Post::handlePost(std::string request, int connectedSocketFd) {
 
-	std::cout << "POST REQUEST = \n" << request << std::endl;
+	// std::cout << "POST REQUEST = \n" << request << std::endl;
 	size_t index = request.find("Content-Type: multipart/form-data");
 	if (index == std::string::npos) {
 		std::ostringstream ostring;

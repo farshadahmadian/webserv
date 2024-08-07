@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 09:17:45 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/07 14:30:30 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,9 @@ std::string HTTPResponse::createHandleGet() {
 }
 
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
+	//****************print header map********************
+		displayRequestMap();
+	//****************************************************
     // std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     // return responseBody;
 		this->_post.handlePost(this->_requestString, clientSocket);
@@ -85,6 +88,8 @@ std::string HTTPResponse::createHandleDelete() {
     std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
     return responseBody;
 }
+
+// std::string httpGeneralHeader
 
 /*Return Message Corresponding To The Status Code Is Passed.*/
 std::string HTTPResponse::httpStatusCode(int statusCode) {
@@ -355,4 +360,21 @@ std::string HTTPResponse::getMimeType(const std::string& extension) const {
     } else {
         return "application/octet-stream"; // Default MIME type
     }
+}
+
+
+void HTTPResponse::displayRequestMap()
+{
+	std::cout << RED "****Request Map IN Response:\n";
+	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
+	for (; itr != _requestMap.end(); itr++)
+		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+}
+
+void HTTPResponse::displayServerConfig()
+{
+	std::cout << RED "****The server config map IN Response:\n";
+	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
+	for (; itr != _serverConfig.end(); itr++)
+		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
