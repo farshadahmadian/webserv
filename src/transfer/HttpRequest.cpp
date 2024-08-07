@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 12:19:25 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/06 14:55:17 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,11 +143,12 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 	// std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
+		
 		return (false);
 	}
-	if (bytesRead < 0)
+	if (bytesRead == 0)
 	{
-		throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
+		// throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
 		close(clientSocket);
 		return (false);
 	}
