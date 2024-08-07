@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/06 12:13:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 09:20:07 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -445,19 +445,19 @@ void Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd) {
 	{
 		if (!(this->_totalFds[i].revents & POLLHUP)) {
 			this->_totalFds[i].events = POLLOUT;
-			s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP);
+			s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);
 		}
 	}
 }
 
 void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd) {
 	std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-	s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP);//navid_code
+	s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);//navid_code
 	
 	time_t now = time(NULL);
 
 	if (s.getKeepAliveTimeout() && (now < s.getConnectedSockets()[connectedSocketFd].getConnectionStartTime() + s.getKeepAliveTimeout())) {
-		this->_totalFds[i].events = POLLIN;
+		// this->_totalFds[i].events = POLLIN;
 		this->_totalFds[i].revents = 0;
 		return;
 	}

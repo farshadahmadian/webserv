@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 12:47:28 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 09:16:47 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ std::string GetHandler::GetMethod()
 	std::ostringstream responseHeaders;
 	std::string date, lastMfd, eTag;
 	std::string uri = _requestMap["uri"];
-	std::cout << ":::::::: ----- " << uri << std::endl;
+	// std::cout << ":::::::: ----- " << uri << std::endl;
 	
 	if (uri == "/" || uri == "/index.html") 
 		uri = "/index.html";

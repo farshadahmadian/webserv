@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/06 13:26:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 09:04:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 # include "colors.h"
 # include "errors.h"
 # include "Post.hpp"
-
+# include "ConnectedSocket.hpp"
 
 
 enum POLLEvents {
@@ -54,7 +54,7 @@ public:
 	virtual ~HTTPResponse();
 
 	std::string getResponse(int const clientSocket); //---------------------------------------------------Return Error Or Call The Related HTTP Methods
-	bool handleResponse(int clientSocket, int const &pollEvent); //
+	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
 	void displayResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
 	void setRequestStringInResponse(std::string const & requestString);

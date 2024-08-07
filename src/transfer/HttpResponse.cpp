@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/06 12:12:45 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 09:17:45 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,7 @@ Second After POLLOUT To Grab The Corresponding Response To The Socket
 And Sent It To Client. It Returns False If There Is No Response For Specific
 Socket Or There Is No POLLIN Or POLLOUT, Otherwise Remove The Sent Response
 From The Response Map And Return True. */
-bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent) {
+bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket) {
     if (pollEvent == POLLIN_TMP) {
         _responses[clientSocket] = getResponse(clientSocket);
         // std::cout << RED "Handled request on socket fd " RESET << clientSocket << std::endl;
@@ -280,12 +280,25 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent) {
         // Print the provided response in file
         printStringToFile(response, "./src/request/response.txt");
 
-        ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
+        ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
+				std::cout << RED << "bytes sent" << bytesSent << std::endl;
+				std::cout << "this->_responses[clientSocket].size()" << this->_responses[clientSocket].size() << RESET << std::endl;
         if (bytesSent == -1) {
             std::cerr << RED << "Sending response failed" << RESET << std::endl;
             return false;
         }
+
+				// std::cout << this->_responses[clientSocket] << std::endl;
+				std::cout << "Response handled by connected socket " << clientSocket << std::endl;
+				if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
+					pollFds[i].events = POLLOUT;
+					this->_responses[clientSocket].erase(0, bytesSent);
+					connectedSocket.setState(WRITING);
+				}
+				else if (connectedSocket.getState() != WRITING) {
+					pollFds[i].events = POLLIN;
         _responses.erase(clientSocket);
+				}
         return true;
     }
     return false;
