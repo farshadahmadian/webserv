@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:31:20 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/19 15:26:56 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/06 12:47:49 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,10 @@ const std::vector<ServerConf>& HttpConf::getServer( void ) const { return (_serv
 
 void HttpConf::addNestedBlock( context type ) {
 	if (type == SERVER) {
+		std::cout<<"- - - - - - - - - - -" <<std::endl;
+		std::cout<<"*** Create a server: " <<std::endl;
 		ServerConf s(_settings);
+		s.displaySettings();
 		_server.push_back(s);
 	}
 	else if (type == LOCATION) {

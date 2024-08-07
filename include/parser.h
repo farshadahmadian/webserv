@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 11:33:20 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/07 11:24:00 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 #define DEFAULT_CLIENT_SIZE		"80"
 #define DEFAULT_INDEX			"index index.html"
 #define DEFAULT_AUTOINDEX		"off"
-#define DEFAULT_ROOT			"./www/"
+#define DEFAULT_ROOT			"./www/" // not changeable
 
 /* SERVER DIRECTIVE DEFAULTS */
 #define DEFAULT_SERVER_NAME		"127.0.0.1" /* need to decide something */
