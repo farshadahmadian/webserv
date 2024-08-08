@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 14:30:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 16:23:55 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ HTTPResponse::~HTTPResponse() {
 int HTTPResponse::validate() {
     if (_requestMap.find("Host") == _requestMap.end()) {
         return 400;
+	// if (_requestMap.find(""))
     }
     return 200;
 }
@@ -69,9 +70,6 @@ std::string HTTPResponse::createHandleGet() {
 }
 
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
-	//****************print header map********************
-		displayRequestMap();
-	//****************************************************
     // std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     // return responseBody;
 		this->_post.handlePost(this->_requestString, clientSocket);
@@ -94,7 +92,7 @@ std::string HTTPResponse::createHandleDelete() {
 /*Return Message Corresponding To The Status Code Is Passed.*/
 std::string HTTPResponse::httpStatusCode(int statusCode) {
     switch (statusCode) {
-        case 200: return "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\n";
+        case 200: return "HTTP/1.1 200 OK\r\n";
         case 400: return "HTTP/1.1 400 Bad Request\r\nConnection: keep-alive\r\n";
         case 404: return "HTTP/1.1 404 Not Found\r\nConnection: keep-alive\r\n";
         case 304: return "HTTP/1.1 304 Not Modified\r\nConnection: keep-alive\r\n";
@@ -360,21 +358,4 @@ std::string HTTPResponse::getMimeType(const std::string& extension) const {
     } else {
         return "application/octet-stream"; // Default MIME type
     }
-}
-
-
-void HTTPResponse::displayRequestMap()
-{
-	std::cout << RED "****Request Map IN Response:\n";
-	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
-	for (; itr != _requestMap.end(); itr++)
-		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
-}
-
-void HTTPResponse::displayServerConfig()
-{
-	std::cout << RED "****The server config map IN Response:\n";
-	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
-	for (; itr != _serverConfig.end(); itr++)
-		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
