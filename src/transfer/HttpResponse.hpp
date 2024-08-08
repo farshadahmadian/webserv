@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 16:29:14 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/08 16:23:51 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define LF   	"\n"
 # define CRLF 	"\r\n"
 # define MIME	"./src/transfer/MIME.type"
+# define CGI	".sh"
 
 # include <iostream>
 # include <sstream>
@@ -27,6 +28,7 @@
 # include <unistd.h>
 # include <map>
 # include <ctime>
+# include <algorithm>
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/stat.h>
