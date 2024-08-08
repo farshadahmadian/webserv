@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 13:08:06 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/07 16:29:14 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,16 @@ protected:
 								| Upgrade                  ; Section 14.42
 								| Via                      ; Section 14.45
 								| Warning                  ; Section 14.46
+
+				response-header = Accept-Ranges           ; Section 14.5
+								| Age                     ; Section 14.6
+								| ETag                    ; Section 14.19
+								| Location                ; Section 14.30
+								| Proxy-Authenticate      ; Section 14.33
+								| Retry-After             ; Section 14.37
+								| Server                  ; Section 14.38
+								| Vary                    ; Section 14.44
+								| WWW-Authenticate        ; Section 14.47
 
 				entity-header  = Allow                     ; Section 14.7
 								| Content-Encoding         ; Section 14.11
