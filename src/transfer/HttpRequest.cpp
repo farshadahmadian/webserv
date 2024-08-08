@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/07 12:42:20 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/08 12:47:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	if (bytesRead == 0)
 	{
 		// throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
-		close(clientSocket);
+		// close(clientSocket);
 		return (false);
 	}
 	buffer[bytesRead] = '\0';
@@ -173,7 +173,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	{
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
 		send(clientSocket, response.c_str(), response.length(), 0);
-		close(clientSocket);
+		// close(clientSocket);
 		return (false);
 	}
 	return (true);

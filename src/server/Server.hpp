@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/06 16:24:57 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/08 10:53:51 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ public:
 	void setPortAvailable(void);
 	void bindSocket(void) const;
 	void listenToRequests(void) const;
-	int acceptFirstRequestInQueue(void);
+	int acceptFirstRequestInQueue(bool addToConnectedSocketsList);
 	void printConnectedSockets(void);
 	int stringToInt(const std::string &str);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/07 14:30:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/08 20:36:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,23 +286,27 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
         printStringToFile(response, "./src/request/response.txt");
 
         ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
-				std::cout << RED << "bytes sent" << bytesSent << std::endl;
-				std::cout << "this->_responses[clientSocket].size()" << this->_responses[clientSocket].size() << RESET << std::endl;
+				// std::cout << RED << "bytes sent " << bytesSent << std::endl;
+				// std::cout << "this->_responses[clientSocket].size() " << this->_responses[clientSocket].size() << RESET << std::endl;
         if (bytesSent == -1) {
-            std::cerr << RED << "Sending response failed" << RESET << std::endl;
-            return false;
+					std::cerr << RED << "Sending response failed" << RESET << std::endl;
+					std::cout << "errno: " << errno << " => " << strerror(errno) << std::endl;
+					return false;
         }
 
 				// std::cout << this->_responses[clientSocket] << std::endl;
-				std::cout << "Response handled by connected socket " << clientSocket << std::endl;
+				// std::cout << "Response handled by connected socket " << clientSocket << std::endl;
+				connectedSocket.setConnectionStartTime();
 				if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
 					pollFds[i].events = POLLOUT;
 					this->_responses[clientSocket].erase(0, bytesSent);
 					connectedSocket.setState(WRITING);
 				}
-				else if (connectedSocket.getState() != WRITING) {
+				else {
+					connectedSocket.setState(DONE);
 					pollFds[i].events = POLLIN;
-        _responses.erase(clientSocket);
+					pollFds[i].revents = 0;
+        	_responses.erase(clientSocket);
 				}
         return true;
     }

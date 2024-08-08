@@ -82,7 +82,7 @@ struct addrinfo *ListeningSocket::allocateAddrInfo( void ) const {
 	struct addrinfo hints;
 	struct addrinfo *addrInfo;
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	int getAddrResult = getaddrinfo((this->_ip).c_str(), (this->_port).c_str(), &hints, &addrInfo);
 	if (getAddrResult != 0)
@@ -95,12 +95,36 @@ struct addrinfo *ListeningSocket::allocateAddrInfo( void ) const {
 }
 
 int ListeningSocket::createSocket(void) const {
-	int socketFd = socket(this->_addressInfo->ai_family, this->_addressInfo->ai_socktype, this->_addressInfo->ai_protocol);
-	if (socketFd == -1)
+	struct addrinfo *temp;
+	int socketFd = -1;
+
+
+	std::cout << "this->_addressInfo->ai_family = " << this->_addressInfo->ai_family << std::endl;
+
+	std::cout << "this->_addressInfo->ai_socktype = " << this->_addressInfo->ai_socktype << std::endl;
+
+	std::cout << "this->_addressInfo->ai_protocol =" << this->_addressInfo->ai_protocol << std::endl;
+
+	for (temp = this->_addressInfo; temp != NULL; temp = temp->ai_next)
 	{
-		Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILD);
-		throw exception;
+		socketFd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
+		if (socketFd == -1)
+		{
+			// Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILD);
+			// throw exception;
+			continue;
+		}
+		else
+			break;
+
 	}
+
+	if (socketFd == -1)
+		{
+			Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILD);
+			throw exception;
+		}
+	// freeaddrinfo(this->_addressInfo);
 	return socketFd;
 }
 

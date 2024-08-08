@@ -6,11 +6,14 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/07 09:20:07 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/08 23:15:05 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <csignal>
 #include "Poll.hpp"
+
+bool stopServer = false;
 
 void printCurrentPollFdsTEST(nfds_t currentMonitored, struct pollfd* pollFd) {
 	nfds_t i = 0;
@@ -102,17 +105,27 @@ void Poll::init(void)
 	}
 }
 
+void signalHandler(int sigNum) {
+	std::cerr << "signal: " << sigNum << "received" << std::endl;
+	if (sigNum == SIGINT)
+		stopServer = true;
+}
+
 void Poll::start(void)
 {
 	int counter = 0;
-
 	while (true)
 	{
 		counter++;
 		// std::cout << BLUE << "* Poll counter = " << counter <<  RESET << std::endl;
+
+		signal(SIGPIPE, SIG_IGN);
+		// signal(SIGPIPE, signalHandler);
+		// signal(SIGINT, SIG_IGN);
+		signal(SIGINT, signalHandler);
 		try
 		{
-			int eventsNum = poll(_totalFds, _currentMonitored, 3000);
+			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
 			cleanConnectedSockets(counter);
 			// std::cout << "* Event num: " << eventsNum << std::endl; 
 			// this->printCurrentPollFds();
@@ -129,7 +142,11 @@ void Poll::start(void)
 			{
 				handleEvent(counter);
 			}
-		printCurrentPollFdsTEST(_currentMonitored, _totalFds);
+
+			if (stopServer)
+				break;
+	
+		// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 		}
 		catch (Exception const &exception)
 		{
@@ -167,10 +184,12 @@ void Poll::handleEvent(int counter)
 
 		for (connectedSocketIt = serverIt->getConnectedSockets().begin(); connectedSocketIt != connectedSocketItEnd; connectedSocketIt++)
 		{
-			handleConnectedEvent(connectedSocketIt->second.getSocketFd(), (*serverIt));
+			handleConnectedEvent(connectedSocketIt->second.getSocketFd(), (*serverIt), &connectedSocketIt);
 			i++;
+			if (connectedSocketIt == connectedSocketItEnd)
+				break;
 		}
-		this->removeClosedSocketsFromMap(*serverIt);
+		// this->removeClosedSocketsFromMap(*serverIt);
 		// serverIt->printConnectedSockets();
 		// this->printCurrentPollFds();
 		// this->printAllPollFds();
@@ -196,7 +215,7 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 			if (this->isMaxConnection(s, i))
 				return;
 
-			int connectedSocketFd = s.acceptFirstRequestInQueue();
+			int connectedSocketFd = s.acceptFirstRequestInQueue(true);
 			addConnectedSocketToMonitoredList(connectedSocketFd);
 			s.getConnectedSockets()[connectedSocketFd].setIterationNum(counter);
 			this->_totalFds[i].revents = 0;
@@ -209,7 +228,7 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 	}
 }
 
-void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
+void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, ConnectedSocket>::iterator *connectedSocketIt)
 {
 	try
 	{
@@ -225,15 +244,20 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s)
 			if (closeResult == -1)
 			{
 				std::cout << RED << "POLL ERROR - CLOSING FAILED! fd: " << this->_totalFds[i].fd << RESET << std::endl;
-				strerror(errno);
+				std::cout << errno << std::endl;
 			}
 		}
 		else if (_totalFds[i].revents & POLLOUT)
-			this->sendResponse(s, i, connectedSocketFd);
+			this->sendResponse(s, i, connectedSocketFd, connectedSocketIt);
 		if (((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) && (this->_totalFds[i].fd != -1)) {
 			s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 			// this->removeClosedSocketsFromMap(s);
+			std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
+			temp++;
+			s.getConnectedSockets().erase(*connectedSocketIt);
+			*connectedSocketIt = temp;
 			this->_totalFds[i].fd = -1;
+			this->_totalFds[i].revents = 0;
 			this->removeClosedSocketsFromPollFds();
 			return;
 		}
@@ -260,6 +284,10 @@ void Poll::addConnectedSocketToMonitoredList(int connectedSocketFd)
 	if (this->_currentMonitored >= this->_totalMonitored)
 		return;
 	_currentMonitored++;
+	if (_currentMonitored > _totalMonitored) {
+		std::cout << "??????????????\n";
+		exit(1);
+	}
 }
 
 void Poll::initFds(void)
@@ -372,11 +400,11 @@ nfds_t Poll::mapConnectedSocketFdToPollFd(int connectedSocketFd) {
 		{
 			// std::cout << this->_totalFds[i].fd << " = " << connectedSocketFd << std::endl;
 			// if (i == 0 || i == 1 || i == 2)
-			// 	std::cout << "!" << std::endl;
+				// std::cout << "------------- 0/1/2 -------------" << std::endl;
 			return i;
 		}
 	}
-	// std::cout << "?" << std::endl;
+	// std::cout << "++++++++++++++++++++ 0 +++++++++++++++++++++ " << std::endl;
 	return 0;
 }
 
@@ -392,19 +420,21 @@ void Poll::cleanConnectedSockets(int counter) {
 	std::vector<Server>::iterator serverIt;
 	std::vector<Server>::iterator serverItEnd = this->_serverList.end();
 
-	for (serverIt = this->_serverList.begin(); serverIt != serverItEnd ; serverIt++)
+	for (serverIt = this->_serverList.begin(); serverIt != serverItEnd; serverIt++)
 	{
 			std::map<int, ConnectedSocket>::iterator connectedSocketIt = serverIt->getConnectedSockets().begin();
 			std::map<int, ConnectedSocket>::iterator connectedSocketItEnd = serverIt->getConnectedSockets().end();
 
 			while (connectedSocketIt != connectedSocketItEnd)
 			{
-								nfds_t pollNum = this->mapConnectedSocketFdToPollFd(connectedSocketIt->second.getSocketFd());
+				nfds_t pollNum = this->mapConnectedSocketFdToPollFd(connectedSocketIt->second.getSocketFd());
 				if (pollNum < this->_serverList.size() )
 				{
 					connectedSocketIt->second.setIsConnected(false);
-					this->removeClosedSocketsFromMap(*serverIt);
-					connectedSocketIt++;
+					std::map<int, ConnectedSocket>::iterator temp = connectedSocketIt;
+					temp++;
+					serverIt->getConnectedSockets().erase(connectedSocketIt);
+					connectedSocketIt = temp;
 					continue;
 				}
 
@@ -425,9 +455,9 @@ void Poll::cleanConnectedSockets(int counter) {
 
 bool Poll::isMaxConnection(Server &s, size_t i) {
 	if (s.getConnectedSockets().size() >= MAX_CONNECTIONS) {
-		int connectedSocketFd = s.acceptFirstRequestInQueue();
-		s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
-		this->removeClosedSocketsFromMap(s);
+		int connectedSocketFd = s.acceptFirstRequestInQueue(false);
+		// s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
+		// this->removeClosedSocketsFromMap(s);
 		this->_totalFds[i].revents = 0;
 		std::cout << "Server " << this->_totalFds[i].fd << " has reached the max " << MAX_CONNECTIONS << " capacity!" << std::endl;
 		if (connectedSocketFd >= 0)
@@ -444,21 +474,39 @@ void Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd) {
 	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
 	{
 		if (!(this->_totalFds[i].revents & POLLHUP)) {
-			this->_totalFds[i].events = POLLOUT;
+			this->_totalFds[i].events = POLLOUT | POLLIN;
 			s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);
 		}
 	}
 }
 
-void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd) {
-	std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
-	s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);//navid_code
+void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int, ConnectedSocket>::iterator *connectedSocketIt) {
+	// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLOUT happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
+	if(!(s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLOUT_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]))) {
+		int closeResult = 0;
+		if (this->_totalFds[i].fd >= 0)
+			closeResult = close(this->_totalFds[i].fd);
+		if (closeResult == -1)
+		{
+			std::cout << RED << "CLOSING FAILED! ==> fd:" << this->_totalFds[i].fd << RESET << std::endl;
+		}
+		s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
+		// this->removeClosedSocketsFromMap(s);
+		std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
+		temp++;
+		s.getConnectedSockets().erase(*connectedSocketIt);
+		*connectedSocketIt = temp;
+		this->_totalFds[i].fd = -1;
+		this->_totalFds[i].revents = 0;
+		this->removeClosedSocketsFromPollFds();
+		return;
+	}
 	
 	time_t now = time(NULL);
 
 	if (s.getKeepAliveTimeout() && (now < s.getConnectedSockets()[connectedSocketFd].getConnectionStartTime() + s.getKeepAliveTimeout())) {
 		// this->_totalFds[i].events = POLLIN;
-		this->_totalFds[i].revents = 0;
+		// this->_totalFds[i].revents = 0;
 		return;
 	}
 
@@ -472,6 +520,10 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd) {
 	}
 	s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 	// this->removeClosedSocketsFromMap(s);
+	std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
+	temp++;
+	s.getConnectedSockets().erase(*connectedSocketIt);
+	*connectedSocketIt = temp;
 	this->_totalFds[i].fd = -1;
 	this->removeClosedSocketsFromPollFds();
 }

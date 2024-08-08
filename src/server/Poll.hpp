@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/07 08:59:38 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/08 11:39:03 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ private:
 
 	void handleEvent(int counter);
 	void handleListeningEvent(size_t i, Server &s, int counter);
-	void handleConnectedEvent(int i, Server &s);
+	void handleConnectedEvent(int i, Server &s, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
 	void addConnectedSocketToMonitoredList(int connectedSocketFd);
 	void removeClosedSocketsFromMap(Server &s);
 	void removeClosedSocketsFromPollFds(void);
@@ -50,7 +50,7 @@ private:
 	void printAllPollFds(void);
 	bool isMaxConnection(Server &s, size_t i);
 	void receiveRequest(Server &s, size_t i, int connectedSocketFd);
-	void sendResponse(Server &s, size_t i, int connectedSocketFd);
+	void sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
 	void closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket);
 
 	// UN-USED CONSTRUCTORS
