@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 09:33:20 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/09 12:33:53 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ enum parse_err {
 	E_NOSERVER,
 	E_NOLOCATION,
 	E_CONTNAME,
+	E_DUPLICATE
 };
 
 enum conf_err {

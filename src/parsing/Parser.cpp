@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/05 11:36:17 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/09 13:34:50 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,6 @@ Parser::Parser( const Parser& obj ) {
 	this->_activeContext = obj._activeContext;
 	this->_line_counter = obj._line_counter;
 }
-
-	// HttpConf _http; // ----------------------------------------------- CONF
-
-	// 	context _prevLvl; // ------------------------------------------ PARSING
-	// 	context _currLvl;
-	// 	context _activeContext;
-	// 	int _line_counter;
 
 // -------------------------------------------------------------------- PARSING
 void Parser::checkFile( int argc, char** argv, std::ifstream& confFile ) {
@@ -82,19 +75,24 @@ void Parser::parse( std::ifstream& confFile ) {
 			openContext(directive);
 			continue;
 		}
-		if (!isValidSetting(directive)) {
+		if (!isValidSetting(directive))
 			throw ParseExcept(E_INVDIR, _line_counter);
-		}
 		closeContext();																// if the current level of indentation is lower than the one before, one or two context are closed
 		if (!isCorrectContextOpen())												// check if the context for {{{THAT}}} directive is open
 			throw ParseExcept(E_INVCONTEXT, _line_counter);
 		value = extractValue(line);
 		_http.setSetting(directive, value, _activeContext);
 	}
+	/*
+		0) handle roots
+		1) Autocomplete with left settings
+		2) Check the configuration if something is wrong
+		3) clean the slashes ???
+	*/
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER, _line_counter);
-
-	conf_err n = _http.checkSettings();
-	if (n) throw ConfExcept(n, _line_counter);
+	_http.setDefaults();
+	// conf_err n = _http.checkSettings();
+	// if (n) throw ConfExcept(n, _line_counter);
 }
 
 /*	Get the number of tabs preceding the line and erase them. To detect some
@@ -260,6 +258,7 @@ const char* Parser::ParseExcept::what() const throw() {
 	if (_n == E_EMPTYVAL) return("empty value");
 	if (_n == E_NOSERVER) return("http has no server");
 	if (_n == E_NOLOCATION) return("server has no location");
+	if (_n == E_DUPLICATE) return("duplicate directive detected");
 	return ("Unknkow Parse exception");
 }
 
