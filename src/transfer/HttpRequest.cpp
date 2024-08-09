@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/08 12:47:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 17:52:54 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void HTTPRequest::displayServerConfig()
 }
 
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
-bool HTTPRequest::handleRequest(int clientSocket)
+bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);

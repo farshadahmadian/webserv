@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 11:24:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 17:47:09 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ void Poll::start(void)
 		{
 			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
 			cleanConnectedSockets(counter);
+			printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			// std::cout << "* Event num: " << eventsNum << std::endl; 
 			// this->printCurrentPollFds();
 			if (eventsNum < 0)
@@ -147,7 +148,6 @@ void Poll::start(void)
 			if (stopServer)
 				break;
 	
-		// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 		}
 		catch (Exception const &exception)
 		{
@@ -472,7 +472,7 @@ void Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd) {
 	(void)connectedSocketFd;
 	// std::cout << GREEN << "Port [" << s.getPort() << "] " << " * POLLIN happened on connectedSocket: " << _totalFds[i].fd << RESET << std::endl;
 	// std::cout << "RECEIVING THE REQUEST..." << std::endl;
-	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd))
+	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]))
 	{
 		if (!(this->_totalFds[i].revents & POLLHUP)) {
 			this->_totalFds[i].events = POLLOUT | POLLIN;

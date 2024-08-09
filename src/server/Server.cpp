@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/08 21:00:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 12:59:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,7 @@ std::string Server::readHtmlFile(std::string path)
 	std::ostringstream ss;
 	ss << fileStream.rdbuf();
 	// std::cout << ss.str() << std::endl;
+	fileStream.close();
 	return ss.str();
 }
 

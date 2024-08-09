@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/09 11:34:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 13:00:41 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ std::string HTTPResponse::createHandleGet() {
 
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
 	//****************print header map********************
-		displayRequestMap();
+		// displayRequestMap();
 	//****************************************************
     // std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
     // return responseBody;
@@ -112,6 +112,7 @@ std::string HTTPResponse::readBinaryFile(std::string const & path) {
     }
     std::ostringstream ss;
     ss << fileStream.rdbuf();
+		fileStream.close();
     return ss.str();
 }
 
@@ -124,6 +125,7 @@ std::string HTTPResponse::readHtmlFile(const std::string &path) {
     }
     std::ostringstream ss;
     ss << fileStream.rdbuf();
+		fileStream.close();
     return ss.str();
 }
 
