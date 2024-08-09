@@ -6,7 +6,7 @@
 /*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/09 23:24:48 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/08/09 23:35:17 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ int HTTPResponse::validate() {
 Of Responding With An Specific Method Is Required,
 It Invokes Corresponding Method.*/
 std::string HTTPResponse::getResponse(int const clientSocket) {
+	displayRequestMap();
+	displayServerConfig();
 	int statusCode = validate();
 
 	std::string method = _requestMap["method"];
@@ -72,7 +74,6 @@ std::string HTTPResponse::createHandleGet() {
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
-	displayRequestMap();
 		this->_post.handlePost(this->_requestString, clientSocket);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 		std::string response = this->_post.getResponses()[clientSocket];
