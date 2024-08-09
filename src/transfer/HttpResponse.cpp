@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/08 20:36:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 11:34:47 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,14 +283,14 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
         // Print the provided response in command prompt
         // displayResponse(clientSocket);
         // Print the provided response in file
-        printStringToFile(response, "./src/request/response.txt");
+        // printStringToFile(response, "./src/request/response.txt");
 
         ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
 				// std::cout << RED << "bytes sent " << bytesSent << std::endl;
 				// std::cout << "this->_responses[clientSocket].size() " << this->_responses[clientSocket].size() << RESET << std::endl;
         if (bytesSent == -1) {
-					std::cerr << RED << "Sending response failed" << RESET << std::endl;
-					std::cout << "errno: " << errno << " => " << strerror(errno) << std::endl;
+					// std::cerr << RED << "Sending response failed" << RESET << std::endl;
+					// std::cout << "errno: " << errno << " => " << strerror(errno) << std::endl;
 					return false;
         }
 

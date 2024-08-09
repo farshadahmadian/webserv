@@ -98,12 +98,9 @@ int ListeningSocket::createSocket(void) const {
 	struct addrinfo *temp;
 	int socketFd = -1;
 
-
-	std::cout << "this->_addressInfo->ai_family = " << this->_addressInfo->ai_family << std::endl;
-
-	std::cout << "this->_addressInfo->ai_socktype = " << this->_addressInfo->ai_socktype << std::endl;
-
-	std::cout << "this->_addressInfo->ai_protocol =" << this->_addressInfo->ai_protocol << std::endl;
+	// std::cout << "this->_addressInfo->ai_family = " << this->_addressInfo->ai_family << std::endl;
+	// std::cout << "this->_addressInfo->ai_socktype = " << this->_addressInfo->ai_socktype << std::endl;
+	// std::cout << "this->_addressInfo->ai_protocol =" << this->_addressInfo->ai_protocol << std::endl;
 
 	for (temp = this->_addressInfo; temp != NULL; temp = temp->ai_next)
 	{

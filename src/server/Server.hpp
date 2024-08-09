@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/08 10:53:51 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 10:55:42 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 #include "../server/Server.hpp"
 #include "HttpRequest.hpp"
 
-#define MAX_CONNECTIONS 140
+#define MAX_CONNECTIONS 130
 
 class Server
 {

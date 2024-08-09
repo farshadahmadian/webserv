@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/08 23:15:05 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 11:24:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ void Poll::start(void)
 		// signal(SIGPIPE, signalHandler);
 		// signal(SIGINT, SIG_IGN);
 		signal(SIGINT, signalHandler);
+		// signal(SIGABRT, SIG_IGN);
 		try
 		{
 			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
@@ -247,8 +248,6 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, 
 				std::cout << errno << std::endl;
 			}
 		}
-		else if (_totalFds[i].revents & POLLOUT)
-			this->sendResponse(s, i, connectedSocketFd, connectedSocketIt);
 		if (((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) && (this->_totalFds[i].fd != -1)) {
 			s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 			// this->removeClosedSocketsFromMap(s);
@@ -261,6 +260,8 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, 
 			this->removeClosedSocketsFromPollFds();
 			return;
 		}
+		else if (_totalFds[i].revents & POLLOUT)
+			this->sendResponse(s, i, connectedSocketFd, connectedSocketIt);
 	}
 	catch (Exception const &exception)
 	{
