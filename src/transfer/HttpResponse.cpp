@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/09 16:32:28 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/09 23:00:11 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,7 +304,7 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 			return false;
 		}
 		std::string response = iter->second;
-		printStringToFile(response, "./src/request/response.txt");
+		// printStringToFile(response, "./src/request/response.txt");
 
 		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
 				std::cout << RED << "bytes sent" << bytesSent << std::endl;
