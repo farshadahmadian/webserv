@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/08 17:05:02 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/09 16:32:28 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ std::string HTTPResponse::createHandleGet() {
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
+	displayRequestMap();
 		this->_post.handlePost(this->_requestString, clientSocket);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 		std::string response = this->_post.getResponses()[clientSocket];
@@ -378,4 +379,20 @@ std::string HTTPResponse::getMimeType(const std::string& extension) const {
 	} else {
 		return "application/octet-stream"; // Default MIME type
 	}
+}
+
+void HTTPResponse::displayRequestMap()
+{
+	std::cout << RED "****Request Map Inside HTTPResponse:\n";
+	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
+	for (; itr != _requestMap.end(); itr++)
+		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
+}
+
+void HTTPResponse::displayServerConfig()
+{
+	std::cout << RED "****The server config map Inside HTTPResponse:\n";
+	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
+	for (; itr != _serverConfig.end(); itr++)
+		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
