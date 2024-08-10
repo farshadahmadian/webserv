@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:46 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/10 11:37:20 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,11 +181,7 @@ std::string Server::readHtmlFile(std::string path)
 	return ss.str();
 }
 
-<<<<<<< HEAD
 const std::string Server::getPort(void) const {
-=======
-const std::string Server::getPort(void) const {
->>>>>>> multiple_servers_tmp05
 	return (_port);
 };
 
