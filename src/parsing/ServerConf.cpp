@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:32:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 13:27:34 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/10 11:33:32 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ const std::string ServerConf::serverSettings[N_SERVER_DIR] = {
 
 void ServerConf::setDefaults( void ) {
 	setSharedSettingsDefaults();
-	_settings["server_name"] = DEFAULT_SERVER_NAME;
-	_settings["port"] = DEFAULT_PORT;
-	_settings["cgi"] = DEFAULT_CGI;
+	if (_settings.find("server_name") == _settings.end()) _settings["server_name"] = DEFAULT_SERVER_NAME;
+	if (_settings.find("port") == _settings.end()) _settings["port"] = DEFAULT_PORT;
+	if (_settings.find("cgi") == _settings.end()) _settings["cgi"] = DEFAULT_CGI;
 	std::vector<LocationConf>::iterator locationIt = _location.begin();
 	while (locationIt != _location.end()) {
 		(*locationIt).setDefaults();

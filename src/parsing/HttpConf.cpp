@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:31:20 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 13:34:28 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/10 11:33:13 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,8 @@ void HttpConf::addNestedBlock( context type ) {
 		ServerConf s(_settings);
 		_server.push_back(s);
 	}
-	else if (type == LOCATION) {
+	else if (type == LOCATION)
 		_server.back().addNestedBlock(type);
-	}
 }
 
 void HttpConf::setSetting( std::string key, std::string value, context type ) {
