@@ -6,7 +6,7 @@
 /*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/19 11:11:06 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/09 12:22:18 by ncasteln         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Parser
 		std::string extractDirective( std::string& line );
 		bool isValidContext( std::string directive );
 		bool isValidSetting( std::string directive );
+		bool isDuplicate( std::string directive );
 		void openContext( std::string contextToOpen );
 		void closeContext( void );
 		bool isCorrectContextOpen( void );

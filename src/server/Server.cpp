@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/09 12:59:10 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/10 13:50:30 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 // new constructor to create the vectors
-Server::Server(std::map<std::string, std::string> settings) : 
+Server::Server(std::map<std::string, std::string> settings) :
 	_port(settings["port"]),
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_httpReq(settings),
 	_httpResp(settings)
-{ 
+{
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
@@ -31,7 +31,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	// std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
 
-Server::Server(const Server &other) : 
+Server::Server(const Server &other) :
 	_port(other._port),
 	_serverNames(other._serverNames),
 	_roots(other._roots),
@@ -186,7 +186,7 @@ std::string Server::readHtmlFile(std::string path)
 	return ss.str();
 }
 
-const std::string Server::getPort(void) const { 
+const std::string Server::getPort(void) const {
 	return (_port);
 };
 
