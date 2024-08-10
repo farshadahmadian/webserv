@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/05 11:39:31 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/07 12:42:20 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,19 @@ bool HTTPRequest::parse()
 		}
 	}
 
+	if (_method == "POST") {
+        std::string body;
+        while (std::getline(requestStream, line)) {
+            body += line + "\n";
+        }
+        body.erase(body.find_last_not_of("\n") + 1); // Remove the last newline
+        _requestMap["Body"] = body;
+    }
+
 	//****************print header map********************
-	displayRequestMap();
-	//****************print srver config map**************
-	displayServerConfig();
+	// displayRequestMap();
+	//****************print server config map**************
+	// displayServerConfig();
 	//****************************************************
 
 	return true;
@@ -116,6 +125,9 @@ void HTTPRequest::displayRequestString() const
 		<< CYAN << _requestString << RESET << std::endl;
 }
 
+std::map<std::string, std::string> &HTTPRequest::getServerConfig(void) {
+	return this->_serverConfig;
+}
 
 void HTTPRequest::displayRequestMap()
 {
@@ -138,22 +150,23 @@ bool HTTPRequest::handleRequest(int clientSocket)
 {
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-
-	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
+	// std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
+		
 		return (false);
 	}
-	if (bytesRead < 0)
+	if (bytesRead == 0)
 	{
-		throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
+		// throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
 		close(clientSocket);
 		return (false);
 	}
 	buffer[bytesRead] = '\0';
 	_requestString.assign(buffer);
+	// std::cout << _requestString << std::endl;
 
 	//****************print request***********************
-	displayRequestString();
+	// displayRequestString();
 	//****************************************************
 
 	if (!parse())

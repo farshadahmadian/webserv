@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/30 09:04:57 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/07 08:59:38 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "Server.hpp"
 #include "Parser.hpp"
+#include <iostream>
 
 class Poll
 {
@@ -24,6 +25,8 @@ public:
 
 	void init(void);
 	void start(void);
+	nfds_t mapConnectedSocketFdToPollFd(int connectedSocketFd);
+	void cleanConnectedSockets(int counter);
 
 private:
 	std::vector<Server> _serverList;
@@ -37,14 +40,18 @@ private:
 	bool mergeServerWithSamePort(std::map<std::string, std::string> serverConf);
 	void initFds(void);
 
-	void handleEvent(void);
-	void handleListeningEvent(size_t i, Server &s);
-	void handleConnectedEvent(size_t i, Server &s);
+	void handleEvent(int counter);
+	void handleListeningEvent(size_t i, Server &s, int counter);
+	void handleConnectedEvent(int i, Server &s);
 	void addConnectedSocketToMonitoredList(int connectedSocketFd);
 	void removeClosedSocketsFromMap(Server &s);
 	void removeClosedSocketsFromPollFds(void);
 	void printCurrentPollFds(void);
 	void printAllPollFds(void);
+	bool isMaxConnection(Server &s, size_t i);
+	void receiveRequest(Server &s, size_t i, int connectedSocketFd);
+	void sendResponse(Server &s, size_t i, int connectedSocketFd);
+	void closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket);
 
 	// UN-USED CONSTRUCTORS
 	Poll(void);
