@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/07 12:42:20 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 11:48:30 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ void HTTPRequest::displayServerConfig()
 }
 
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
-bool HTTPRequest::handleRequest(int clientSocket)
+bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
@@ -158,7 +158,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	if (bytesRead == 0)
 	{
 		// throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
-		close(clientSocket);
+		// close(clientSocket);
 		return (false);
 	}
 	buffer[bytesRead] = '\0';
@@ -173,7 +173,7 @@ bool HTTPRequest::handleRequest(int clientSocket)
 	{
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
 		send(clientSocket, response.c_str(), response.length(), 0);
-		close(clientSocket);
+		// close(clientSocket);
 		return (false);
 	}
 	return (true);

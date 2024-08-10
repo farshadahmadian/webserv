@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+         #
+#    By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/08/03 15:11:04 by ncasteln         ###   ########.fr        #
+#    Updated: 2024/08/10 10:55:41 by nnabaeei         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME     := webserv
 CXX      := g++
 CXXFLAGS := -Wall -Wextra  -std=c++98 -g #-Werror
-CXXFLAGS += -fsanitize=address -Wshadow -Wno-shadow
+CXXFLAGS += -Wshadow -Wno-shadow #-fsanitize=address
 
 # Directories
 SRC_DIR := src

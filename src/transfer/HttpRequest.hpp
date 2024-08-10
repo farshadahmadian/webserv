@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/06 12:21:47 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/09 17:54:17 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@
 #include <cstring>     // For memset
 #include <sstream>     // For std::istringstream
 #include <algorithm>   // For std::remove
+#include <poll.h>
+#include "ConnectedSocket.hpp"
 
 class HTTPRequest {
 public:
@@ -45,7 +47,7 @@ public:
 	HTTPRequest(std::map<std::string, std::string> const & serverConfig);
 
 	bool parse(); //------------------------------------------------Parse The Received Request and Create a Map
-	bool handleRequest(int clientSocket); //------------------------Receive The Request From The Socket
+	bool handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //------------------------Receive The Request From The Socket
 	std::map<std::string, std::string> const & getRequestMap();
 	std::string const & getRequestString() const;
 	void setServerConfig(std::map<std::string, std::string> const & serverConfig);

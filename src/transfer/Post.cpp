@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/07 14:32:57 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/09 17:51:11 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,8 @@ std::string Post::getFileName(std::string string) {
 }
 
 void Post::saveFile(std::string string) {
-	std::string fileName = this->_postData["name"] + "_file";
-	std::ofstream outputFileStream(fileName.c_str());
+	std::string fileName = this->_postData["filename"];
+	std::ofstream outputFileStream(fileName.c_str(), std::ios::binary);
 
 	std::string toFind = "\r\n\r\n";
 	std::string temp = string.substr(string.find(toFind) + toFind.length(), std::string::npos);
@@ -168,7 +168,7 @@ void Post::getSubmittedFormInputs(std::string body, std::string formFieldsDelimi
 		// std::string contentDisposition = body.substr(0, delimiterIndex);
 
 		std::string contentDisposition = getSubStringFromStartToIndex(body, formFieldsDelimiter);
-		
+
 		getSubmitedData(contentDisposition);
 		// body = body.substr(delimiterIndex, std::string::npos);
 		body = getSubStringFromMiddleToIndex(body, formFieldsDelimiter, 0, std::string::npos);
@@ -179,9 +179,10 @@ void Post::getSubmittedFormInputs(std::string body, std::string formFieldsDelimi
 
 void Post::parsePostRequest(std::string request) {
 
-	std::string formFieldsDelimiter = getDelimiter(request);
-	std::string body = getBody(request);
-	getSubmittedFormInputs(body, formFieldsDelimiter);
+	std::string formFieldsDelimiter = this->getDelimiter(request);
+	std::string body = this->getBody(request);
+	std::cout << "body:\n" << body << std::endl;
+	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 
 void Post::handlePost(std::string request, int connectedSocketFd) {
@@ -200,10 +201,16 @@ void Post::handlePost(std::string request, int connectedSocketFd) {
 
 	parsePostRequest(request);
 
+	std::cout << "name = " << this->_postData["name"] << "filename = " << this->_postData["filename"] << std::endl;
+
 	if (this->_postData["name"].empty() || this->_postData["filename"].empty()) {
+		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
 		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Connection: close\r\n\r\n";
+		ostring << "HTTP/1.1 500 Internal Server Error\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
 		this->_responses[connectedSocketFd] = ostring.str(); 
 		// this->printPostData();
 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;

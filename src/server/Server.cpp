@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/06 12:13:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/09 12:59:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Server::listenToRequests(void) const
 	return;
 }
 
-int Server::acceptFirstRequestInQueue(void)
+int Server::acceptFirstRequestInQueue(bool addToConnectedSocketsList)
 {
 
 	struct sockaddr_storage incomingConnectionAddress;
@@ -140,6 +140,7 @@ int Server::acceptFirstRequestInQueue(void)
 	socklen_t incomingConnectionAddressSize = static_cast<socklen_t>(sizeof(incomingConnectionAddress));
 
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
+
 	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		perror("fcntl F_SETFL");
@@ -149,17 +150,20 @@ int Server::acceptFirstRequestInQueue(void)
 		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
 		throw exception;
 	}
-	ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
-	this->_connectedSockets[connectedSocketFd] = connectedSocket;
 
-	this->_connectedSockets[connectedSocketFd].setConnectionStartTime();
-	this->_connectedSockets[connectedSocketFd].setState(this->_keepAliveTimeout ? KEEP_ALIVE : CLOSED);
+	if (addToConnectedSocketsList) {
+		ConnectedSocket connectedSocket(connectedSocketFd, incomingConnectionAddress, incomingConnectionAddressSize);
+		this->_connectedSockets[connectedSocketFd] = connectedSocket;
+		this->_connectedSockets[connectedSocketFd].setConnectionStartTime();
+		this->_connectedSockets[connectedSocketFd].setState(this->_keepAliveTimeout ? KEEP_ALIVE : CLOSED);
+	}
+
 
 	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
 	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
 	// std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
 	// std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
-	std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
+	// std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
 
 	return (connectedSocketFd);
 }
@@ -178,6 +182,7 @@ std::string Server::readHtmlFile(std::string path)
 	std::ostringstream ss;
 	ss << fileStream.rdbuf();
 	// std::cout << ss.str() << std::endl;
+	fileStream.close();
 	return ss.str();
 }
 

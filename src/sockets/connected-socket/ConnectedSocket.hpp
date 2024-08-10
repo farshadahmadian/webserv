@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/06 10:02:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/09 11:25:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef enum e_state {
 	READING,
 	WRITING,
 	KEEP_ALIVE,
+	DONE,
 	CLOSED
 }t_state;
 

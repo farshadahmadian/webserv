@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/09 16:32:28 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 13:16:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,26 +104,28 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
 
 /*Reading The Binary From The Path and Return a String*/
 std::string HTTPResponse::readBinaryFile(std::string const & path) {
-	std::ifstream fileStream(path.c_str(), std::ios::binary);
-	if (!fileStream.is_open()) {
-		perror("error:");
-		return "";
-	}
-	std::ostringstream ss;
-	ss << fileStream.rdbuf();
-	return ss.str();
+    std::ifstream fileStream(path.c_str(), std::ios::binary);
+    if (!fileStream.is_open()) {
+        perror("error:");
+        return "";
+    }
+    std::ostringstream ss;
+    ss << fileStream.rdbuf();
+	fileStream.close();
+    return ss.str();
 }
 
 /*Reading From The Path and Return a String*/
 std::string HTTPResponse::readHtmlFile(const std::string &path) {
-	std::ifstream fileStream(path.c_str());
-	if (!fileStream.is_open()) {
-		perror("error:");
-		return "";
-	}
-	std::ostringstream ss;
-	ss << fileStream.rdbuf();
-	return ss.str();
+    std::ifstream fileStream(path.c_str());
+    if (!fileStream.is_open()) {
+        perror("error:");
+        return "";
+    }
+    std::ostringstream ss;
+    ss << fileStream.rdbuf();
+	fileStream.close();
+    return ss.str();
 }
 
 static void free_dptr( char** env ) {
@@ -306,26 +308,37 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		std::string response = iter->second;
 		printStringToFile(response, "./src/request/response.txt");
 
-		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
-				std::cout << RED << "bytes sent" << bytesSent << std::endl;
-				std::cout << "this->_responses[clientSocket].size()" << this->_responses[clientSocket].size() << RESET << std::endl;
-		if (bytesSent == -1) {
-			std::cerr << RED << "Sending response failed" << RESET << std::endl;
-			return false;
-		}
-		std::cout << "Response handled by connected socket " << clientSocket << std::endl;
-		if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
-			pollFds[i].events = POLLOUT;
-			this->_responses[clientSocket].erase(0, bytesSent);
-			connectedSocket.setState(WRITING);
-		}
-		else if (connectedSocket.getState() != WRITING) {
-		pollFds[i].events = POLLIN;
-		_responses.erase(clientSocket);
+        // Print the provided response in command prompt
+        // displayResponse(clientSocket);
+        // Print the provided response in file
+        // printStringToFile(response, "./src/request/response.txt");
+
+        ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
+				// std::cout << RED << "bytes sent " << bytesSent << std::endl;
+				// std::cout << "this->_responses[clientSocket].size() " << this->_responses[clientSocket].size() << RESET << std::endl;
+        if (bytesSent == -1) {
+					// std::cerr << RED << "Sending response failed" << RESET << std::endl;
+					// std::cout << "errno: " << errno << " => " << strerror(errno) << std::endl;
+					return false;
+        }
+
+				// std::cout << this->_responses[clientSocket] << std::endl;
+				// std::cout << "Response handled by connected socket " << clientSocket << std::endl;
+				connectedSocket.setConnectionStartTime();
+				if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
+					pollFds[i].events = POLLOUT;
+					this->_responses[clientSocket].erase(0, bytesSent);
+					connectedSocket.setState(WRITING);
 				}
-		return true;
-	}
-	return false;
+				else {
+					connectedSocket.setState(DONE);
+					pollFds[i].events = POLLIN;
+					pollFds[i].revents = 0;
+        	_responses.erase(clientSocket);
+				}
+        return true;
+    }
+    return false;
 }
 
 /*Display Corresponding Response To The Fd Is Passed.*/
