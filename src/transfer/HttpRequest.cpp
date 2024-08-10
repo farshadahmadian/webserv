@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/10 11:48:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 13:26:42 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,9 @@ void HTTPRequest::displayServerConfig()
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
 bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
+	(void) pollFds;
+	(void) i;
+	(void) connectedSocket;
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
 	// std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;

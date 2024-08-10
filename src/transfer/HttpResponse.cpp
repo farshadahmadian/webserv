@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/10 13:16:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 13:23:46 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,35 +307,22 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		}
 		std::string response = iter->second;
 		printStringToFile(response, "./src/request/response.txt");
-
-        // Print the provided response in command prompt
-        // displayResponse(clientSocket);
-        // Print the provided response in file
-        // printStringToFile(response, "./src/request/response.txt");
-
         ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
-				// std::cout << RED << "bytes sent " << bytesSent << std::endl;
-				// std::cout << "this->_responses[clientSocket].size() " << this->_responses[clientSocket].size() << RESET << std::endl;
         if (bytesSent == -1) {
-					// std::cerr << RED << "Sending response failed" << RESET << std::endl;
-					// std::cout << "errno: " << errno << " => " << strerror(errno) << std::endl;
 					return false;
         }
-
-				// std::cout << this->_responses[clientSocket] << std::endl;
-				// std::cout << "Response handled by connected socket " << clientSocket << std::endl;
-				connectedSocket.setConnectionStartTime();
-				if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
-					pollFds[i].events = POLLOUT;
-					this->_responses[clientSocket].erase(0, bytesSent);
-					connectedSocket.setState(WRITING);
-				}
-				else {
-					connectedSocket.setState(DONE);
-					pollFds[i].events = POLLIN;
-					pollFds[i].revents = 0;
+		connectedSocket.setConnectionStartTime();
+		if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
+			pollFds[i].events = POLLOUT;
+			this->_responses[clientSocket].erase(0, bytesSent);
+			connectedSocket.setState(WRITING);
+		}
+		else {
+			connectedSocket.setState(DONE);
+			pollFds[i].events = POLLIN;
+			pollFds[i].revents = 0;
         	_responses.erase(clientSocket);
-				}
+		}
         return true;
     }
     return false;
