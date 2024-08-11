@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/11 11:50:00 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 12:25:13 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,10 @@ std::string HTTPRequest::extractBody(std::string request) {
 }
 
 std::string HTTPRequest::extractHeader(std::string request) {
-	return getSubStringFromStartToIndex(request, "\r\n\r\n");
+	std::string result = getSubStringFromStartToIndex(request, "\r\n\r\n");
+	if (!result.empty())
+		result.append("\r\n\r\n");
+	return result;
 }
 
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
@@ -286,13 +289,14 @@ void HTTPRequest::readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFd
 }
 
 void HTTPRequest::readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i) {
+	std::cout << "The remaining of the body will be received in next iteration ..." << std::endl;
 	connectedSocket.setConnectionStartTime();
 	std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().size() << RESET << std::endl;
 	std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
 	pollFds[i].events = POLLIN;
 	connectedSocket.setState(READING);
 
-	std::cout << "header size: " << _requestString.length() - connectedSocket.getRequestBody().length() << std::endl;
+	std::cout << YELLOW << "header size: " << connectedSocket.getRequestHeader().length() << RESET << std::endl;
 }
 
 bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i) {
@@ -322,6 +326,7 @@ bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connect
 		}
 		std::cout << YELLOW << "connectedSocket.getRequest()=\n" << connectedSocket.getRequest() << RESET << std::endl;
 		std::cout << RED << "connectedSocket.getRequestBody()=\n" << connectedSocket.getRequestBody() << RESET << std::endl;
+
 		if (connectedSocket.getRequestBody().size() < connectedSocket.getContentLength())
 		{
 			this->readAllBody(connectedSocket, pollFds, i);

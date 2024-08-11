@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/11 10:09:48 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 12:15:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,10 +126,10 @@ void Poll::start(void)
 		// signal(SIGABRT, SIG_IGN);
 		try
 		{
-			printCurrentPollFdsTEST(_currentMonitored, _totalFds);
+			// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
 			cleanConnectedSockets(counter);
-			printCurrentPollFdsTEST(_currentMonitored, _totalFds);
+			// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			// std::cout << "* Event num: " << eventsNum << std::endl; 
 			// this->printCurrentPollFds();
 			if (eventsNum < 0)
