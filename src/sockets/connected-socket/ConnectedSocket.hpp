@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 09:48:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 11:31:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ class ConnectedSocket : public Socket {
 		std::string _request;
 		size_t _contentLength;
 		std::string _requestBody;
+		std::string _requestHeader;
+		bool _isHeaderComplete;
 
 	public:
 		ConnectedSocket(void);
@@ -58,13 +60,17 @@ class ConnectedSocket : public Socket {
 		std::string const &getRequest(void)const;
 		size_t getContentLength(void);
 		std::string const &getRequestBody(void) const;
+		std::string const &getRequestHeader(void) const;
 
 		void setState(t_state state);
 		void setConnectionStartTime();
 		void setIterationNum(int iterationNum);
 		void setRequestBodyLength(std::string contentLength);
-		std::string const &appendToRequest(std::string toAppend);
-		std::string const &appendToBody(std::string toAppend);
+		void setIsHeaderComplete(bool isHeaderComplete);
+
+		std::string const &appendToRequest(std::string const &toAppend);
+		std::string const &appendToBody(std::string const &toAppend);
+		std::string const &appendToHeader(std::string const &toAppend);
 		void clearRequestProperties(void);
 
 		void setIsConnected(bool isConnected);

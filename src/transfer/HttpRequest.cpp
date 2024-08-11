@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/11 10:03:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 11:50:00 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,14 +183,18 @@ std::string HTTPRequest::extractBody(std::string request) {
 	return body;
 }
 
+std::string HTTPRequest::extractHeader(std::string request) {
+	return getSubStringFromStartToIndex(request, "\r\n\r\n");
+}
+
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
-bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
+bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
 	(void) pollFds;
 	(void) i;
 	(void) connectedSocket;
 	char buffer[40960];
-	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+	ssize_t bytesRead = recv(connectedSocketFd, buffer, sizeof(buffer) - 1, 0);
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
 		//close and remove
@@ -210,58 +214,18 @@ bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, Con
 	// displayRequestString();
 	//****************************************************
 	// if (connectedSocket.getRequest().empty())
-	connectedSocket.appendToRequest(this->_requestString);
-	if (!connectedSocket.getRequestBody().empty())
-		connectedSocket.appendToBody(this->_requestString);
-	std::cout << MAGENTA << "SocketFd " << clientSocket << " is receiving ..." << RESET << std::endl;
-	if (!isHeaderReceived(connectedSocket.getRequest())) {
-		connectedSocket.setState(READING);
-		connectedSocket.setConnectionStartTime();
-		// POLLIN
-		std::cout << RED << "RECEIVING HEADER: connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
-		pollFds[i].events = POLLIN;
+	
+	if (receiveInChuncks(connectedSocket, connectedSocketFd, pollFds, i))
 		return true;
-	}
-	else
-	{
-		if (!connectedSocket.getContentLength())
-		{
-		std::string contentLength = this->extractContentLength(connectedSocket.getRequest());
-		connectedSocket.setRequestBodyLength(contentLength);
-		}
-		if (connectedSocket.getContentLength() && connectedSocket.getRequestBody().empty()) {
-		std::string toAppend = this->extractBody(connectedSocket.getRequest());
-		connectedSocket.appendToBody(toAppend);
-		}
-		std::cout << YELLOW << "connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
-		std::cout << RED << "connectedSocket.getRequestBody() =" << connectedSocket.getRequestBody() << RESET << std::endl;
-		if (connectedSocket.getRequestBody().size() < connectedSocket.getContentLength())
-		{
-		connectedSocket.setConnectionStartTime();
-		std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().size() << RESET << std::endl;
-		std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
-		pollFds[i].events = POLLIN;
-		connectedSocket.setState(READING);
-
-		std::cout << "header size: " << _requestString.length() - connectedSocket.getRequestBody().length() << std::endl;
-
-		return true;
-		}
-		else
-		{
+	else {
 		pollFds[i].events = POLLOUT;
 		connectedSocket.setState(DONE);
-		}
-	// 		if (connectedSocket.getState() == DONE) {
-	// 	pollFds[i].events = POLLOUT;
-	// 	connectedSocket.setState(DONE);
-	// }
 	}
 
 	if (!parse())
 	{
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
-		send(clientSocket, response.c_str(), response.length(), 0);
+		send(connectedSocketFd, response.c_str(), response.length(), 0);
 		// close(clientSocket);
 		return (false);
 	}
@@ -298,4 +262,76 @@ void writeStringToFile(std::string request, std::string path)
 	}
 	outFile.close();
 	exit(1);
+}
+
+void HTTPRequest::storeHeader(ConnectedSocket &connectedSocket) {
+	if (connectedSocket.getRequestHeader().empty()) {
+			connectedSocket.appendToHeader(this->extractHeader(connectedSocket.getRequest()));
+			connectedSocket.setIsHeaderComplete(true);
+			std::cout << MAGENTA << "1 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+		}
+		else {
+			connectedSocket.appendToHeader(this->extractHeader(this->_requestString));
+			connectedSocket.setIsHeaderComplete(true);
+			std::cout << MAGENTA << "2 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+		}
+}
+
+void HTTPRequest::readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i) {
+	connectedSocket.setConnectionStartTime();
+	connectedSocket.appendToHeader(this->_requestString);
+	connectedSocket.setState(READING);
+	std::cout << RED << "RECEIVING HEADER: connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
+	pollFds[i].events = POLLIN;
+}
+
+void HTTPRequest::readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i) {
+	connectedSocket.setConnectionStartTime();
+	std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().size() << RESET << std::endl;
+	std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
+	pollFds[i].events = POLLIN;
+	connectedSocket.setState(READING);
+
+	std::cout << "header size: " << _requestString.length() - connectedSocket.getRequestBody().length() << std::endl;
+}
+
+bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i) {
+
+	connectedSocket.appendToRequest(this->_requestString);
+	if (!connectedSocket.getRequestBody().empty())
+		connectedSocket.appendToBody(this->_requestString);
+
+	std::cout << MAGENTA << "SocketFd " << connectedSocketFd << " is receiving ..." << RESET << std::endl;
+	
+	if (!isHeaderReceived(connectedSocket.getRequest())) {
+		this->readAllHeader(connectedSocket, pollFds, i);
+		return true;
+	}
+	else
+	{
+		this->storeHeader(connectedSocket);
+			
+		if (!connectedSocket.getContentLength())
+		{
+		std::string contentLength = this->extractContentLength(connectedSocket.getRequest());
+		connectedSocket.setRequestBodyLength(contentLength);
+		}
+		if (connectedSocket.getContentLength() && connectedSocket.getRequestBody().empty()) {
+		std::string toAppend = this->extractBody(connectedSocket.getRequest());
+		connectedSocket.appendToBody(toAppend);
+		}
+		std::cout << YELLOW << "connectedSocket.getRequest()=\n" << connectedSocket.getRequest() << RESET << std::endl;
+		std::cout << RED << "connectedSocket.getRequestBody()=\n" << connectedSocket.getRequestBody() << RESET << std::endl;
+		if (connectedSocket.getRequestBody().size() < connectedSocket.getContentLength())
+		{
+			this->readAllBody(connectedSocket, pollFds, i);
+			return true;
+		}
+		else
+			return false;
+	// 		if (connectedSocket.getState() == DONE) {
+	// 	pollFds[i].events = POLLOUT;
+	// 	connectedSocket.setState(DONE);
+	// }
+	}
 }

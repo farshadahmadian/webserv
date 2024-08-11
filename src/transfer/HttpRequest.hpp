@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/10 17:08:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 11:49:39 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 	HTTPRequest(std::map<std::string, std::string> const & serverConfig);
 
 	bool parse(); //------------------------------------------------Parse The Received Request and Create a Map
-	bool handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //------------------------Receive The Request From The Socket
+	bool handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //------------------------Receive The Request From The Socket
 	std::map<std::string, std::string> const & getRequestMap();
 	std::string const & getRequestString() const;
 	void setServerConfig(std::map<std::string, std::string> const & serverConfig);
@@ -58,9 +58,14 @@ public:
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();
+	bool receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i);
+	void readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i);
+	void storeHeader(ConnectedSocket &connectedSocket);
 	bool isHeaderReceived(std::string buffer);
+	void readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i);
 	std::string extractContentLength(std::string request);
 	std::string extractBody(std::string request);
+	std::string extractHeader(std::string request);
 
 
 private:
