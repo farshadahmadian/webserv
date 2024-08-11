@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/09 17:51:11 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 08:52:24 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,12 @@ std::string Post::getFileName(std::string string) {
 	if (fileNameAttribute.empty())
 		return "";
 
-	std::string fileName = fileNameAttribute.substr(toFind.length(), fileNameAttribute.find_last_of('"') - toFind.length());
+	std::string removeFromLast = "\"";
+	std::string lineFeed = "\r\n";
+	size_t lineFeedIndex = fileNameAttribute.find("\r\n");
+	std::string fileName = "";
+	if (lineFeedIndex != std::string::npos)
+		fileName = fileNameAttribute.substr(toFind.length(), fileNameAttribute.find("\r\n") - toFind.length() - removeFromLast.length());
 	this->_postData["filename"] = fileName;
 	return fileName;
 }

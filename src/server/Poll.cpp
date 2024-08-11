@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 12:03:43 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/11 10:09:48 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,7 @@ void Poll::start(void)
 		// signal(SIGABRT, SIG_IGN);
 		try
 		{
+			printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
 			cleanConnectedSockets(counter);
 			printCurrentPollFdsTEST(_currentMonitored, _totalFds);
@@ -478,8 +479,8 @@ bool Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd, std::map<i
 	// std::cout << "RECEIVING THE REQUEST..." << std::endl;
 	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]))
 	{
-		if (!(this->_totalFds[i].revents & POLLHUP)) {
-			this->_totalFds[i].events = POLLOUT;// | POLLIN;
+		if (!(this->_totalFds[i].revents & POLLHUP) && (*connectedSocketIt)->second.getState() == DONE) {
+			// this->_totalFds[i].events = POLLOUT;// | POLLIN;
 			s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);
 		}
 		return (true);
@@ -527,7 +528,7 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int
 	}
 	
 	time_t now = time(NULL);
-
+	s.getConnectedSockets()[connectedSocketFd].clearRequestProperties();
 	if (s.getKeepAliveTimeout() && (now < s.getConnectedSockets()[connectedSocketFd].getConnectionStartTime() + s.getKeepAliveTimeout())) {
 		// this->_totalFds[i].events = POLLIN;
 		// this->_totalFds[i].revents = 0;

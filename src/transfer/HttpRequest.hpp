@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/09 17:54:17 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/10 17:08:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,9 @@ public:
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();
+	bool isHeaderReceived(std::string buffer);
+	std::string extractContentLength(std::string request);
+	std::string extractBody(std::string request);
 
 
 private:

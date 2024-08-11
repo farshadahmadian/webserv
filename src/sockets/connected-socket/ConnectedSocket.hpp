@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/09 11:25:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 09:48:47 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,11 @@
 
 # include <netdb.h>
 # include <ctime>
+# include <string>
 # include <iostream>
+# include <sstream>
 # include "../socket/Socket.hpp"
+# include "colors.h"
 
 typedef enum e_state {
 	CREATED = 1,
@@ -35,6 +38,9 @@ class ConnectedSocket : public Socket {
 		int _iterationNum;
 		time_t _connectionStartTime;
 		t_state _state;
+		std::string _request;
+		size_t _contentLength;
+		std::string _requestBody;
 
 	public:
 		ConnectedSocket(void);
@@ -49,9 +55,17 @@ class ConnectedSocket : public Socket {
 		time_t const &getConnectionStartTime(void) const;
 		int getIterationNum();
 		t_state getState(void);
+		std::string const &getRequest(void)const;
+		size_t getContentLength(void);
+		std::string const &getRequestBody(void) const;
+
 		void setState(t_state state);
 		void setConnectionStartTime();
 		void setIterationNum(int iterationNum);
+		void setRequestBodyLength(std::string contentLength);
+		std::string const &appendToRequest(std::string toAppend);
+		std::string const &appendToBody(std::string toAppend);
+		void clearRequestProperties(void);
 
 		void setIsConnected(bool isConnected);
 };

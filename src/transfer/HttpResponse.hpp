@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/08 16:23:51 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 17:52:01 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ public:
 	HTTPResponse(std::map<std::string, std::string> const & serverConfig);
 	virtual ~HTTPResponse();
 
-	std::string getResponse(int const clientSocket); //---------------------------------------------------Return Error Or Call The Related HTTP Methods
+	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket); //---------------------------------------------------Return Error Or Call The Related HTTP Methods
 	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
 	void displayResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
@@ -67,7 +67,7 @@ public:
 
 protected:
 	std::string createHandleGet();
-	std::string createHandlePost(int const clientSocket);
+	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket);
 	std::string createHandleDelete();
 	std::string httpStatusCode(int statusCode);
 	std::string readBinaryFile(const std::string& path);
@@ -93,9 +93,9 @@ protected:
 	std::string	_requestString; //-----------------------------------------------------------------------Keep A Reference Of Request String
 	std::map<int, std::string> _responses; //------------------------------------------------------------A Map Of Responses Corresponding To Their Sockets
 	//-------------------------------MIME------------------------------
-    std::map<std::string, std::string> _mimeMap;
+	std::map<std::string, std::string> _mimeMap;
 
-    void loadMimeTypes(const std::string& filePath);
+	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------
 	private:
 		Post _post;

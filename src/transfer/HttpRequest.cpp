@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/10 13:26:42 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/11 10:03:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,44 @@ void HTTPRequest::displayServerConfig()
 		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
 
+bool HTTPRequest::isHeaderReceived(std::string buffer) {
+	size_t bodyStartIndex = buffer.find("\r\n\r\n");
+	if (bodyStartIndex == std::string::npos)
+		return false;
+	else
+		return true;
+}
+
+std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex) {
+	size_t foundIndex = string.find(toFind);
+	if (foundIndex == std::string::npos)
+		return "";
+	std::string result = string.substr(foundIndex + startOffset, endIndex);
+	return result;
+}
+
+std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind) {
+	size_t foundIndex = string.find(toFind);
+	if (foundIndex == std::string::npos)
+		return "";
+	std::string result = string.substr(0, foundIndex);
+	return result;
+}
+
+std::string HTTPRequest::extractContentLength(std::string request) {
+	std::string toFind = "Content-Length:";
+	std::string contentLength = "";
+	std::string temp = getSubStringFromMiddleToIndex(request, toFind, toFind.length(), std::string::npos);
+	contentLength = getSubStringFromStartToIndex(temp, "\r\n");
+	return contentLength;
+}
+
+std::string HTTPRequest::extractBody(std::string request) {
+	std::string toFind = "\r\n\r\n";
+	std::string body = getSubStringFromMiddleToIndex(request, toFind, toFind.length(), std::string::npos);
+	return body;
+}
+
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
 bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
@@ -153,15 +191,15 @@ bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, Con
 	(void) connectedSocket;
 	char buffer[40960];
 	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-	// std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
+	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
-		
+		//close and remove
 		return (false);
 	}
 	if (bytesRead == 0)
 	{
 		// throw Exception("Receive on clientSocket Failed", CLIENTSOCKET_RECEIVE_FAILED);
-		// close(clientSocket);
+		// close(clientSocket); and remove
 		return (false);
 	}
 	buffer[bytesRead] = '\0';
@@ -171,6 +209,54 @@ bool HTTPRequest::handleRequest(int clientSocket, pollfd *pollFds, size_t i, Con
 	//****************print request***********************
 	// displayRequestString();
 	//****************************************************
+	// if (connectedSocket.getRequest().empty())
+	connectedSocket.appendToRequest(this->_requestString);
+	if (!connectedSocket.getRequestBody().empty())
+		connectedSocket.appendToBody(this->_requestString);
+	std::cout << MAGENTA << "SocketFd " << clientSocket << " is receiving ..." << RESET << std::endl;
+	if (!isHeaderReceived(connectedSocket.getRequest())) {
+		connectedSocket.setState(READING);
+		connectedSocket.setConnectionStartTime();
+		// POLLIN
+		std::cout << RED << "RECEIVING HEADER: connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
+		pollFds[i].events = POLLIN;
+		return true;
+	}
+	else
+	{
+		if (!connectedSocket.getContentLength())
+		{
+		std::string contentLength = this->extractContentLength(connectedSocket.getRequest());
+		connectedSocket.setRequestBodyLength(contentLength);
+		}
+		if (connectedSocket.getContentLength() && connectedSocket.getRequestBody().empty()) {
+		std::string toAppend = this->extractBody(connectedSocket.getRequest());
+		connectedSocket.appendToBody(toAppend);
+		}
+		std::cout << YELLOW << "connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
+		std::cout << RED << "connectedSocket.getRequestBody() =" << connectedSocket.getRequestBody() << RESET << std::endl;
+		if (connectedSocket.getRequestBody().size() < connectedSocket.getContentLength())
+		{
+		connectedSocket.setConnectionStartTime();
+		std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().size() << RESET << std::endl;
+		std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
+		pollFds[i].events = POLLIN;
+		connectedSocket.setState(READING);
+
+		std::cout << "header size: " << _requestString.length() - connectedSocket.getRequestBody().length() << std::endl;
+
+		return true;
+		}
+		else
+		{
+		pollFds[i].events = POLLOUT;
+		connectedSocket.setState(DONE);
+		}
+	// 		if (connectedSocket.getState() == DONE) {
+	// 	pollFds[i].events = POLLOUT;
+	// 	connectedSocket.setState(DONE);
+	// }
+	}
 
 	if (!parse())
 	{

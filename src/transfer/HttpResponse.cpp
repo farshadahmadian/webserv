@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/10 13:23:46 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/10 18:22:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int HTTPResponse::validate() {
 /*Return Corresponding Status Code Response Or In Case
 Of Responding With An Specific Method Is Required,
 It Invokes Corresponding Method.*/
-std::string HTTPResponse::getResponse(int const clientSocket) {
+std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &connectedSocket) {
 	int statusCode = validate();
 
 	std::string method = _requestMap["method"];
@@ -55,7 +55,7 @@ std::string HTTPResponse::getResponse(int const clientSocket) {
 	if (method == "GET" || method == "HEAD") {
 		return createHandleGet();
 	} else if (method == "POST") {
-		return createHandlePost(clientSocket);
+		return createHandlePost(clientSocket, connectedSocket);
 	} else if (method == "DELETE") {
 		return createHandleDelete();
 	}
@@ -69,18 +69,18 @@ std::string HTTPResponse::createHandleGet() {
 	return (Get.GetMethod());
 }
 
-std::string HTTPResponse::createHandlePost(int const clientSocket) {
+std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket) {
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
-	displayRequestMap();
-		this->_post.handlePost(this->_requestString, clientSocket);
-		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
-		std::string response = this->_post.getResponses()[clientSocket];
-		this->_post.getResponses().erase(clientSocket);
-		this->_post.getPostData().clear();
-		this->_post.printPostData();
-		this->_post.printPostResponses();
-		return (response);
+	// displayRequestMap();
+	this->_post.handlePost(connectedSocket.getRequest(), connectedSocketFd);
+	// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
+	std::string response = this->_post.getResponses()[connectedSocketFd];
+	this->_post.getResponses().erase(connectedSocketFd);
+	this->_post.getPostData().clear();
+	this->_post.printPostData();
+	this->_post.printPostResponses();
+	return (response);
 }
 
 std::string HTTPResponse::createHandleDelete() {
@@ -296,7 +296,7 @@ Socket Or There Is No POLLIN Or POLLOUT, Otherwise Remove The Sent Response
 From The Response Map And Return True. */
 bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket) {
 	if (pollEvent == POLLIN_TMP) {
-		_responses[clientSocket] = getResponse(clientSocket);
+		_responses[clientSocket] = getResponse(clientSocket, connectedSocket);
 		return true;
 	}
 	if (pollEvent == POLLOUT_TMP) {
