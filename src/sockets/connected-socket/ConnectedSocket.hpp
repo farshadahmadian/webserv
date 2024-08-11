@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 11:31:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 19:09:15 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <string>
 # include <iostream>
 # include <sstream>
+# include <fstream>
 # include "../socket/Socket.hpp"
 # include "colors.h"
 
@@ -40,7 +41,7 @@ class ConnectedSocket : public Socket {
 		t_state _state;
 		std::string _request;
 		size_t _contentLength;
-		std::string _requestBody;
+		std::ostringstream _requestBody;
 		std::string _requestHeader;
 		bool _isHeaderComplete;
 
@@ -59,8 +60,9 @@ class ConnectedSocket : public Socket {
 		t_state getState(void);
 		std::string const &getRequest(void)const;
 		size_t getContentLength(void);
-		std::string const &getRequestBody(void) const;
+		std::ostringstream const &getRequestBody(void) const;
 		std::string const &getRequestHeader(void) const;
+		bool getIsHeaderComplete(void);
 
 		void setState(t_state state);
 		void setConnectionStartTime();
@@ -69,7 +71,7 @@ class ConnectedSocket : public Socket {
 		void setIsHeaderComplete(bool isHeaderComplete);
 
 		std::string const &appendToRequest(std::string const &toAppend);
-		std::string const &appendToBody(std::string const &toAppend);
+		std::ostringstream const & appendToBody(std::ostringstream const &outputStringStream);
 		std::string const &appendToHeader(std::string const &toAppend);
 		void clearRequestProperties(void);
 

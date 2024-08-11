@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 11:32:29 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 19:13:09 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_state(CREATED),
 	_request(""),
 	_contentLength(0),
-	_requestBody(""),
+	_requestBody(std::ios::binary | std::ios::app),
 	_requestHeader(""),
 	_isHeaderComplete(false) {
 	return;
@@ -42,9 +42,9 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	_state(other._state),
 	_request(other._request),
 	_contentLength(other._contentLength),
-	_requestBody(other._requestBody),
 	_requestHeader(other._requestHeader),
 	_isHeaderComplete(other._isHeaderComplete) {
+	this->_requestBody << other._requestBody.rdbuf();
 	return;
 }
 
@@ -60,7 +60,7 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_state = rhs._state;
 		this->_request = rhs._request;
 		this->_contentLength = rhs._contentLength;
-		this->_requestBody = rhs._requestBody;
+		this->_requestBody << rhs._requestBody.rdbuf();
 		this->_requestHeader = rhs._requestHeader;
 		this->_isHeaderComplete = rhs._isHeaderComplete;
 	}
@@ -68,6 +68,10 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 }
 
 ConnectedSocket::~ConnectedSocket(void) {
+	// if (this->_requestBody.is_open()) {
+	// 	this->_requestBody.clear();
+	// 	this->_requestBody.close();
+	// }
 	return;
 }
 
@@ -107,8 +111,11 @@ std::string const &ConnectedSocket::appendToRequest(std::string const &toAppend)
 	return this->_request.append(toAppend);
 }
 
-std::string const &ConnectedSocket::appendToBody(std::string const &toAppend) {
-	return this->_requestBody.append(toAppend);
+std::ostringstream const &ConnectedSocket::appendToBody(std::ostringstream const &outputStringStream) {
+	this->_requestBody.clear();
+	this->_requestBody.write(outputStringStream.str().c_str(), outputStringStream.str().size());
+	this->_requestBody.flush();
+	return this->_requestBody;
 }
 
 std::string const &ConnectedSocket::appendToHeader(std::string const &toAppend) {
@@ -119,12 +126,16 @@ size_t ConnectedSocket::getContentLength(void) {
 	return this->_contentLength;
 }
 
-std::string const &ConnectedSocket::getRequestBody(void) const {
+std::ostringstream const &ConnectedSocket::getRequestBody(void) const {
 	return this->_requestBody;
 }
 
 std::string const &ConnectedSocket::getRequestHeader(void) const {
 	return this->_requestHeader;
+}
+
+bool ConnectedSocket::getIsHeaderComplete(void) {
+	return this->_isHeaderComplete;
 }
 
 void ConnectedSocket::setRequestBodyLength(std::string contentLength) {
@@ -153,7 +164,9 @@ void ConnectedSocket::setIsHeaderComplete(bool isHeaderComplete) {
 void ConnectedSocket::clearRequestProperties(void) {
 	this->_request = "";
 	this->_contentLength = 0;
-	this->_requestBody = "";
+	this->_requestBody.flush();
+	this->_requestBody.clear();
+	this->_requestBody.str("");
 	this->_requestHeader = "";
 	this->_isHeaderComplete = false;
 }

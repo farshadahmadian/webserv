@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/11 11:49:39 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 17:56:08 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,11 +58,11 @@ public:
 	void displayRequestString() const;
 	void displayRequestMap();
 	void displayServerConfig();
-	bool receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i);
+	bool receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream);
 	void readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i);
 	void storeHeader(ConnectedSocket &connectedSocket);
 	bool isHeaderReceived(std::string buffer);
-	void readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i);
+	void readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream);
 	std::string extractContentLength(std::string request);
 	std::string extractBody(std::string request);
 	std::string extractHeader(std::string request);

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 08:52:24 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 18:02:43 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ void Post::parsePostRequest(std::string request) {
 
 	std::string formFieldsDelimiter = this->getDelimiter(request);
 	std::string body = this->getBody(request);
-	std::cout << "body:\n" << body << std::endl;
+	// std::cout << "body:\n" << body << std::endl;
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 

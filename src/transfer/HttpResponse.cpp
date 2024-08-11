@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/10 18:22:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 14:07:46 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ std::string HTTPResponse::readBinaryFile(std::string const & path) {
     }
     std::ostringstream ss;
     ss << fileStream.rdbuf();
-	fileStream.close();
+		fileStream.close();
     return ss.str();
 }
 

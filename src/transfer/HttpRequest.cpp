@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/11 12:25:13 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 20:00:46 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,9 +193,6 @@ std::string HTTPRequest::extractHeader(std::string request) {
 /*It Receives The Client Request, Buffers It And Passes It To The Parse Function.*/
 bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
-	(void) pollFds;
-	(void) i;
-	(void) connectedSocket;
 	char buffer[40960];
 	ssize_t bytesRead = recv(connectedSocketFd, buffer, sizeof(buffer) - 1, 0);
 	std::cout << CYAN << "bytesRead = " << bytesRead << RESET << std::endl;
@@ -210,18 +207,25 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 		return (false);
 	}
 	buffer[bytesRead] = '\0';
-	_requestString.assign(buffer);
-	// std::cout << _requestString << std::endl;
+	_requestString.assign(buffer, bytesRead);
+	std::cout << "request size: " << _requestString.size() << std::endl;
 
 	//****************print request***********************
 	// displayRequestString();
 	//****************************************************
-	// if (connectedSocket.getRequest().empty())
-	
-	if (receiveInChuncks(connectedSocket, connectedSocketFd, pollFds, i))
+
+	std::ostringstream outputStream(std::ios::binary);
+	outputStream.write(buffer, bytesRead);
+	std::cout << "outputstream size: " << outputStream.str().size() << std::endl;
+	outputStream.clear();
+	// connectedSocket.appendToBody(outputStream);
+	// outputStream.seekg(0);
+
+	if (receiveInChuncks(connectedSocket, connectedSocketFd, pollFds, i, outputStream))
 		return true;
 	else {
 		pollFds[i].events = POLLOUT;
+		std::cout << "FINISHED RECEIVING . . ." << std::endl;
 		connectedSocket.setState(DONE);
 	}
 
@@ -271,39 +275,45 @@ void HTTPRequest::storeHeader(ConnectedSocket &connectedSocket) {
 	if (connectedSocket.getRequestHeader().empty()) {
 			connectedSocket.appendToHeader(this->extractHeader(connectedSocket.getRequest()));
 			connectedSocket.setIsHeaderComplete(true);
-			std::cout << MAGENTA << "1 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+			// std::cout << MAGENTA << "1 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
 		}
 		else {
 			connectedSocket.appendToHeader(this->extractHeader(this->_requestString));
 			connectedSocket.setIsHeaderComplete(true);
-			std::cout << MAGENTA << "2 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+			// std::cout << MAGENTA << "2 * Header received completely =\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
 		}
+		std::cout << YELLOW << "header size: " << connectedSocket.getRequestHeader().length() << RESET << std::endl;
 }
 
 void HTTPRequest::readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i) {
 	connectedSocket.setConnectionStartTime();
-	connectedSocket.appendToHeader(this->_requestString);
+	// connectedSocket.appendToHeader(this->_requestString);
 	connectedSocket.setState(READING);
-	std::cout << RED << "RECEIVING HEADER: connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
+	// std::cout << RED << "RECEIVING HEADER: connectedSocket.getRequest() = " << connectedSocket.getRequest() << RESET << std::endl;
 	pollFds[i].events = POLLIN;
 }
 
-void HTTPRequest::readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i) {
-	std::cout << "The remaining of the body will be received in next iteration ..." << std::endl;
+void HTTPRequest::readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream) {
+	// std::cout << "The remaining of the body will be received in next iteration ..." << std::endl;
 	connectedSocket.setConnectionStartTime();
-	std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().size() << RESET << std::endl;
-	std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
+	// std::cout << BLUE << "connectedSocket.getRequestBody().size() = " << connectedSocket.getRequestBody().str().size() << RESET << std::endl;
+	// std::cout << BLUE << "connectedSocket.getContentLength() = " << connectedSocket.getContentLength() << RESET << std::endl;
+	connectedSocket.appendToBody(outputStringStream);
+
+	// std::cout << "1: " << connectedSocket.getRequestBody().str() << std::endl;
+	std::cout << "2: " << connectedSocket.getRequestBody().str().size() << std::endl;
+
 	pollFds[i].events = POLLIN;
 	connectedSocket.setState(READING);
 
-	std::cout << YELLOW << "header size: " << connectedSocket.getRequestHeader().length() << RESET << std::endl;
+	
 }
 
-bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i) {
+bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream) {
 
 	connectedSocket.appendToRequest(this->_requestString);
-	if (!connectedSocket.getRequestBody().empty())
-		connectedSocket.appendToBody(this->_requestString);
+	// if (!connectedSocket.getRequestBody().str().empty())
+	// 	connectedSocket.appendToBody(inputStringStream);
 
 	std::cout << MAGENTA << "SocketFd " << connectedSocketFd << " is receiving ..." << RESET << std::endl;
 	
@@ -320,16 +330,29 @@ bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connect
 		std::string contentLength = this->extractContentLength(connectedSocket.getRequest());
 		connectedSocket.setRequestBodyLength(contentLength);
 		}
-		if (connectedSocket.getContentLength() && connectedSocket.getRequestBody().empty()) {
-		std::string toAppend = this->extractBody(connectedSocket.getRequest());
-		connectedSocket.appendToBody(toAppend);
+		if (connectedSocket.getContentLength() && connectedSocket.getRequestBody().str().empty()) {
+			std::string toAppend = this->extractBody(connectedSocket.getRequest());
+			std::ostringstream outputString;
+			outputString.clear();
+			outputString.write(toAppend.c_str(), toAppend.length());
+			outputString.flush();
+			// std::cout << "toAppend: " << outputString.str() << std::endl;
+			// std::cout << "****" << outputString.str() << std::endl;
+			// std::cout << outputString.str().size() << std::endl;
+			connectedSocket.appendToBody(outputString);
+			std::cout << "3: " << connectedSocket.getRequestBody().str() << std::endl;
+			std::cout << "bodysize " << connectedSocket.getRequestBody().str().size() << std::endl;
+			std::cout << "appendsize " << toAppend.size() << std::endl;
+			return true;
 		}
-		std::cout << YELLOW << "connectedSocket.getRequest()=\n" << connectedSocket.getRequest() << RESET << std::endl;
-		std::cout << RED << "connectedSocket.getRequestBody()=\n" << connectedSocket.getRequestBody() << RESET << std::endl;
+		// std::cout << YELLOW << "connectedSocket.getRequest()=\n" << connectedSocket.getRequest() << RESET << std::endl;
+		// std::cout << RED << "connectedSocket.getRequestBody()=\n" << connectedSocket.getRequestBody() << RESET << std::endl;
 
-		if (connectedSocket.getRequestBody().size() < connectedSocket.getContentLength())
+		if (!connectedSocket.getRequestBody().str().empty() && connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength())
 		{
-			this->readAllBody(connectedSocket, pollFds, i);
+			this->readAllBody(connectedSocket, pollFds, i, outputStringStream);
+			std::cout << RED << "SIZE: " << connectedSocket.getRequestBody().str().size() << std::endl;
+			std::cout << "content length: " << connectedSocket.getContentLength() << RESET << std::endl;
 			return true;
 		}
 		else
