@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 21:59:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 13:37:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,28 +190,44 @@ void Post::parsePostRequest(std::string const &requestHeader, std::ostringstream
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 
-void Post::handlePost(std::string const &requestHeader, std::ostringstream const &requestBody, int connectedSocketFd) {
+void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 
 	// std::cout << "POST REQUEST = \n" << request << std::endl;
-	size_t index = requestHeader.find("Content-Type: multipart/form-data");
-	if (index == std::string::npos) {
+
+	// size_t index = connectedSocket.getRequestHeader().find("Content-Type: multipart/form-data");
+	// if (index == std::string::npos) {
+	// 	std::ostringstream ostring;
+	// 	ostring << "HTTP/1.1 400 Bad Request\r\n";
+	// 	ostring << "Connection: close\r\n\r\n";
+	// 	this->_responses[connectedSocketFd] = ostring.str(); 
+	// 	// this->printPostData();
+	// 	std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+	// 	return;
+	// }
+
+	if (connectedSocket.getRequestMap()["uri"] != "/submit") {
+		
+		std::string html = "<html><body><h1>Bad Request</h1></body></html>";
 		std::ostringstream ostring;
 		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Connection: close\r\n\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
 		this->_responses[connectedSocketFd] = ostring.str(); 
 		// this->printPostData();
 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		return;
-}
+	}
 
-	parsePostRequest(requestHeader, requestBody);
+	parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 
 	std::cout << "name = " << this->_postData["name"] << "filename = " << this->_postData["filename"] << std::endl;
 
 	if (this->_postData["name"].empty() || this->_postData["filename"].empty()) {
 		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
 		std::ostringstream ostring;
-		ostring << "HTTP/1.1 500 Internal Server Error\r\n";
+		ostring << "HTTP/1.1 400 Bad Request\r\n";
 		ostring << "Content-Type: text/html\r\n";
 		ostring << "Connection: close\r\n";
 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";

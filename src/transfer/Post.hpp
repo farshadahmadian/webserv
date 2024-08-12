@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 21:58:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 13:21:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <sstream>
 # include <fstream>
 # include "colors.h"
+# include "ConnectedSocket.hpp"
 
 class Post {
 	public:
@@ -30,7 +31,7 @@ class Post {
 		std::map<int, std::string> &getResponses(void);
 
 		std::map<std::string, std::string> &getPostData(void);
-		void handlePost(std::string const &requestHeader, std::ostringstream const &requestBody, int connectedSocketFd);
+		void handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket);
 		void printPostData(void);
 		void printPostResponses(void);
 	private:

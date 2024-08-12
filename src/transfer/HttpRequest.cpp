@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/12 11:13:58 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 13:56:27 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ bool HTTPRequest::isCgiRequest( void ) {
 }
 
 /*Parse The Received Request And Creat a Map Of Its Headers*/
-bool HTTPRequest::parse(ConnectedSocket const &connectedSocket)
+bool HTTPRequest::parse(ConnectedSocket &connectedSocket)
 {
 	std::istringstream requestStream(connectedSocket.getRequestHeader());
 	std::string line;
@@ -105,6 +105,8 @@ bool HTTPRequest::parse(ConnectedSocket const &connectedSocket)
 	//****************print server config map**************
 	// displayServerConfig();
 	//****************************************************
+
+	connectedSocket.setRequestMap(this->_requestMap);
 
 	return true;
 }
@@ -345,27 +347,33 @@ bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connect
 			std::cout << "bodysize " << connectedSocket.getRequestBody().str().size() << std::endl;
 			std::cout << "appendsize " << toAppend.size() << std::endl;
 			// return true;
+			
+			pollFds[i].events = POLLIN;
+			connectedSocket.setAvoidBodyFirstChunckRepeat(true);
 
-			if (connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength())
-			{
-				pollFds[i].events = POLLIN;
-				return false;
-			}
-			else
-				return true;
+
+			// if (connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength())
+			// {
+			// 	pollFds[i].events = POLLIN;
+			// 	return false;
+			// }
+			// else
+			// 	return true;
 		}
 
 	
 		// std::cout << YELLOW << "connectedSocket.getRequest()=\n" << connectedSocket.getRequest() << RESET << std::endl;
 		// std::cout << RED << "connectedSocket.getRequestBody()=\n" << connectedSocket.getRequestBody() << RESET << std::endl;
 
-		if (!connectedSocket.getRequestBody().str().empty() && connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength())
+		if (!connectedSocket.getRequestBody().str().empty() && connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength() && !connectedSocket.getAvoidBodyFirstChunckRepeat())
 		{
 			this->readAllBody(connectedSocket, pollFds, i, outputStringStream);
 			std::cout << RED << "SIZE: " << connectedSocket.getRequestBody().str().size() << std::endl;
 			std::cout << "content length: " << connectedSocket.getContentLength() << RESET << std::endl;
 			// return true;
 		}
+
+		connectedSocket.setAvoidBodyFirstChunckRepeat(false);
 
 	}
 	if (connectedSocket.getRequestBody().str().size() < connectedSocket.getContentLength())

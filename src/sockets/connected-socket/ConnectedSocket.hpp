@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 19:09:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 13:52:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <iostream>
 # include <sstream>
 # include <fstream>
+# include <map>
 # include "../socket/Socket.hpp"
 # include "colors.h"
 
@@ -39,11 +40,14 @@ class ConnectedSocket : public Socket {
 		int _iterationNum;
 		time_t _connectionStartTime;
 		t_state _state;
+
 		std::string _request;
 		size_t _contentLength;
 		std::ostringstream _requestBody;
 		std::string _requestHeader;
 		bool _isHeaderComplete;
+		std::map<std::string, std::string> _requestMap;
+		bool _avoidBodyFirstChunckRepeat;
 
 	public:
 		ConnectedSocket(void);
@@ -63,12 +67,16 @@ class ConnectedSocket : public Socket {
 		std::ostringstream const &getRequestBody(void) const;
 		std::string const &getRequestHeader(void) const;
 		bool getIsHeaderComplete(void);
+		std::map<std::string, std::string> &getRequestMap(void);
+		bool getAvoidBodyFirstChunckRepeat(void);
 
 		void setState(t_state state);
 		void setConnectionStartTime();
 		void setIterationNum(int iterationNum);
 		void setRequestBodyLength(std::string contentLength);
 		void setIsHeaderComplete(bool isHeaderComplete);
+		void setRequestMap(std::map<std::string, std::string> const &requestMap);
+		void setAvoidBodyFirstChunckRepeat(bool isBodyFirstChunckReceived);
 
 		std::string const &appendToRequest(std::string const &toAppend);
 		std::ostringstream const & appendToBody(std::ostringstream const &outputStringStream);

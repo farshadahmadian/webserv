@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 19:13:09 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 13:52:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,9 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_contentLength(0),
 	_requestBody(std::ios::binary | std::ios::app),
 	_requestHeader(""),
-	_isHeaderComplete(false) {
+	_isHeaderComplete(false),
+	_requestMap(std::map<std::string, std::string>()),
+	_avoidBodyFirstChunckRepeat(false) {
 	return;
 }
 
@@ -43,7 +45,9 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	_request(other._request),
 	_contentLength(other._contentLength),
 	_requestHeader(other._requestHeader),
-	_isHeaderComplete(other._isHeaderComplete) {
+	_isHeaderComplete(other._isHeaderComplete),
+	_requestMap(other._requestMap),
+	_avoidBodyFirstChunckRepeat(other._avoidBodyFirstChunckRepeat) {
 	this->_requestBody << other._requestBody.rdbuf();
 	return;
 }
@@ -63,6 +67,8 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_requestBody << rhs._requestBody.rdbuf();
 		this->_requestHeader = rhs._requestHeader;
 		this->_isHeaderComplete = rhs._isHeaderComplete;
+		this->_requestMap = rhs._requestMap;
+		this->_avoidBodyFirstChunckRepeat = rhs._avoidBodyFirstChunckRepeat;
 	}
 	return *this;
 }
@@ -107,25 +113,6 @@ std::string const &ConnectedSocket::getRequest(void)const {
 	return this->_request;
 }
 
-std::string const &ConnectedSocket::appendToRequest(std::string const &toAppend) {
-	return this->_request.append(toAppend);
-}
-
-std::ostringstream const &ConnectedSocket::appendToBody(std::ostringstream const &outputStringStream) {
-	this->_requestBody.clear();
-	this->_requestBody.write(outputStringStream.str().c_str(), outputStringStream.str().size());
-	this->_requestBody.flush();
-	return this->_requestBody;
-}
-
-std::string const &ConnectedSocket::appendToHeader(std::string const &toAppend) {
-	return this->_requestHeader.append(toAppend);
-}
-
-size_t ConnectedSocket::getContentLength(void) {
-	return this->_contentLength;
-}
-
 std::ostringstream const &ConnectedSocket::getRequestBody(void) const {
 	return this->_requestBody;
 }
@@ -134,8 +121,20 @@ std::string const &ConnectedSocket::getRequestHeader(void) const {
 	return this->_requestHeader;
 }
 
+size_t ConnectedSocket::getContentLength(void) {
+	return this->_contentLength;
+}
+
 bool ConnectedSocket::getIsHeaderComplete(void) {
 	return this->_isHeaderComplete;
+}
+
+std::map<std::string, std::string> &ConnectedSocket::getRequestMap(void) {
+	return this->_requestMap;
+}
+
+bool ConnectedSocket::getAvoidBodyFirstChunckRepeat(void) {
+	return this->_avoidBodyFirstChunckRepeat;
 }
 
 void ConnectedSocket::setRequestBodyLength(std::string contentLength) {
@@ -161,6 +160,29 @@ void ConnectedSocket::setIsHeaderComplete(bool isHeaderComplete) {
 	return;
 }
 
+void ConnectedSocket::setRequestMap(std::map<std::string, std::string> const &requestMap) {
+	this->_requestMap = requestMap;
+}
+
+void ConnectedSocket::setAvoidBodyFirstChunckRepeat(bool isBodyFirstChunckReceived) {
+	this->_avoidBodyFirstChunckRepeat = isBodyFirstChunckReceived;
+}
+
+std::string const &ConnectedSocket::appendToRequest(std::string const &toAppend) {
+	return this->_request.append(toAppend);
+}
+
+std::ostringstream const &ConnectedSocket::appendToBody(std::ostringstream const &outputStringStream) {
+	this->_requestBody.clear();
+	this->_requestBody.write(outputStringStream.str().c_str(), outputStringStream.str().size());
+	this->_requestBody.flush();
+	return this->_requestBody;
+}
+
+std::string const &ConnectedSocket::appendToHeader(std::string const &toAppend) {
+	return this->_requestHeader.append(toAppend);
+}
+
 void ConnectedSocket::clearRequestProperties(void) {
 	this->_request = "";
 	this->_contentLength = 0;
@@ -169,6 +191,7 @@ void ConnectedSocket::clearRequestProperties(void) {
 	this->_requestBody.str("");
 	this->_requestHeader = "";
 	this->_isHeaderComplete = false;
+	this->_requestMap.clear();
 }
 
 void ConnectedSocket::setIterationNum(int iterationNum) {
