@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/07 14:27:52 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/11 21:58:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ class Post {
 		std::map<int, std::string> &getResponses(void);
 
 		std::map<std::string, std::string> &getPostData(void);
-		void handlePost(std::string request, int connectedSocketFd);
+		void handlePost(std::string const &requestHeader, std::ostringstream const &requestBody, int connectedSocketFd);
 		void printPostData(void);
 		void printPostResponses(void);
 	private:
 		std::map<int, std::string> _responses;
 		std::map<std::string, std::string> _postData;
 
-		void parsePostRequest(std::string request);
+		void parsePostRequest(std::string const &requestHeader, std::ostringstream const &requestBody);
 		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
 		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 		std::string getDelimiter(std::string request);

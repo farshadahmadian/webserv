@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/11 18:02:43 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 21:59:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,18 +182,18 @@ void Post::getSubmittedFormInputs(std::string body, std::string formFieldsDelimi
 	return;
 }
 
-void Post::parsePostRequest(std::string request) {
+void Post::parsePostRequest(std::string const &requestHeader, std::ostringstream const &requestBody) {
 
-	std::string formFieldsDelimiter = this->getDelimiter(request);
-	std::string body = this->getBody(request);
+	std::string formFieldsDelimiter = this->getDelimiter(requestHeader);
+	std::string body = requestBody.str();
 	// std::cout << "body:\n" << body << std::endl;
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 
-void Post::handlePost(std::string request, int connectedSocketFd) {
+void Post::handlePost(std::string const &requestHeader, std::ostringstream const &requestBody, int connectedSocketFd) {
 
 	// std::cout << "POST REQUEST = \n" << request << std::endl;
-	size_t index = request.find("Content-Type: multipart/form-data");
+	size_t index = requestHeader.find("Content-Type: multipart/form-data");
 	if (index == std::string::npos) {
 		std::ostringstream ostring;
 		ostring << "HTTP/1.1 400 Bad Request\r\n";
@@ -204,7 +204,7 @@ void Post::handlePost(std::string request, int connectedSocketFd) {
 		return;
 }
 
-	parsePostRequest(request);
+	parsePostRequest(requestHeader, requestBody);
 
 	std::cout << "name = " << this->_postData["name"] << "filename = " << this->_postData["filename"] << std::endl;
 

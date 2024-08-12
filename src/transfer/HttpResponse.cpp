@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/11 14:07:46 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/11 21:56:00 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ std::string HTTPResponse::createHandlePost(int const connectedSocketFd, Connecte
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
 	// displayRequestMap();
-	this->_post.handlePost(connectedSocket.getRequest(), connectedSocketFd);
+	this->_post.handlePost(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody(), connectedSocketFd);
 	// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 	std::string response = this->_post.getResponses()[connectedSocketFd];
 	this->_post.getResponses().erase(connectedSocketFd);
