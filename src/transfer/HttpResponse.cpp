@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/10 13:52:39 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/12 09:28:26 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ std::string HTTPResponse::getResponse(int const clientSocket) {
 
 	std::string method = _requestMap["method"];
 	// std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
+	displayRequestMap();
 	if (statusCode == 400) {
 		return httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
 	}
@@ -72,7 +73,6 @@ std::string HTTPResponse::createHandleGet() {
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
-	displayRequestMap();
 		this->_post.handlePost(this->_requestString, clientSocket);
 		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 		std::string response = this->_post.getResponses()[clientSocket];
@@ -264,7 +264,6 @@ std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
 	return std::string(buffer);
 }
 
-
 std::string HTTPResponse::getCurrentTime() {
 	std::time_t currentTime = std::time(NULL);
 	return formatTimeHTTP(currentTime);
@@ -306,7 +305,7 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 			return false;
 		}
 		std::string response = iter->second;
-		printStringToFile(response, "./src/request/response.txt");
+		// printStringToFile(response, "./src/request/response.txt");
         ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
         if (bytesSent == -1) {
 					return false;
@@ -396,3 +395,46 @@ void HTTPResponse::displayServerConfig()
 	for (; itr != _serverConfig.end(); itr++)
 		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
 }
+
+std::string HTTPResponse::generateErrorHeaders(int statusCode, size_t contentLength) {
+    std::ostringstream headers;
+    headers << httpStatusCode(statusCode) << "\r\n" // Status line
+			<< "Connection: keep-alive\r\n"
+    		<< "Content-Type: text/html\r\n";
+	if (contentLength)
+		headers << "Content-Length: " << contentLength << "\r\n";
+    headers << "\r\n";
+    return headers.str();
+}
+
+std::string intToString(int const i) {
+	std::ostringstream convert;
+	convert << i;
+	return (convert.str());
+}
+
+std::string HTTPResponse::generateDefaultErrorPage(int statusCode, std::string const & message) {
+    // Replace with your custom error page logic
+    std::string content = "<html><head><title>" + intToString(statusCode) + " " + message
+							+ "</title></head><body><h1>" + message + "</h1></body></html>";
+    return content;
+}
+
+
+std::string HTTPResponse::generateErrorPage(int statusCode) {
+    std::string errorFilePath = "/src/transfer/errors/" + intToString(statusCode) + ".html";
+
+	size_t contentLength = errorFilePath.length();
+	std::string headers = generateErrorHeaders(statusCode, contentLength);
+
+    std::ifstream file(errorFilePath.c_str());
+    if (file.is_open()) {
+        // Custom error page exists
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		return headers + readBinaryFile(errorFilePath);
+    } else {
+        // Default error page
+        return headers + generateDefaultErrorPage(statusCode, httpStatusCode(statusCode).substr(13, httpStatusCode(statusCode).find(CRLF)));
+    }
+}
+
