@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/12 23:27:41 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/13 00:23:34 by nnavidd          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ std::string HTTPResponse::getResponse(int const clientSocket) {
     std::string uri = _requestMap["uri"];
 
     displayRequestMap();
+	displayServerConfig();
     if (statusCode == 400) {
         return generateErrorPage(400);
     }
@@ -139,9 +140,10 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
 	switch (statusCode) {
 		case 200: return "HTTP/1.1 200 OK";
 		case 400: return "HTTP/1.1 400 Bad Request";
+		case 403: return "HTTP/1.1 403 Forbidden";
 		case 404: return "HTTP/1.1 404 Not Found";
-		case 304: return "HTTP/1.1 304 Not Modified";
 		case 405: return "HTTP/1.1 405 Method Not Allowed";
+		case 304: return "HTTP/1.1 304 Not Modified";
 		default:  return "HTTP/1.1 500 Internal Server Error";
 	}
 }
