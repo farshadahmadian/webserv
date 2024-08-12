@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/12 09:43:26 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/08/12 23:38:55 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig
 
 bool HTTPRequest::isValidMethod(const std::string &method)
 {
-	return (method == "GET" || method == "POST" || method == "HEAD" || method == "PUT");
+	return (method == "GET" || method == "POST" || method == "HEAD" || method == "PUT" || method == "DELETE");
 }
 
 /*Check The HTTP Version Validity*/
@@ -101,7 +101,7 @@ bool HTTPRequest::parse()
     }
 
 	//****************print header map********************
-	displayRequestMap();
+	// displayRequestMap();
 	//****************print server config map**************
 	// displayServerConfig();
 	//****************************************************

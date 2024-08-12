@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:36:51 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/03 09:39:37 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/12 23:31:18 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 # define GETHANDLER_HPP
 
 # include "HttpResponse.hpp"
+# include <iostream>
+# include <string>
+# include <dirent.h>
+# include <sys/stat.h>
+# include <vector>
+# include <algorithm>
+# include <fstream>
 
 class GetHandler : public HTTPResponse {
 	public:
@@ -21,6 +28,9 @@ class GetHandler : public HTTPResponse {
 		~GetHandler();
 		std::string GetMethod();
 	
+	private:
+	std::string handleDirectoryListing(const std::string& dirPath);
+
 	// protected:
 	// 	std::string createHandleGet();
 };

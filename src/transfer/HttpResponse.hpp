@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/12 00:57:36 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/08/12 23:26:05 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ public:
 	void setRequestStringInResponse(std::string const & requestString);
     void displayRequestMap();
 	void displayServerConfig();
+	bool isDirectory(const std::string& uri) const;
 	//-------------------------------MIME------------------------------
     std::string getMimeType(const std::string& extension) const;
 
