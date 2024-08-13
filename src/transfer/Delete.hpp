@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:02:42 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/13 11:21:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 12:16:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@
 # include <string>
 # include <map>
 # include <sstream>
+# include <sys/types.h>
+# include <dirent.h>
+# include <sys/stat.h>
+# include <unistd.h>
 # include "ConnectedSocket.hpp"
 
 class Delete {
@@ -32,6 +36,7 @@ class Delete {
 
 		std::string const &getSocketResponse(int connectedSocketFd);
 		void removeSocketResponse(int connectedSocketFd);
+		void clearDeleteData(void);
 		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
 		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 		void handleDelete(ConnectedSocket &connectedSocket);
@@ -40,6 +45,7 @@ class Delete {
 		void getSubmittedFormInputs(std::string body, std::string formFieldsDelimiter);
 		void getSubmitedData(std::string &contentDisposition);
 		std::string getFileName(std::string string);
+		bool deleteFile(ConnectedSocket &connectedSocket);
 };
 
 #endif

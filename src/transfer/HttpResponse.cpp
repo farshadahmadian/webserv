@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/13 10:32:32 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 17:44:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ std::string HTTPResponse::createHandleDelete(ConnectedSocket &connectedSocket) {
 	std::string response = this->_delete.getSocketResponse(connectedSocket.getSocketFd());
 
 	this->_delete.removeSocketResponse(connectedSocket.getSocketFd());
+	this->_delete.clearDeleteData();
 	return response;
 }
 

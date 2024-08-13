@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/13 10:41:59 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 16:18:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,7 +240,8 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 		return (false);
 	}
 
-	// std::cout << YELLOW << "Request header:\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+	std::cout << YELLOW << "Request header:\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+	std::cout << BLUE << "Request body:\n" << connectedSocket.getRequestBody().str() << RESET << std::endl;
 
 	return (true);
 }
