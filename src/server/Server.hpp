@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/09 10:55:42 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 14:37:51 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 
+#include <iostream>
+#include <ctime>
+#include <sys/stat.h>
 #include <string>
 #include <netdb.h>
 #include <fcntl.h>
@@ -47,8 +50,8 @@ private:
 	// std::vector<std::string> _clientSizes;
 	ListeningSocket _listeningSocket;
 	std::map<int, ConnectedSocket> _connectedSockets;
-	HTTPRequest _httpReq; //navid_code
-	HTTPResponse _httpResp; //navid_code
+	HTTPRequest _httpReq; // Navid_code
+	HTTPResponse _httpResp; // Navid_code
 
 	Server(void);
 	Server &operator=(Server const &rhs);
@@ -63,8 +66,10 @@ public:
 	ListeningSocket const &getListeningSocket(void) const;
 	const std::string getPort(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	HTTPRequest & getHttpReq(); //navid_code
-	HTTPResponse & getHttpResp(); //navid_code
+	HTTPRequest & getHttpReq(); // Navid_code
+	HTTPResponse & getHttpResp(); // Navid_code
+	static void logMessage(const std::string &message); // Navid_code
+
 	int getKeepAliveTimeout(void) const;
 
 	void setKeepAliveTimeout(int keepAliveTimeout);

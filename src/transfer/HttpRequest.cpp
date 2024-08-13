@@ -6,11 +6,13 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/12 23:38:55 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/13 16:01:01 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
+#include "Server.hpp"
+
 
 HTTPRequest::HTTPRequest( void ) {}
 
@@ -41,13 +43,18 @@ bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 bool HTTPRequest::isCgiRequest( void ) {
 	const std::string validExt[3] = { ".sh", ".py", ".pl" };
 
-	if (_uri.find_last_of('.') == std::string::npos)
+	if (_uri.find_last_of('.') == std::string::npos){
+		Server::logMessage("ERROR: Sig Request With No Extention!");
 		return (false);
+	}
 	std::string extension = _uri.substr(_uri.find_last_of('.'), _uri.length() - 1);
 	for (size_t i = 0; i < 3; i++) {
-		if (extension == validExt[i])
+		if (extension == validExt[i]){
+			Server::logMessage("INFO: Sig Request Received!");
 			return (true);
+		}
 	}
+	Server::logMessage("ERROR: Sig Request With Unsupported Extention!");
 	return (false);
 }
 

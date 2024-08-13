@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:36:51 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/12 23:31:18 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/13 13:58:57 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <vector>
 # include <algorithm>
 # include <fstream>
+# include "Server.hpp"
 
 class GetHandler : public HTTPResponse {
 	public:

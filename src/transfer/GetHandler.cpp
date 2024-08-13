@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnavidd <nnavidd@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/13 00:32:07 by nnavidd          ###   ########.fr       */
+/*   Updated: 2024/08/13 16:04:50 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@ GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
 GetHandler::~GetHandler() {}
 
 std::string GetHandler::handleDirectoryListing(const std::string& dirPath) {
+	Server::logMessage("INFO: Received GET request for " + dirPath);
     DIR* dir = opendir(dirPath.c_str());
     if (!dir) {
+		Server::logMessage("ERROR: Received GET request for '" + dirPath + "' But There Isn't This Directory!");
         return generateErrorPage(500); // Internal Server Error
     }
 
@@ -32,7 +34,8 @@ std::string GetHandler::handleDirectoryListing(const std::string& dirPath) {
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-            content += "<li><a href=\"" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>";
+            // content += "<li><a href=\"" + dirPath + std::string(entry->d_name) + "\">" + dirPath + std::string(entry->d_name) + "</a></li>";
+            content += "<li><a href=\"" + _requestMap.at("uri") + "/" + std::string(entry->d_name) + "\">" + dirPath + std::string(entry->d_name) + "</a></li>";
         }
     }
     closedir(dir);
@@ -62,6 +65,7 @@ std::string GetHandler::GetMethod() {
         uri = "/index.html";
     
     std::string filePath = _serverConfig.at("root") + uri;
+	Server::logMessage("INFO: Received GET request for " + filePath);
     struct stat st;
 
     // Check if the requested path is a directory
@@ -77,10 +81,10 @@ std::string GetHandler::GetMethod() {
 
 		for (std::vector<std::string>::iterator it = indexFiles.begin(); it != indexFiles.end(); ++it) {
     		const std::string& indexFile = *it;
-        // for (const std::string& indexFile : indexFiles) {
             std::string fullPath = filePath + "/" + indexFile;
             if (stat(fullPath.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
                 filePath = fullPath;
+				Server::logMessage("INFO: Index File Found In The " + filePath);
                 indexFileFound = true;
                 break;
             }
@@ -91,6 +95,7 @@ std::string GetHandler::GetMethod() {
             if (_serverConfig["autoindex"] == "on") {
                 return handleDirectoryListing(filePath);
             } else {
+				Server::logMessage("WARNING: AutoIndex Is Off " + filePath);
                 return generateErrorPage(403); // Forbidden
             }
         }

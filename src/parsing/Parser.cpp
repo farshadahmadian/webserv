@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:26 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/13 14:29:18 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ Parser::Parser( int argc, char** argv ):
 	confFile.close();
 };
 Parser::Parser( const Parser& obj ) {
+	Server::logMessage("Parse The Input In The Parser Constructor!");
+
 	this->_http = obj._http;
 	this->_prevLvl = obj._prevLvl;
 	this->_currLvl = obj._currLvl;

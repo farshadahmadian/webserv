@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/10 13:50:30 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/13 14:41:19 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,4 +216,34 @@ int Server::stringToInt(const std::string &str) {
         throw std::runtime_error("Error: Invalid number");
     }
     return value;
+}
+
+
+void Server::logMessage(const std::string &message) {
+    const std::string logFileName = "./src/server.log";
+
+    // Check if the log file exists
+    struct stat buffer;
+    if (stat(logFileName.c_str(), &buffer) != 0) {
+        // Log file doesn't exist, create it
+        std::ofstream createLogFile(logFileName.c_str());
+        if (!createLogFile.is_open()) {
+            std::cerr << "Error: Unable to create log file!" << std::endl;
+            return;
+        }
+    }
+
+    // Open the log file in append mode
+    std::ofstream logFile(logFileName.c_str(), std::ios_base::app);
+    if (logFile.is_open()) {
+        // Get the current time
+        std::time_t now = std::time(NULL);
+        char timeBuffer[80];
+        std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+
+        // Write the timestamp and message to the log file
+        logFile << "[" << timeBuffer << "] " << message << std::endl;
+    } else {
+        std::cerr << "Error: Unable to open log file!" << std::endl;
+    }
 }
