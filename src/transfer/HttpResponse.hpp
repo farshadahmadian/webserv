@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/10 17:52:01 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 09:24:00 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@
 # include "colors.h"
 # include "errors.h"
 # include "Post.hpp"
+# include "Delete.hpp"
 # include "ConnectedSocket.hpp"
 
 
@@ -68,7 +69,7 @@ public:
 protected:
 	std::string createHandleGet();
 	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket);
-	std::string createHandleDelete();
+	std::string createHandleDelete(ConnectedSocket &connectedSocket);
 	std::string httpStatusCode(int statusCode);
 	std::string readBinaryFile(const std::string& path);
 	std::string readHtmlFile(const std::string& path);
@@ -99,6 +100,7 @@ protected:
 	//-----------------------------------------------------------------
 	private:
 		Post _post;
+		Delete _delete;
 };
 
 #endif // HTTPRESPONSE_HPP

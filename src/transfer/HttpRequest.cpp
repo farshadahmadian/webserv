@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/12 13:56:27 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/13 10:41:59 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig
 
 bool HTTPRequest::isValidMethod(const std::string &method)
 {
-	return (method == "GET" || method == "POST" || method == "HEAD");
+	return (method == "GET" || method == "POST" || method == "HEAD" || method == "DELETE");
 }
 
 /*Check The HTTP Version Validity*/
@@ -231,7 +231,7 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 	}
 	else
 		return true;
-
+	
 	if (!parse(connectedSocket))
 	{
 		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
@@ -239,6 +239,9 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 		// close(clientSocket);
 		return (false);
 	}
+
+	// std::cout << YELLOW << "Request header:\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
+
 	return (true);
 }
 
