@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/12 13:52:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 08:44:36 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,11 @@ bool ConnectedSocket::getAvoidBodyFirstChunckRepeat(void) {
 }
 
 void ConnectedSocket::setRequestBodyLength(std::string contentLength) {
+	if (contentLength.empty())
+	{
+		this->_contentLength = 0;
+		return;
+	}
 	std::istringstream inputStream;
 	inputStream.str(contentLength);
 	size_t bodyLength;

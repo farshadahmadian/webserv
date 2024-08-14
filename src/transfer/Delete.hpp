@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:02:42 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/13 12:16:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 07:50:33 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <dirent.h>
 # include <sys/stat.h>
 # include <unistd.h>
+# include <cstring>
 # include "ConnectedSocket.hpp"
 
 class Delete {

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/13 16:18:25 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 08:40:13 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,8 @@ std::string HTTPRequest::extractContentLength(std::string request) {
 	std::string toFind = "Content-Length:";
 	std::string contentLength = "";
 	std::string temp = getSubStringFromMiddleToIndex(request, toFind, toFind.length(), std::string::npos);
+	if (temp.empty())
+		return "0";
 	contentLength = getSubStringFromStartToIndex(temp, "\r\n");
 	return contentLength;
 }
@@ -319,6 +321,7 @@ void HTTPRequest::readAllBody(ConnectedSocket &connectedSocket, pollfd *pollFds,
 bool HTTPRequest::receiveInChuncks(ConnectedSocket &connectedSocket, int connectedSocketFd, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream) {
 
 	connectedSocket.appendToRequest(this->_requestString);
+
 	// if (!connectedSocket.getRequestBody().str().empty())
 	// 	connectedSocket.appendToBody(inputStringStream);
 
