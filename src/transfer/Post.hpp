@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 10:09:27 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:23:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,31 +22,22 @@
 # include <dirent.h>
 # include "colors.h"
 # include "ConnectedSocket.hpp"
+# include "HttpResponse.hpp"
 
-class Post {
+class Post : public HTTPResponse {
 	public:
 		Post(void);
 		Post(Post const &other);
 		Post &operator=(Post const &rhs);
 		~Post(void);
-
-		std::map<int, std::string> &getResponses(void);
-
-		std::map<std::string, std::string> &getPostData(void);
 		void handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket);
-		void printPostData(void);
-		void printPostResponses(void);
+		
 	private:
-		std::map<int, std::string> _responses;
-		std::map<std::string, std::string> _postData;
 		bool _isFileSaved;
-		std::string _storageDirectory;
 
 		void parsePostRequest(std::string const &requestHeader, std::ostringstream const &requestBody);
-		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
-		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 		std::string getDelimiter(std::string request);
-		std::string getBody(std::string request);
+		// std::string getBody(std::string request);
 		void getSubmittedFormInputs(std::string body, std::string formFieldsDelimiter);
 		void getSubmitedData(std::string &contentDisposition);
 		std::string getName(std::string string);

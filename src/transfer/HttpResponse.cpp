@@ -6,26 +6,32 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/13 17:44:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:16:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 #include "GetHandler.hpp"
 #include "Exception.hpp"
+#include "Post.hpp"
+#include "Delete.hpp"
 
-HTTPResponse::HTTPResponse() {
+HTTPResponse::HTTPResponse() : _storageDirectory("files"), _data(std::map<std::string, std::string>()) {
 	// std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
-	_serverConfig(serverConfig), _post(Post()), _delete(Delete())  {
+	_serverConfig(serverConfig)  {
 	loadMimeTypes(MIME);
 	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 HTTPResponse::~HTTPResponse() {
 	// std::cout << CYAN "HTTPResponse destructor called\n" RESET;
+}
+
+std::string const &HTTPResponse::getStorageDirectory(void) const {
+	return this->_storageDirectory;
 }
 
 /*Validate The Request Header To Return The Corrsponding Status Code.*/
@@ -76,24 +82,26 @@ std::string HTTPResponse::createHandlePost(int const connectedSocketFd, Connecte
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
 	// return responseBody;
 	// displayRequestMap();
-	this->_post.handlePost(connectedSocketFd, connectedSocket);
+	Post postResponse;
+	postResponse.handlePost(connectedSocketFd, connectedSocket);
 	// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
-	std::string response = this->_post.getResponses()[connectedSocketFd];
+	std::string response = postResponse.getSocketResponse(connectedSocketFd);
 
-	this->_post.getResponses().erase(connectedSocketFd);
-	this->_post.getPostData().clear();
-	this->_post.printPostData();
-	this->_post.printPostResponses();
+	postResponse.removeSocketResponse(connectedSocketFd);
+	postResponse.clearData();
+	postResponse.printData();
+	postResponse.printResponses();
 	return (response);
 }
 
 std::string HTTPResponse::createHandleDelete(ConnectedSocket &connectedSocket) {
 	// std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
-	this->_delete.handleDelete(connectedSocket);
-	std::string response = this->_delete.getSocketResponse(connectedSocket.getSocketFd());
+	Delete deleteResponse;
+	deleteResponse.handleDelete(connectedSocket);
+	std::string response = deleteResponse.getSocketResponse(connectedSocket.getSocketFd());
 
-	this->_delete.removeSocketResponse(connectedSocket.getSocketFd());
-	this->_delete.clearDeleteData();
+	deleteResponse.removeSocketResponse(connectedSocket.getSocketFd());
+	deleteResponse.clearData();
 	return response;
 }
 
@@ -404,4 +412,64 @@ void HTTPResponse::displayServerConfig()
 	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
 	for (; itr != _serverConfig.end(); itr++)
 		std::cout << ORG << itr->first << "->" MAGENTA << itr->second << RESET << std::endl;
+}
+
+void HTTPResponse::printData(void) {
+	if (!_data.size())
+	{
+		std::cout << YELLOW << "DATA IS EMPTY" << RESET << std::endl;
+		return;
+	}
+
+	std::map<std::string, std::string>::iterator iterator = this->_data.begin();
+
+	std::cout << YELLOW << "DATA RECEIVED:" << RESET <<std::endl;
+
+	while (iterator != this->_data.end())
+	{
+		std::cout << YELLOW << iterator->first << ": " << iterator->second << RESET << std::endl;
+		iterator++;
+	}
+}
+
+void HTTPResponse::printResponses(void) {
+	if (!this->_responses.size())
+	{
+		std::cout << BLUE << "RESPONSES MAP IS EMPTY" << RESET << std::endl;
+		return;
+	}
+	std::map<int, std::string>::iterator iterator;
+	std::map<int, std::string>::iterator iteratorEnd = this->_responses.end();
+
+	for (iterator = this->_responses.begin(); iterator != iteratorEnd; iterator++)
+	std::cout << BLUE << "Connected socket [" << iterator->first << "] sends the respons:\n" << iterator->second << RESET << std::endl;
+	return;
+}
+
+void HTTPResponse::removeSocketResponse(int connectedSocketFd) {
+	this->_responses.erase(connectedSocketFd);
+}
+
+void HTTPResponse::clearData(void) {
+	this->_data.clear();
+}
+
+std::string const &HTTPResponse::getSocketResponse(int connectedSocketFd) {
+	return this->_responses[connectedSocketFd];
+}
+
+std::string HTTPResponse::getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex) {
+	size_t foundIndex = string.find(toFind);
+	if (foundIndex == std::string::npos)
+		return "";
+	std::string result = string.substr(foundIndex + startOffset, endIndex);
+	return result;
+}
+
+std::string HTTPResponse::getSubStringFromStartToIndex(std::string &string, std::string const &toFind) {
+	size_t foundIndex = string.find(toFind);
+	if (foundIndex == std::string::npos)
+		return "";
+	std::string result = string.substr(0, foundIndex);
+	return result;
 }

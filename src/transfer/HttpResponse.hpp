@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/13 09:24:00 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:17:05 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,6 @@
 # include <poll.h>
 # include "colors.h"
 # include "errors.h"
-# include "Post.hpp"
-# include "Delete.hpp"
 # include "ConnectedSocket.hpp"
 
 
@@ -55,8 +53,7 @@ public:
 	HTTPResponse();
 	HTTPResponse(std::map<std::string, std::string> const & serverConfig);
 	virtual ~HTTPResponse();
-
-	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket); //---------------------------------------------------Return Error Or Call The Related HTTP Methods
+	 //---------------------------------------------------Return Error Or Call The Related HTTP Methods
 	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
 	void displayResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
@@ -64,9 +61,20 @@ public:
     void displayRequestMap();
 	void displayServerConfig();
 	//-------------------------------MIME------------------------------
-    std::string getMimeType(const std::string& extension) const;
+	std::string getMimeType(const std::string& extension) const;
+
+	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket);
+	std::string const &getSocketResponse(int connectedSocketFd);
+	void printData(void);
+	void printResponses(void);
+	void removeSocketResponse(int connectedSocketFd);
+	void clearData(void);
+	std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
+	std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 
 protected:
+	std::string const &getStorageDirectory(void) const;
+
 	std::string createHandleGet();
 	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket);
 	std::string createHandleDelete(ConnectedSocket &connectedSocket);
@@ -96,11 +104,12 @@ protected:
 	//-------------------------------MIME------------------------------
 	std::map<std::string, std::string> _mimeMap;
 
+	std::string _storageDirectory;
+	std::map<std::string, std::string> _data;
+
 	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------
-	private:
-		Post _post;
-		Delete _delete;
+
 };
 
 #endif // HTTPRESPONSE_HPP

@@ -6,57 +6,28 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 10:15:46 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:20:32 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Post.hpp"
 
-Post::Post(void) : _responses(std::map<int, std::string>()), _postData(std::map<std::string, std::string>()), _isFileSaved(true), _storageDirectory("files") {
+Post::Post(void) : HTTPResponse(), _isFileSaved(true) {
 	return;
 }
 
-Post::Post(Post const &other) : _responses(other._responses), _postData(other._postData), _isFileSaved(other._isFileSaved), _storageDirectory(other._storageDirectory) {
+Post::Post(Post const &other) : HTTPResponse(other) {
 	return;
 }
 
 Post &Post::operator=(Post const &rhs) {
 	if (this != &rhs)
-	{
-		this->_responses = rhs._responses;
-		this->_postData = rhs._postData;
 		this->_isFileSaved = rhs._isFileSaved;
-		this->_storageDirectory = rhs._storageDirectory;
-	}
 	return *this;
 }
 
 Post::~Post(void) {
 	return;
-}
-
-std::map<int, std::string> &Post::getResponses(void) {
-	return this->_responses;
-}
-
-std::map<std::string, std::string> &Post::getPostData(void) {
-	return this->_postData;
-}
-
-std::string Post::getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex) {
-	size_t foundIndex = string.find(toFind);
-	if (foundIndex == std::string::npos)
-		return "";
-	std::string result = string.substr(foundIndex + startOffset, endIndex);
-	return result;
-}
-
-std::string Post::getSubStringFromStartToIndex(std::string &string, std::string const &toFind) {
-	size_t foundIndex = string.find(toFind);
-	if (foundIndex == std::string::npos)
-		return "";
-	std::string result = string.substr(0, foundIndex);
-	return result;
 }
 
 std::string Post::getDelimiter(std::string request) {
@@ -79,11 +50,11 @@ std::string Post::getDelimiter(std::string request) {
 	return formFieldsDelimiter;
 }
 
-std::string Post::getBody(std::string request) {
-	std::string toFind = "\r\n\r\n";
-	std::string body = getSubStringFromMiddleToIndex(request, toFind, toFind.size(), std::string::npos);
-	return body;
-}
+// std::string Post::getBody(std::string request) {
+// 	std::string toFind = "\r\n\r\n";
+// 	std::string body = getSubStringFromMiddleToIndex(request, toFind, toFind.size(), std::string::npos);
+// 	return body;
+// }
 
 std::string Post::getName(std::string string) {
 	// std::cout << "contentDisposition = " << string << std::endl;
@@ -93,7 +64,7 @@ std::string Post::getName(std::string string) {
 	toFind = "\r\n";
 	std::string name = getSubStringFromStartToIndex(string, toFind);
 	// std::cout << "name = " << name << std::endl;
-	this->_postData["name"] = name;
+	this->_data["name"] = name;
 	return name;
 }
 
@@ -111,20 +82,20 @@ std::string Post::getFileName(std::string string) {
 	std::string fileName = "";
 	if (lineFeedIndex != std::string::npos)
 		fileName = fileNameAttribute.substr(toFind.length(), fileNameAttribute.find("\r\n") - toFind.length() - removeFromLast.length());
-	this->_postData["filename"] = fileName;
+	this->_data["filename"] = fileName;
 	return fileName;
 }
 
 void Post::saveFile(std::string string) {
 	// std::string storageDirectory = "files/";
 	DIR *directory;
-	if (!(directory = opendir(this->_storageDirectory.c_str()))) {
+	if (!(directory = opendir(this->getStorageDirectory().c_str()))) {
 		this->_isFileSaved = false;
 		closedir(directory);
 		return;
 	}
 
-	std::string fileName = this->_storageDirectory + "/" + this->_postData["filename"];
+	std::string fileName = this->getStorageDirectory() + "/" + this->_data["filename"];
 	std::ofstream outputFileStream(fileName.c_str(), std::ios::binary);
 
 	std::string toFind = "\r\n\r\n";
@@ -161,7 +132,7 @@ void Post::getSubmitedData(std::string &contentDisposition) {
 	if (nameValue == "file")
 	{
 		getFileName(nameAttribute);
-		if (!(this->_postData["filename"].empty()) && !(this->_postData["name"].empty()))
+		if (!(this->_data["filename"].empty()) && !(this->_data["name"].empty()))
 			saveFile(nameAttribute);
 	}
 	return;
@@ -239,9 +210,9 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 
 	parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 
-	std::cout << "name = " << this->_postData["name"] << "filename = " << this->_postData["filename"] << std::endl;
+	std::cout << "name = " << this->_data["name"] << "filename = " << this->_data["filename"] << std::endl;
 
-	if (this->_postData["name"].empty() || this->_postData["filename"].empty()) {
+	if (this->_data["name"].empty() || this->_data["filename"].empty()) {
 		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
 		std::ostringstream ostring;
 		ostring << "HTTP/1.1 400 Bad Request\r\n";
@@ -270,7 +241,7 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 		return;
 	}
 
-	std::string message = "Thank you " + this->_postData["name"] + ", file " + this->_postData["filename"] + " is Received.";
+	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received.";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";
@@ -280,39 +251,10 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 	ostring << html;
 	this->_responses[connectedSocketFd] = ostring.str();
 	std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
-	this->printPostData();
-	this->printPostResponses();
+	this->printData();
+	this->printResponses();
 	return;
 }
 
-void Post::printPostData(void) {
-	if (!_postData.size())
-	{
-		std::cout << YELLOW << "POST DATA IS EMPTY" << RESET << std::endl;
-		return;
-	}
 
-	std::map<std::string, std::string>::iterator iterator = this->_postData.begin();
 
-	std::cout << YELLOW << "DATA RECEIVED FROM FORM SUBMISSION:" << RESET <<std::endl;
-
-	while (iterator != this->_postData.end())
-	{
-		std::cout << YELLOW << iterator->first << ": " << iterator->second << RESET << std::endl;
-		iterator++;
-	}
-}
-
-void Post::printPostResponses(void) {
-	if (!this->_responses.size())
-	{
-		std::cout << BLUE << "POST RESPONSES MAP IS EMPTY" << RESET << std::endl;
-		return;
-	}
-	std::map<int, std::string>::iterator iterator;
-	std::map<int, std::string>::iterator iteratorEnd = this->_responses.end();
-
-	for (iterator = this->_responses.begin(); iterator != iteratorEnd; iterator++)
-	std::cout << BLUE << "Connected socket [" << iterator->first << "] sends the respons:\n" << iterator->second << RESET << std::endl;
-	return;
-}

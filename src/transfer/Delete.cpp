@@ -6,17 +6,17 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 10:28:07 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:06:27 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Delete.hpp"
 
-Delete::Delete(void) : _storageDirectory("files"), _responses(std::map<int, std::string>()),  _deleteData(std::map<std::string, std::string>()) {
+Delete::Delete(void) : HTTPResponse() {
 	return;
 }
 
-Delete::Delete(Delete const &other) : _storageDirectory(other._storageDirectory), _responses(other._responses), _deleteData(other._deleteData) {
+Delete::Delete(Delete const &other) : HTTPResponse(other) {
 	return;
 }
 
@@ -29,41 +29,13 @@ Delete::~Delete(void) {
 	return;
 }
 
-std::string const &Delete::getSocketResponse(int connectedSocketFd) {
-	return this->_responses[connectedSocketFd];
-}
-
-void Delete::removeSocketResponse(int connectedSocketFd) {
-	this->_responses.erase(connectedSocketFd);
-}
-
-void Delete::clearDeleteData(void) {
-	this->_deleteData.clear();
-}
-
-std::string Delete::getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex) {
-	size_t foundIndex = string.find(toFind);
-	if (foundIndex == std::string::npos)
-		return "";
-	std::string result = string.substr(foundIndex + startOffset, endIndex);
-	return result;
-}
-
-std::string Delete::getSubStringFromStartToIndex(std::string &string, std::string const &toFind) {
-	size_t foundIndex = string.find(toFind);
-	if (foundIndex == std::string::npos)
-		return "";
-	std::string result = string.substr(0, foundIndex);
-	return result;
-}
-
 std::string Delete::getFileName(std::string string) {
 	std::string toFind = "\r\n\r\n";
 	string = getSubStringFromMiddleToIndex(string, toFind, toFind.length(), std::string::npos);
 
 	toFind = "\r\n";
 	std::string name = getSubStringFromStartToIndex(string, toFind);
-	this->_deleteData["filename"] = name;
+	this->_data["filename"] = name;
 	return name;
 }
 
@@ -87,7 +59,7 @@ void Delete::getSubmittedFormInputs(std::string body, std::string formFieldsDeli
 	if (formFieldsDelimiter.empty()) {
 		std::string toFind = "name=";
 		std::string fileName = getSubStringFromMiddleToIndex(body, toFind, toFind.size(), std::string::npos);
-		this->_deleteData["filename"] = fileName;
+		this->_data["filename"] = fileName;
 		std::cout << RED << "*** file name = " << fileName <<  RESET << std::endl;
 		return;
 	}
@@ -141,7 +113,7 @@ void Delete::parseDeleteRequest(std::string const &requestHeader, std::ostringst
 bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	std::cout << YELLOW << "finding the file and deleting it . . ." << RESET << std::endl;
 
-	DIR *directory = opendir(this->_storageDirectory.c_str());
+	DIR *directory = opendir(this->getStorageDirectory().c_str());
 	if (!directory) {
 		std::string html = "<html><body><h1>Bad Request, Storage Directory (/file) Does Not Exist </h1></body></html>";
 		std::ostringstream ostring;
@@ -156,7 +128,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	}
 	std::cout << directory << std::endl;
 	closedir(directory);
-	std::string fileToDelete = this->_storageDirectory + "/" + this->_deleteData["filename"];
+	std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
 	std::cout << "file to be deleted: " << fileToDelete << std::endl;
 	struct stat buffer;
 	memset(&buffer, 0, sizeof(buffer));
@@ -225,9 +197,9 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 
 	this->parseDeleteRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 
-	// std::cout << RED << this->_deleteData["filename"] << RESET << std::endl;
+	// std::cout << RED << this->_data["filename"] << RESET << std::endl;
 
-	if (this->_deleteData["filename"].empty()) {
+	if (this->_data["filename"].empty()) {
 		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
 		std::ostringstream ostring;
 		ostring << "HTTP/1.1 400 Bad Request\r\n";
@@ -243,7 +215,7 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	if (!this->deleteFile(connectedSocket))
 		return;
 
-	std::string message = "File " + this->_deleteData["filename"] + " is deleted.";
+	std::string message = "File " + this->_data["filename"] + " is deleted.";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";

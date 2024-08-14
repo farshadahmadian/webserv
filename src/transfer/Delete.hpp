@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:02:42 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 07:50:33 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 16:23:24 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,24 +22,18 @@
 # include <unistd.h>
 # include <cstring>
 # include "ConnectedSocket.hpp"
+# include "HttpResponse.hpp"
 
-class Delete {
+class Delete : public HTTPResponse {
+
 	private:
-		std::string _storageDirectory;
-		std::map<int, std::string> _responses;
-		std::map<std::string, std::string> _deleteData;
+		Delete &operator=(Delete const &rhs);
 
-	Delete &operator=(Delete const &rhs);
 	public:
 		Delete(void);
 		~Delete(void);
 		Delete(Delete const &other);
 
-		std::string const &getSocketResponse(int connectedSocketFd);
-		void removeSocketResponse(int connectedSocketFd);
-		void clearDeleteData(void);
-		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
-		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 		void handleDelete(ConnectedSocket &connectedSocket);
 		void parseDeleteRequest(std::string const &requestHeader, std::ostringstream const &requestBody);
 		std::string getDelimiter(std::string request);
