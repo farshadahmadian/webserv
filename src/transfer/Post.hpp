@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/12 13:21:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 10:09:27 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <string>
 # include <sstream>
 # include <fstream>
+# include <sys/types.h>
+# include <dirent.h>
 # include "colors.h"
 # include "ConnectedSocket.hpp"
 
@@ -37,6 +39,8 @@ class Post {
 	private:
 		std::map<int, std::string> _responses;
 		std::map<std::string, std::string> _postData;
+		bool _isFileSaved;
+		std::string _storageDirectory;
 
 		void parsePostRequest(std::string const &requestHeader, std::ostringstream const &requestBody);
 		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);

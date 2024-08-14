@@ -6,17 +6,17 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/12 13:37:40 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 10:15:46 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Post.hpp"
 
-Post::Post(void) : _responses(std::map<int, std::string>()), _postData(std::map<std::string, std::string>()) {
+Post::Post(void) : _responses(std::map<int, std::string>()), _postData(std::map<std::string, std::string>()), _isFileSaved(true), _storageDirectory("files") {
 	return;
 }
 
-Post::Post(Post const &other) : _responses(other._responses), _postData(other._postData) {
+Post::Post(Post const &other) : _responses(other._responses), _postData(other._postData), _isFileSaved(other._isFileSaved), _storageDirectory(other._storageDirectory) {
 	return;
 }
 
@@ -25,6 +25,8 @@ Post &Post::operator=(Post const &rhs) {
 	{
 		this->_responses = rhs._responses;
 		this->_postData = rhs._postData;
+		this->_isFileSaved = rhs._isFileSaved;
+		this->_storageDirectory = rhs._storageDirectory;
 	}
 	return *this;
 }
@@ -61,6 +63,9 @@ std::string Post::getDelimiter(std::string request) {
 	
 	std::string toFind = "Content-Type";
 	std::string result = getSubStringFromMiddleToIndex(request, toFind, 0, std::string::npos);
+
+	if (result.empty())
+		return "";
 
 	toFind = "boundary=";
 	size_t sizeOfToFind = toFind.size();
@@ -111,7 +116,15 @@ std::string Post::getFileName(std::string string) {
 }
 
 void Post::saveFile(std::string string) {
-	std::string fileName = this->_postData["filename"];
+	// std::string storageDirectory = "files/";
+	DIR *directory;
+	if (!(directory = opendir(this->_storageDirectory.c_str()))) {
+		this->_isFileSaved = false;
+		closedir(directory);
+		return;
+	}
+
+	std::string fileName = this->_storageDirectory + "/" + this->_postData["filename"];
 	std::ofstream outputFileStream(fileName.c_str(), std::ios::binary);
 
 	std::string toFind = "\r\n\r\n";
@@ -155,6 +168,10 @@ void Post::getSubmitedData(std::string &contentDisposition) {
 }
 
 void Post::getSubmittedFormInputs(std::string body, std::string formFieldsDelimiter) {
+
+	if (formFieldsDelimiter.empty())
+		return;
+
 	while (body.size())
 	{
 		std::string toFind = "Content-Disposition";
@@ -236,7 +253,22 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 		// this->printPostData();
 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		return;
-}
+	}
+
+	if (!this->_isFileSaved)
+	{
+		std::string html = "<html><body><h1>500 Internal Server Error</h1></body></html>";
+		std::ostringstream ostring;
+		ostring << "HTTP/1.1 500 Internal Server Error\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
+		this->_responses[connectedSocketFd] = ostring.str(); 
+		// this->printPostData();
+		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		return;
+	}
 
 	std::string message = "Thank you " + this->_postData["name"] + ", file " + this->_postData["filename"] + " is Received.";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";

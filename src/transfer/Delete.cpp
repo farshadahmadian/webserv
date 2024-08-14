@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 08:33:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/14 10:28:07 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,8 +141,8 @@ void Delete::parseDeleteRequest(std::string const &requestHeader, std::ostringst
 bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	std::cout << YELLOW << "finding the file and deleting it . . ." << RESET << std::endl;
 
-	DIR *openDirectory = opendir(this->_storageDirectory.c_str());
-	if (!openDirectory) {
+	DIR *directory = opendir(this->_storageDirectory.c_str());
+	if (!directory) {
 		std::string html = "<html><body><h1>Bad Request, Storage Directory (/file) Does Not Exist </h1></body></html>";
 		std::ostringstream ostring;
 		ostring << "HTTP/1.1 400 Bad Request\r\n";
@@ -154,8 +154,8 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		return false;
 	}
-	std::cout << openDirectory << std::endl;
-
+	std::cout << directory << std::endl;
+	closedir(directory);
 	std::string fileToDelete = this->_storageDirectory + "/" + this->_deleteData["filename"];
 	std::cout << "file to be deleted: " << fileToDelete << std::endl;
 	struct stat buffer;
@@ -190,15 +190,19 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		std::cout << "file " << fileToDelete << " does not exist" << std::endl;
 	
 	if (isWritable == 0) {
-		DIR *test = opendir(fileToDelete.c_str());
-		if (test)
+		directory = opendir(fileToDelete.c_str());
+		if (directory)
+		{
 			std::cout << fileToDelete << " is a directory, and not a file!" << std::endl;
+			closedir(directory);
+		}
 		else
 		{
 			std::cout << fileToDelete << " is a file, and not a directory." << std::endl;
 			remove(fileToDelete.c_str());
 			std::cout << "File " << fileToDelete << " is deleted" << std::endl;
 		}
+
 	}
 
 	return true;
