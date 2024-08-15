@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 16:06:27 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/15 09:49:01 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,30 +152,76 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	int isWritable = 0;
 	int exist = 0;
 	
+	if ((exist = access(fileToDelete.c_str(), F_OK)) == 0)
+	{
+		std::cout << fileToDelete << " exists " << std::endl;
+	}
+	else
+	{
+		std::cout << fileToDelete << " does not exist" << std::endl;
+
+		std::string html = "<html><body><h1>Bad Request, File Does Not Exist </h1></body></html>";
+		std::ostringstream ostring;
+		ostring << "HTTP/1.1 400 Bad Request\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
+		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
+		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+
+		return (false);
+	}
+	
 	if ((isWritable = access(fileToDelete.c_str(), W_OK)) == 0)
 	{
-		std::cout << fileToDelete << " has write permission " << std::endl;
-	}
-	else if ((exist = access(fileToDelete.c_str(), F_OK)) == 0)
-		std::cout << "file " << fileToDelete << " cannot be deleted due to permissions" << std::endl;
-	else
-		std::cout << "file " << fileToDelete << " does not exist" << std::endl;
-	
-	if (isWritable == 0) {
+		std::cout << fileToDelete << " is writable" << std::endl;
+
 		directory = opendir(fileToDelete.c_str());
 		if (directory)
 		{
 			std::cout << fileToDelete << " is a directory, and not a file!" << std::endl;
 			closedir(directory);
+
+			std::string html = "<html><body><h1>Bad Request, cannot delete the whole directory </h1></body></html>";
+			std::ostringstream ostring;
+			ostring << "HTTP/1.1 400 Bad Request\r\n";
+			ostring << "Content-Type: text/html\r\n";
+			ostring << "Connection: close\r\n";
+			ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+			ostring << html;
+			this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
+			std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+
+			return false;
 		}
 		else
 		{
 			std::cout << fileToDelete << " is a file, and not a directory." << std::endl;
 			remove(fileToDelete.c_str());
 			std::cout << "File " << fileToDelete << " is deleted" << std::endl;
+			return true;
 		}
-
 	}
+	else {
+		std::cout << fileToDelete << " is not writable" << std::endl;
+
+		std::string html = "<html><body><h1>Bad Request, cannot delete the file due to permissions </h1></body></html>";
+		std::ostringstream ostring;
+		ostring << "HTTP/1.1 400 Bad Request\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
+		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
+		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+
+		return false;
+	}
+	
+	
+
+	
 
 	return true;
 }

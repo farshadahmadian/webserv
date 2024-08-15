@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 16:20:32 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/15 14:18:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,9 @@ void Post::saveFile(std::string string) {
 	DIR *directory;
 	if (!(directory = opendir(this->getStorageDirectory().c_str()))) {
 		this->_isFileSaved = false;
-		closedir(directory);
 		return;
 	}
+	closedir(directory);
 
 	std::string fileName = this->getStorageDirectory() + "/" + this->_data["filename"];
 	std::ofstream outputFileStream(fileName.c_str(), std::ios::binary);
