@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/13 14:41:19 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/16 23:48:49 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,13 @@ void Server::setKeepAliveTimeout(int keepAliveTimeout) {
 void Server::addServerName(std::string newName) { _serverNames.push_back(newName); };
 void Server::addRoot(std::string newRoot) { _roots.push_back(newRoot); };
 void Server::addIndex(std::string newIndex) { _indexes.push_back(newIndex); };
+
+
+std::string Server::intToString(int const i) {
+	std::ostringstream convert;
+	convert << i;
+	return (convert.str());
+}
 
 int Server::stringToInt(const std::string &str) {
     std::stringstream ss(str);

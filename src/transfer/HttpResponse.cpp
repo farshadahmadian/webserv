@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/13 16:04:04 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/17 00:13:34 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ HTTPResponse::~HTTPResponse() {
 /*Validate The Request Header To Return The Corrsponding Status Code.*/
 int HTTPResponse::validate() {
 	if (_requestMap.find("Host") == _requestMap.end()) {
-		Server::logMessage("The HOST Is Wrong!");
+		Server::logMessage("ERROR: The HOST Is Wrong!");
 		return (400);
 	// if (_requestMap.find(""))
 	}
@@ -39,75 +39,50 @@ int HTTPResponse::validate() {
 }
 
 bool HTTPResponse::isDirectory(const std::string& uri) const {
-    std::string filePath = _serverConfig.at("root") + uri;
-    struct stat st;
-    if (stat(filePath.c_str(), &st) != 0) {
-        return false; // Error in accessing the path or path does not exist
-    }
-    return S_ISDIR(st.st_mode);
+	std::string filePath = _serverConfig.at("root") + uri;
+	struct stat st;
+	if (stat(filePath.c_str(), &st) != 0) {
+		return false; // Error in accessing the path or path does not exist
+	}
+	return S_ISDIR(st.st_mode);
 }
 
 /*Return Corresponding Status Code Response Or In Case
 Of Responding With An Specific Method Is Required,
 It Invokes Corresponding Method.*/
 std::string HTTPResponse::getResponse(int const clientSocket) {
-    int statusCode = validate();
+	int statusCode = validate();
 
-    std::string method = _requestMap["method"];
-    std::string uri = _requestMap["uri"];
+	std::string method = _requestMap["method"];
+	std::string uri = _requestMap["uri"];
 
-    // displayRequestMap();
+	// displayRequestMap();
 	// displayServerConfig();
-    if (statusCode == 400) {
-        return generateErrorPage(400);
-    }
-    if (statusCode == 304) {
-        return generateErrorPage(304);
-    }
+	if (statusCode == 400) {
+		return generateErrorPage(400);
+	}
+	if (statusCode == 304) {
+		return generateErrorPage(304);
+	}
 
-    // First, check if the method is GET or HEAD
-    if (method == "GET" || method == "HEAD") {
-        return createHandleGet();
-    }
+	// First, check if the method is GET or HEAD
+	if (method == "GET" || method == "HEAD") {
+		return createHandleGet();
+	}
 
-    // Then, check if the method is POST or DELETE and the URI is not a directory
-    if ((method == "POST" || method == "DELETE") && !isDirectory(uri)) {
-        if (method == "POST") {
-            return createHandlePost(clientSocket);
-        } else if (method == "DELETE") {
-            return createHandleDelete();
-        }
-    }
+	// Then, check if the method is POST or DELETE and the URI is not a directory
+	if ((method == "POST" || method == "DELETE") && !isDirectory(uri)) {
+		if (method == "POST") {
+			return createHandlePost(clientSocket);
+		} else if (method == "DELETE") {
+			return createHandleDelete();
+		}
+	}
 
-    // If none of the above conditions are met, return a 405 Method Not Allowed error
-    return generateErrorPage(405);
+	// If none of the above conditions are met, return a 405 Method Not Allowed error
+	return generateErrorPage(405);
 }
 
-// std::string HTTPResponse::getResponse(int const clientSocket) {
-// 	int statusCode = validate();
-
-// 	std::string method = _requestMap["method"];
-// 	// std::cout << RED "****received method is: " BLUE << method << RESET << std::endl;
-// 	displayRequestMap();
-// 	if (statusCode == 400) {
-// 		// return (httpStatusCode(400) + "Content-Type: text/html\r\n\r\n<html><body><h1>Bad Request</h1></body></html>");
-// 		return (generateErrorPage(400));
-// 	}
-// 	if (statusCode == 304) {
-// 		return (generateErrorPage(304));
-// 	}
-
-// 	if (method == "GET" || method == "HEAD") {
-// 		return (createHandleGet());
-// 	} else if (!isDirectory(_uri) && method == "POST") {
-// 		return (createHandlePost(clientSocket));
-// 	} else if (!isDirectory(_uri) && method == "DELETE") {
-// 		return (createHandleDelete());
-// 	}
-
-// 	return (generateErrorPage(405));
-// 	// return (httpStatusCode(405) + "Content-Type: text/html\r\n\r\n<html><body><h1>Method Not Allowed</h1></body></html>");
-// }
 
 /*Creat An Instance of GetHandler Class And
 Call The Get Method To Prepare The Response.*/
@@ -117,10 +92,7 @@ std::string HTTPResponse::createHandleGet() {
 }
 
 std::string HTTPResponse::createHandlePost(int const clientSocket) {
-	// std::string responseBody = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: keep-alive\r\n\r\n<html><body><h1>POST Request Received</h1></body></html>";
-	// return responseBody;
 		this->_post.handlePost(this->_requestString, clientSocket);
-		// std::cout << "POST REQUEST RECEIVED =========> " << std::endl
 		std::string response = this->_post.getResponses()[clientSocket];
 		this->_post.getResponses().erase(clientSocket);
 		this->_post.getPostData().clear();
@@ -134,47 +106,47 @@ std::string HTTPResponse::createHandleDelete() {
 	return responseBody;
 }
 
-// std::string httpGeneralHeader
-
 /*Return Message Corresponding To The Status Code Is Passed.*/
 std::string HTTPResponse::httpStatusCode(int statusCode) {
 	switch (statusCode) {
 		case 200: return "HTTP/1.1 200 OK";
+		case 304: return "HTTP/1.1 304 Not Modified";
 		case 400: return "HTTP/1.1 400 Bad Request";
 		case 403: return "HTTP/1.1 403 Forbidden";
 		case 404: return "HTTP/1.1 404 Not Found";
 		case 405: return "HTTP/1.1 405 Method Not Allowed";
-		case 304: return "HTTP/1.1 304 Not Modified";
+		case 503: return "HTTP/1.1 503 Service Unavailable";
+		case 504: return "HTTP/1.1 504 Gateway Timeout";
 		default:  return "HTTP/1.1 500 Internal Server Error";
 	}
 }
 
 /*Reading The Binary From The Path and Return a String*/
 std::string HTTPResponse::readBinaryFile(std::string const & path) {
-    std::ifstream fileStream(path.c_str(), std::ios::binary);
-    if (!fileStream.is_open()) {
+	std::ifstream fileStream(path.c_str(), std::ios::binary);
+	if (!fileStream.is_open()) {
 		Server::logMessage("ERROR: File Not Open In The readBinaryFile Function!");
-        perror("error:");
-        return "";
-    }
-    std::ostringstream ss;
-    ss << fileStream.rdbuf();
+		perror("error:");
+		return "";
+	}
+	std::ostringstream ss;
+	ss << fileStream.rdbuf();
 	fileStream.close();
-    return ss.str();
+	return ss.str();
 }
 
 /*Reading From The Path and Return a String*/
 std::string HTTPResponse::readHtmlFile(const std::string &path) {
-    std::ifstream fileStream(path.c_str());
-    if (!fileStream.is_open()) {
+	std::ifstream fileStream(path.c_str());
+	if (!fileStream.is_open()) {
 		Server::logMessage("ERROR: File Not Open In The readHtmlFile Function!");
-        perror("error:");
-        return "";
-    }
-    std::ostringstream ss;
-    ss << fileStream.rdbuf();
+		perror("error:");
+		return "";
+	}
+	std::ostringstream ss;
+	ss << fileStream.rdbuf();
 	fileStream.close();
-    return ss.str();
+	return ss.str();
 }
 
 static void free_dptr( char** env ) {
@@ -190,86 +162,232 @@ static void free_dptr( char** env ) {
 	env = NULL;
 }
 
-/* CGI EXECUTION */
+/*Check whether the accepted cgi extension exits or not.*/
+bool HTTPResponse::isCGI(std::string const & filePath) {
+	size_t pos = acceptedCgiExtention(filePath);
+	if (pos != std::string::npos)
+		return(true);
+	return(false);
+}
+
+/*create body of the received cgi response.*/
+std::string const HTTPResponse::handleCGI(std::string & uri) {
+	std::string cgiResult = cgi(uri);
+
+	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
+	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
+	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
+	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
+	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
+	
+	return (content);
+}
+
+/*check the cgi extension, and return the corresponding interpreter.*/
+std::string const setInterpreter(std::string const & cgiPath) {
+	if (cgiPath.substr(cgiPath.find_last_of(".")) == ".pl") {
+		return("/usr/bin/perl");
+	} else if (cgiPath.substr(cgiPath.find_last_of(".")) == ".py") {
+		return("/usr/bin/python3");
+	} else {
+		// Handle other cases, or default to shell script execution
+		return("/bin/bash"); // Assuming the default is shell scripts
+	}
+}
+
+
+bool createPipes(int fd_pipe[2]) {
+	if (pipe(fd_pipe) == -1) {
+		Server::logMessage("ERROR: Pipe creation failed!");
+		return false;
+	}
+	return true;
+}
+
+void executeCGI(const std::string& path, char** env, const std::string& method, const std::string& body, int fd_pipe[2]) {
+	close(fd_pipe[0]);
+	dup2(fd_pipe[1], STDOUT_FILENO);
+
+	if (method == "POST") {
+		int input_fd[2];
+		if (pipe(input_fd) == -1) {
+			Server::logMessage("ERROR: Input pipe creation failed!");
+			exit(1);
+		}
+		pid_t input_fork = fork();
+		if (input_fork == 0) {
+			close(input_fd[0]);
+			write(input_fd[1], body.c_str(), body.length());
+			close(input_fd[1]);
+			exit(0);
+		} else {
+			close(input_fd[1]);
+			dup2(input_fd[0], STDIN_FILENO);
+			close(input_fd[0]);
+		}
+	}
+
+	std::string interpreter = setInterpreter(path);
+	std::cout << "<body><h2><center>Musketeers Group!</center></h2><hr></body></html>"<<std::endl; 
+
+	char *argv[] = {strdup(interpreter.c_str()), strdup(path.c_str()), NULL};
+	execve(interpreter.c_str(), argv, env);
+
+	Server::logMessage("ERROR: execve failed!");
+	close(fd_pipe[1]);
+	free(argv[0]);
+	exit(1);
+}
+
+std::string HTTPResponse::readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout) {
+	std::string responseBody;
+	close(fd_pipe[1]);
+
+	char buff[100];
+	int ret = 1;
+	fd_set readfds;
+	struct timeval tv;
+	int fd_max = fd_pipe[0];
+	time_t start_time = time(NULL);
+
+	while (true) {
+		FD_ZERO(&readfds);
+		FD_SET(fd_pipe[0], &readfds);
+
+		tv.tv_sec = timeout - (time(NULL) - start_time);
+		tv.tv_usec = 0;
+
+		if (tv.tv_sec <= 0) {
+			Server::logMessage("ERROR: CGI Timeout!");
+			kill(forked_ps, SIGKILL);
+			waitpid(forked_ps, NULL, 0);
+			close(fd_pipe[0]);
+			free_dptr(env);
+			return generateErrorPage(504);
+		}
+
+		int sel = select(fd_max + 1, &readfds, NULL, NULL, &tv);
+		if (sel > 0) {
+			if (FD_ISSET(fd_pipe[0], &readfds)) {
+				bzero(buff, sizeof(buff));
+				ret = read(fd_pipe[0], buff, sizeof(buff) - 1);
+				if (ret > 0) {
+					responseBody += buff;
+				} else if (ret == 0) {
+					break;
+				} else {
+					Server::logMessage("ERROR: Reading from CGI failed!");
+					close(fd_pipe[0]);
+					free_dptr(env);
+					return generateErrorPage(500);
+				}
+			}
+		} else if (sel == 0) {
+			Server::logMessage("ERROR: CGI Timeout!");
+			kill(forked_ps, SIGKILL);
+			waitpid(forked_ps, NULL, 0);
+			close(fd_pipe[0]);
+			free_dptr(env);
+			return generateErrorPage(504);
+		} else {
+			Server::logMessage("ERROR: select() failed!");
+			close(fd_pipe[0]);
+			free_dptr(env);
+			return generateErrorPage(500);
+		}
+	}
+
+	close(fd_pipe[0]);
+	free_dptr(env);
+	return responseBody;
+}
+
+/*Check and retrieve the status code inside the error generated inside the readFromCGI.*/
+bool checkStatusCode(std::string & text, int *err = NULL) {
+	std::string code = text.substr(text.find("HTTP/1.1 ") + 9, 3);
+	if (code[0] == '5') {
+		if (err != NULL)
+			*err = Server::stringToInt(code);
+		return true;
+	}
+	return false;
+}
+
 std::string HTTPResponse::cgi(std::string& uri) {
+	char** env = createEnv(&uri);    
 	std::string path = _serverConfig["root"] + uri;
-	std::string responseBody = "";
-	char** env = createEnv();
 
 	if (!env) {
 		Server::logMessage("ERROR: Environment Variable Not Available!");
-		return (generateErrorPage(500));
+		return generateErrorPage(500);
 	}
+
 	int fd_pipe[2];
-	if (pipe(fd_pipe) == -1) {
+	if (!createPipes(fd_pipe)) {
 		free_dptr(env);
-		Server::logMessage("ERROR: 1st Pipe Creation In The cgi Function Failed!");
-		return (generateErrorPage(500));
+		return generateErrorPage(500);
 	}
+
 	pid_t forked_ps = fork();
 	if (forked_ps == -1) {
 		free_dptr(env);
-		Server::logMessage("ERROR: 1st Fork In The cgi Function Failed!");
-		return (generateErrorPage(500));
-	} else if (forked_ps == 0) { // Child process
-		close(fd_pipe[0]);
-		dup2(fd_pipe[1], STDOUT_FILENO);
-		// Handle POST data
-		if (_requestMap["method"] == "POST") {
-			int input_fd[2];
-			if (pipe(input_fd) == -1) {
-				Server::logMessage("ERROR: 2nd Pipe Creation In The cgi Function Failed!");
-				exit(1); // Exit if pipe fails
-			}
-			pid_t input_fork = fork();
-			if (forked_ps == -1)
-				Server::logMessage("ERROR: 2nd Fork In The cgi Function Failed!");
-			if (input_fork == 0) { // Child process to handle stdin
-				close(input_fd[0]);
-				write(input_fd[1], _requestMap["body"].c_str(), _requestMap["body"].length());
-				close(input_fd[1]);
-				Server::logMessage("ERROR: 1nd Execv Failed!");
-				exit(0);
-			} else {
-				close(input_fd[1]);
-				dup2(input_fd[0], STDIN_FILENO);
-				close(input_fd[0]);
-			}
-		}
-		// argv array for execve
-		char *argv[] = {strdup(path.c_str()), NULL};
-		execve(path.c_str(), argv, env); // Execute the CGI script
-		close(fd_pipe[1]);
-		free(argv[0]);
-		Server::logMessage("ERROR: 2nd Execv Failed!");
-		exit(1); // If execve fails, exit the child process
-	} else { // Parent process
-		close(fd_pipe[1]);
-		char buff[100];
-		int ret = 1;
-		while (ret > 0) {
-			bzero(buff, sizeof(buff));
-			ret = read(fd_pipe[0], buff, 100 - 1);
-			responseBody += buff;
-		}
-		close(fd_pipe[0]);
-		free_dptr(env);
-
+		Server::logMessage("ERROR: Fork failed!");
+		return generateErrorPage(500);
+	} else if (forked_ps == 0) {
+		executeCGI(path, env, _requestMap["method"], _requestMap["body"], fd_pipe);
+	} else {
+		std::string responseBody = readFromCGI(fd_pipe, forked_ps, env, 5);
 		int status;
 		waitpid(forked_ps, &status, 0);
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
 			Server::logMessage("INFO: CGI Passed!");
 			return responseBody;
-		} else {
+		} else if (!responseBody.empty() && checkStatusCode(responseBody)) {
+			int err;
+			checkStatusCode(responseBody, &err);
 			Server::logMessage("ERROR: CGI Failed!");
-			return (generateErrorPage(500));
+			return generateErrorPage(err);
 		}
 	}
+	return generateErrorPage(500);
 }
 
-char** HTTPResponse::createEnv() {
+/*Check whether the accepted script format exists, returns its position,
+otherwise returns npos*/
+size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
+	std::vector<std::string> cgiExtension;
+	size_t	pos;
+	size_t	extensionPos;
+	int		count = 0;
+	cgiExtension.push_back(".sh");
+	cgiExtension.push_back(".pl");
+	cgiExtension.push_back(".py");
+	for (std::vector<std::string>::iterator it = cgiExtension.begin(); it != cgiExtension.end(); ++it) {
+		pos = filePath.find(*it);
+		if (pos != std::string::npos)
+		{
+			extensionPos = pos;
+			count++;
+		}
+	}
+	if (count == 1)
+		return (extensionPos);
+	return (std::string::npos);
+}
+
+/*Retrieve the position of script extension by calling acceptedCgiExtention(),
+create a sub string if the infoPath exists,
+create the env according to the variable are needed, and return it.*/
+char** HTTPResponse::createEnv(std::string * uri) {
+	size_t extension = acceptedCgiExtention(*uri);
+	std::string infoPath = uri->substr(extension + 3);
+	if (infoPath.empty())
+		infoPath = _serverConfig["root"] + *uri;
+	*uri = uri->substr(0,extension + 3);
+	
 	std::map<std::string, std::string>::iterator it = _requestMap.begin();
-	char** env = (char**)calloc(_requestMap.size() + 5, sizeof(char*)); // Adjust size as needed
+	char** env = (char**)calloc(_requestMap.size() + 8, sizeof(char*)); // Adjust size as needed
 	if (!env){
 		Server::logMessage("ERROR: Environment Variable Creation Failed!");
 		return NULL;
@@ -288,6 +406,8 @@ char** HTTPResponse::createEnv() {
 		i++;
 	}
 	// Add necessary CGI environment variables
+	std::string pathInfo = "PATH_INFO=" + infoPath;
+	env[i++] = strdup(pathInfo.c_str());
 	std::string script_name = "SCRIPT_NAME=" + _requestMap["uri"];
 	env[i++] = strdup(script_name.c_str());
 
@@ -297,8 +417,14 @@ char** HTTPResponse::createEnv() {
 	std::string server_name = "SERVER_NAME=" + _serverConfig["server_name"];
 	env[i++] = strdup(server_name.c_str());
 
-	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
+	std::string server_protocol = "SERVER_PROTOCOL=" + _requestMap["version"];
 	env[i++] = strdup(server_protocol.c_str());
+
+	std::string server_port = "SERVER_PORT=" + _serverConfig["port"];
+	env[i++] = strdup(server_port.c_str());
+
+	std::string host_name = "HOST_NAME=" + _requestMap["Host"];
+	env[i++] = strdup(host_name.c_str());
 
 	if (_requestMap["method"] == "POST") {
 		std::stringstream ss;
@@ -351,6 +477,7 @@ Second After POLLOUT To Grab The Corresponding Response To The Socket
 And Sent It To Client. It Returns False If There Is No Response For Specific
 Socket Or There Is No POLLIN Or POLLOUT, Otherwise Remove The Sent Response
 From The Response Map And Return True. */
+
 bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket) {
 	if (pollEvent == POLLIN_TMP) {
 		_responses[clientSocket] = getResponse(clientSocket);
@@ -361,17 +488,16 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		std::map<int, std::string>::iterator iter = _responses.find(clientSocket);
 		if (iter == _responses.end()) {
 			Server::logMessage("Error: No response In The _responses found for socket fd: " + clientSocket);
-			// std::cerr << "No response found for socket fd " << clientSocket << std::endl;
 			return false;
 		}
 		std::string response = iter->second;
 		// printStringToFile(response, "./src/request/response.txt");
-        ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
-        // ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
-        if (bytesSent == -1) {
+		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
+		// ssize_t bytesSent = send(clientSocket, response.c_str(), response.size(), 0);
+		if (bytesSent == -1) {
 			Server::logMessage("Error: No Byte Sent for socket fd: " + clientSocket);
 			return false;
-        }
+		}
 		connectedSocket.setConnectionStartTime();
 		if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
 			Server::logMessage("WARNING: Sent Byte Less Than The Response for socket fd: " + clientSocket);
@@ -384,12 +510,12 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 			connectedSocket.setState(DONE);
 			pollFds[i].events = POLLIN;
 			pollFds[i].revents = 0;
-        	_responses.erase(clientSocket);
+			_responses.erase(clientSocket);
 		}
-        return true;
-    }
+		return true;
+	}
 	Server::logMessage("ERROR: Response Function Failed for socket fd: " + clientSocket);
-    return false;
+	return false;
 }
 // HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>
 
@@ -406,7 +532,6 @@ void HTTPResponse::printStringToFile(const std::string& string, const std::strin
 		Server::logMessage("ERROR: File Opening Failed In printStringToFile For This Path: " + path);
 		return ;
 	}
-		
 	outfile << string << std::endl;
 	outfile.close();
 }
@@ -470,53 +595,49 @@ void HTTPResponse::displayServerConfig()
 }
 
 std::string HTTPResponse::generateErrorHeaders(int statusCode, size_t contentLength) {
-    std::ostringstream headers;
-    headers << httpStatusCode(statusCode) << CRLF // Status line
+	std::ostringstream headers;
+	headers << httpStatusCode(statusCode) << CRLF // Status line
 			<< "Server: " << _serverConfig["server_name"] << CRLF
 			<< "Connection: Keep-Alive" << CRLF
-    		<< "Content-Type: text/html" << CRLF;
+			<< "Content-Type: text/html" << CRLF;
 	if (contentLength) {
 		headers << "Content-Length: " << contentLength << CRLF;
 	}
 		headers << CRLF;
 	Server::logMessage("INFO: Error Header Created, StatusCode: " + statusCode);
-    return headers.str();
+	return headers.str();
 }
 
-std::string intToString(int const i) {
-	std::ostringstream convert;
-	convert << i;
-	return (convert.str());
-}
-
+/*Generate the default error the corresponding error page doesn't exist.*/
 std::string HTTPResponse::generateDefaultErrorPage(int statusCode, std::string const & message) {
 	Server::logMessage("INFO: Default Error Body Dynamically Generated, StatusCode: " + statusCode);
-    // Replace with your custom error page logic
-    std::string content = "<html>\r\n<head><title>" + intToString(statusCode) + " " + message + 
-		"</title></head>\r\n<body>\r\n<center><h2>" + intToString(statusCode) + " "	+ message +
+	// Replace with your custom error page logic
+	std::string content = "<html>\r\n<head><title>" + Server::intToString(statusCode) + " " + message + 
+		"</title></head>\r\n<body>\r\n<center><h2>" + Server::intToString(statusCode) + " "	+ message +
 		"</h2></center>\r\n<hr><center>Musketeers Group!</center>\r\n</body>\r\n</html>";
-    
+	
 	return content;
 }
 
-
+/*Prepare the corresponding error by reading its error page, otherwise 
+call the  generateDefaultErrorPage function.*/
 std::string HTTPResponse::generateErrorPage(int statusCode) {
-    std::string errorFilePath = "./src/transfer/errors/" + intToString(statusCode) + ".html";
+	std::string errorFilePath = "./src/transfer/errors/" + Server::intToString(statusCode) + ".html";
 
-    std::ifstream file(errorFilePath.c_str());
-    if (file.is_open()) {
+	std::ifstream file(errorFilePath.c_str());
+	if (file.is_open()) {
 		Server::logMessage("INFO: Default Error Page Statically Read, StatusCode: " + statusCode);
-        // Custom error page exists
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		// Custom error page exists
+		std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		size_t contentLength = content.length();
 		std::string headers = generateErrorHeaders(statusCode, contentLength);
 		return headers + readBinaryFile(errorFilePath);
-    } else {
-        // Default error page
+	} else {
+		// Default error page
 		std::string message = httpStatusCode(statusCode).substr(13, httpStatusCode(statusCode).find(CRLF));
 		std::string data = generateDefaultErrorPage(statusCode, message);
 		size_t contentLength = data.size();
 		std::string headers = generateErrorHeaders(statusCode, contentLength);
-        return headers + data;
-    }
+		return headers + data;
+	}
 }

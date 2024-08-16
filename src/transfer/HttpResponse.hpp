@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/12 23:26:05 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/16 20:27:14 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define LF   	"\n"
 # define CRLF 	"\r\n"
 # define MIME	"./src/transfer/MIME.type"
+# define HTML_EXTENSION ".html"
 # define CGI	".sh"
 
 # include <iostream>
@@ -89,9 +90,13 @@ protected:
 	std::string generateGeneralHeaders(std::string & filePath);
 
 	//-------------------------------CGI-------------------------------
-	// nico
+	bool isCGI(std::string const & filePath);
+	std::string const handleCGI(std::string & uri);
 	std::string cgi( std::string& uri );
-	char** createEnv( void );
+	char** createEnv( std::string * uri );
+	size_t acceptedCgiExtention(std::string const &filePath);
+	std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
+
 
 	std::string getCurrentTime();
 	std::string formatTimeHTTP(std::time_t rawTime);

@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/13 14:37:51 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/16 23:49:23 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,8 @@ public:
 	void listenToRequests(void) const;
 	int acceptFirstRequestInQueue(bool addToConnectedSocketsList);
 	void printConnectedSockets(void);
-	int stringToInt(const std::string &str);
+	static int stringToInt(const std::string &str);
+	static std::string intToString(int const i);
 
 };
 

@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:36:51 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/13 13:58:57 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/15 13:30:53 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ class GetHandler : public HTTPResponse {
 	
 	private:
 	std::string handleDirectoryListing(const std::string& dirPath);
+	std::string findIndexFile(std::string const & dirPath);
+	std::string const setServerRoot(std::string const & filePath);
 
 	// protected:
 	// 	std::string createHandleGet();
