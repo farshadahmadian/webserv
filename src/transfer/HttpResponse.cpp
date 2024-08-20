@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/17 00:13:34 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/20 07:36:33 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -376,65 +376,103 @@ size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
 	return (std::string::npos);
 }
 
+void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable) {
+    std::string query;
+
+    // Retrieve the query string either from the URL or the POST body
+    if (!additionalEnvVariable["QUERY_STRING"].empty()) {
+        query = additionalEnvVariable["QUERY_STRING"];
+    } else if (additionalEnvVariable["REQUEST_METHOD"] == "POST" && !additionalEnvVariable["BODY"].empty()) {
+        query = additionalEnvVariable["BODY"];
+    }
+
+    if (!query.empty()) {
+        size_t pos = 0;
+        while ((pos = query.find('&')) != std::string::npos) {
+            std::string param = query.substr(0, pos);
+            size_t eq_pos = param.find('=');
+            if (eq_pos != std::string::npos) {
+                std::string key = param.substr(0, eq_pos);
+                std::string value = param.substr(eq_pos + 1);
+                additionalEnvVariable[key] = value;
+			std::cout << "hereeeeeeeeee->" << key << ": " << additionalEnvVariable[key] << std::endl;
+            }
+            query.erase(0, pos + 1);
+        }
+        // Handle the last key-value pair (or the only one if there's no '&')
+        size_t eq_pos = query.find('=');
+        if (eq_pos != std::string::npos) {
+            std::string key = query.substr(0, eq_pos);
+            std::string value = query.substr(eq_pos + 1);
+            additionalEnvVariable[key] = value;
+        }
+    }
+}
+
+std::string & CutQueryString (std::strgin * uri, size_t extension, std::string * pathInfo) {
+	size_t queryStringPos = uri->find('?');
+	if (queryStringPos != std::string::npos && queryStringPos != extension + 3)
+		*pathInfo = uri->substr(extension + 3, uri->find('?'));
+	else if (queryStringPos == extension + 3)
+		*pathInfo = "";
+	else
+		std::string queryString = uri->substr(uri->find('?'));
+}
+
+std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::string * uri) {
+	std::map<std::string, std::string> additionalEnvVariable;
+	size_t extension = acceptedCgiExtention(*uri);
+	std::string pathInfo = uri->substr(extension + 3);
+	std::cout << "HIIIIIIIIIIIIIIIIIIII\n";
+	*uri = uri->substr(0,extension + 3);
+	std::cout << pathInfo << " : " << queryString << std::endl;
+
+	// Add necessary CGI environment variables
+	additionalEnvVariable["PATH_INFO"] = pathInfo;
+	additionalEnvVariable["SCRIPT_NAME"] = *uri;
+	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
+	additionalEnvVariable["SERVER_NAME"] = _serverConfig["server_name"];
+	additionalEnvVariable["SERVER_PROTOCOL"] = _requestMap["version"];
+	additionalEnvVariable["SERVER_PORT"] = _serverConfig["port"];
+	additionalEnvVariable["HOST_NAME"] = _requestMap["Host"];
+	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
+	if (_requestMap["method"] == "POST")
+		additionalEnvVariable["CONTENT_LENGTH"] = Server::intToString(_requestMap["body"].size());
+	parseQueryString(additionalEnvVariable);
+	return (additionalEnvVariable);
+}
+
+void feedEnv(char **env, std::map<std::string, std::string> & variableMap) {
+	size_t i = 0;
+
+	while (env[i] != NULL)
+		i++;
+	for (std::map<std::string, std::string>::iterator it = variableMap.begin(); it != variableMap.end(); ++it, ++i) {
+		std::string env_var = it->first;
+		std::transform(env_var.begin(), env_var.end(), env_var.begin(), ::toupper);
+		env_var += "=" + it->second;
+		env[i] = strdup(env_var.c_str());
+		if (!env[i]) {
+			free_dptr(env);
+			return;
+		}
+    }
+    env[i] = NULL; // Null-terminate the env array
+}
+
 /*Retrieve the position of script extension by calling acceptedCgiExtention(),
 create a sub string if the infoPath exists,
 create the env according to the variable are needed, and return it.*/
 char** HTTPResponse::createEnv(std::string * uri) {
-	size_t extension = acceptedCgiExtention(*uri);
-	std::string infoPath = uri->substr(extension + 3);
-	if (infoPath.empty())
-		infoPath = _serverConfig["root"] + *uri;
-	*uri = uri->substr(0,extension + 3);
+	std::map<std::string, std::string> additionalEnvVariables = addAdditionalEnvVariables(uri);
 	
-	std::map<std::string, std::string>::iterator it = _requestMap.begin();
-	char** env = (char**)calloc(_requestMap.size() + 8, sizeof(char*)); // Adjust size as needed
+	char** env = (char**)calloc(_requestMap.size() + additionalEnvVariables.size() + 1, sizeof(char*)); // Adjust size as needed
 	if (!env){
 		Server::logMessage("ERROR: Environment Variable Creation Failed!");
 		return NULL;
 	}
-	size_t i = 0;
-	while (it != _requestMap.end()) {
-		std::string env_var = (*it).first;
-		std::transform(env_var.begin(), env_var.end(), env_var.begin(), ::toupper);
-		env_var += "=" + (*it).second;
-		env[i] = strdup(env_var.c_str());
-		if (!env[i]) {
-			free_dptr(env);
-			return NULL;
-		}
-		it++;
-		i++;
-	}
-	// Add necessary CGI environment variables
-	std::string pathInfo = "PATH_INFO=" + infoPath;
-	env[i++] = strdup(pathInfo.c_str());
-	std::string script_name = "SCRIPT_NAME=" + _requestMap["uri"];
-	env[i++] = strdup(script_name.c_str());
-
-	std::string request_method = "REQUEST_METHOD=" + _requestMap["method"];
-	env[i++] = strdup(request_method.c_str());
-
-	std::string server_name = "SERVER_NAME=" + _serverConfig["server_name"];
-	env[i++] = strdup(server_name.c_str());
-
-	std::string server_protocol = "SERVER_PROTOCOL=" + _requestMap["version"];
-	env[i++] = strdup(server_protocol.c_str());
-
-	std::string server_port = "SERVER_PORT=" + _serverConfig["port"];
-	env[i++] = strdup(server_port.c_str());
-
-	std::string host_name = "HOST_NAME=" + _requestMap["Host"];
-	env[i++] = strdup(host_name.c_str());
-
-	if (_requestMap["method"] == "POST") {
-		std::stringstream ss;
-		ss << "CONTENT_LENGTH=" << _requestMap["body"].size();
-		std::string content_length = ss.str();
-		env[i++] = strdup(content_length.c_str());
-	}
-
-	// Add other environment variables as needed
-	env[i] = NULL;
+	feedEnv(env, _requestMap);
+	feedEnv(env, additionalEnvVariables);
 	Server::logMessage("INFO: Environment Variable Created!");
 	return env;
 }

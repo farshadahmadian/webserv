@@ -18,27 +18,32 @@ else:
 
 print("\n----- THE ENV VARIABLES -----\n")
 
-content_type = os.environ.get('SERVER_PROTOCOL')
-if content_type:
-	print(f'content-type: {content_type}')
-else:
-     print('content-type: is not set')
+# content_type = os.environ.get('SERVER_PROTOCOL')
+# if content_type:
+# 	print(f'content-type: {content_type}')
+# else:
+#      print('content-type: is not set')
      
 
-host_name = os.environ.get('HOST_NAME')
+# host_name = os.environ.get('HOST_NAME')
 
-if host_name:
-    print(f'host-name: {host_name}')
-else:
-    print('host-name: is not set')
+# if host_name:
+#     print(f'host-name: {host_name}')
+# else:
+#     print('host-name: is not set')
 
-path_info = os.environ.get('PATH_INFO')
+# path_info = os.environ.get('PATH_INFO')
 
-if path_info:
-    print(f'PATH_INFO: {path_info}')
-else:
-    print('path-info: is not set')
-    
+# if path_info:
+#     print(f'PATH_INFO: {path_info}')
+# else:
+#     print('path-info: is not set')
+
+# Iterate over all environment variables and print them
+for key, value in os.environ.items():
+    print(f'{key}: {value}')
+
+
 # Infinite loop
 # while True:
 #     print("This is an infinite loop...")

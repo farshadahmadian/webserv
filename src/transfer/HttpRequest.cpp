@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/13 16:01:01 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/19 22:53:09 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,10 +74,10 @@ bool HTTPRequest::parse()
 	if (!isValidMethod(_method) || !isValidHttpVersion(_version))
 		return (false);
 
-	if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
-		if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
-			return (false); // which error should be ?
-	}
+	// if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
+	// 	if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
+	// 		return (false); // which error should be ?
+	// }
 
 	// Parse headers
 	_requestMap["version"] = _version;

@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/13 15:06:57 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/18 22:11:38 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,13 +136,13 @@ void Poll::start(void)
 			// this->printCurrentPollFds();
 			if (eventsNum < 0)
 			{
-				Server::logMessage("WARNING: EventsNum Is Less Than 0.!");
+				Server::logMessage("WARNING: EventsNum Is Less Than: 0");
 				Exception pollException("Poll exception", POLL_FAILED);
 				throw pollException;
 			}
 			if (eventsNum == 0)
 			{
-				Server::logMessage("WARNING: EventsNum Is Equal To 0.!");
+				Server::logMessage("WARNING: EventsNum Is Equal To: 0");
 				// std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
 			}
 			if (eventsNum > 0)

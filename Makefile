@@ -6,7 +6,7 @@
 #    By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/12 10:15:37 by ncasteln          #+#    #+#              #
-#    Updated: 2024/08/10 10:55:41 by nnabaeei         ###   ########.fr        #
+#    Updated: 2024/08/18 21:58:23 by nnabaeei         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ CXXFLAGS := -Wall -Wextra  -std=c++98 -g #-Werror
 CXXFLAGS += -Wshadow -Wno-shadow #-fsanitize=address
 
 # Directories
+SERVER_LOG := ./src/server.log
 SRC_DIR := src
 OBJ_DIR := objs
 EXTRA_INC_DIR := include
@@ -44,7 +45,7 @@ $(NAME): $(OBJ_FILES)
 	@echo "$(ORG)----- $(RESET)$(GREEN)$(NAME)$(RESET)$(ORG) as exe file is created!-----$(RESET)"
 
 clean:
-	@rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJ_DIR) $(SERVER_LOG)
 
 fclean: clean
 	@rm -rf $(NAME)

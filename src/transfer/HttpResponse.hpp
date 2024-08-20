@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/16 20:27:14 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/18 23:35:51 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ protected:
 	char** createEnv( std::string * uri );
 	size_t acceptedCgiExtention(std::string const &filePath);
 	std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
+	std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
 
 
 	std::string getCurrentTime();
