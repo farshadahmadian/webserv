@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/20 07:36:33 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/21 16:44:05 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ std::string HTTPResponse::readBinaryFile(std::string const & path) {
 	std::ifstream fileStream(path.c_str(), std::ios::binary);
 	if (!fileStream.is_open()) {
 		Server::logMessage("ERROR: File Not Open In The readBinaryFile Function!");
-		perror("error:");
+		// perror("error:");
 		return "";
 	}
 	std::ostringstream ss;
@@ -164,10 +164,14 @@ static void free_dptr( char** env ) {
 
 /*Check whether the accepted cgi extension exits or not.*/
 bool HTTPResponse::isCGI(std::string const & filePath) {
-	size_t pos = acceptedCgiExtention(filePath);
-	if (pos != std::string::npos)
-		return(true);
-	return(false);
+    size_t pos = acceptedCgiExtention(filePath);
+    if (pos != std::string::npos && pos + 3 < filePath.length()) {
+        char charAfterExtension = filePath[pos + 3];
+        if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*create body of the received cgi response.*/
@@ -395,7 +399,6 @@ void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable)
                 std::string key = param.substr(0, eq_pos);
                 std::string value = param.substr(eq_pos + 1);
                 additionalEnvVariable[key] = value;
-			std::cout << "hereeeeeeeeee->" << key << ": " << additionalEnvVariable[key] << std::endl;
             }
             query.erase(0, pos + 1);
         }
@@ -409,23 +412,27 @@ void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable)
     }
 }
 
-std::string & CutQueryString (std::strgin * uri, size_t extension, std::string * pathInfo) {
+std::string CutQueryString (std::string * uri, size_t extension, std::string * pathInfo) {
+	std::string queryString;
 	size_t queryStringPos = uri->find('?');
-	if (queryStringPos != std::string::npos && queryStringPos != extension + 3)
-		*pathInfo = uri->substr(extension + 3, uri->find('?'));
-	else if (queryStringPos == extension + 3)
+	if (queryStringPos != std::string::npos) {
+		queryString = uri->substr(uri->find('?') + 1);
 		*pathInfo = "";
-	else
-		std::string queryString = uri->substr(uri->find('?'));
+		if (queryStringPos > extension + 3)
+			*pathInfo = uri->substr(extension + 3, (queryStringPos - (extension + 3)));
+		return (queryString);
+	} else if (queryStringPos == std::string::npos)
+		queryString = "";
+	*pathInfo = uri->substr(extension + 3);
+	return (queryString);
 }
 
 std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::string * uri) {
 	std::map<std::string, std::string> additionalEnvVariable;
+	std::string pathInfo;
 	size_t extension = acceptedCgiExtention(*uri);
-	std::string pathInfo = uri->substr(extension + 3);
-	std::cout << "HIIIIIIIIIIIIIIIIIIII\n";
+	std::string queryString = CutQueryString(uri, extension, &pathInfo);
 	*uri = uri->substr(0,extension + 3);
-	std::cout << pathInfo << " : " << queryString << std::endl;
 
 	// Add necessary CGI environment variables
 	additionalEnvVariable["PATH_INFO"] = pathInfo;
@@ -438,6 +445,8 @@ std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::
 	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
 	if (_requestMap["method"] == "POST")
 		additionalEnvVariable["CONTENT_LENGTH"] = Server::intToString(_requestMap["body"].size());
+	additionalEnvVariable["QUERY_STRING"] = queryString;
+	
 	parseQueryString(additionalEnvVariable);
 	return (additionalEnvVariable);
 }
