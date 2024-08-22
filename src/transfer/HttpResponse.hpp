@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/22 12:14:27 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/22 13:43:44 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 # include <unistd.h>
 # include <cerrno>
 # include <poll.h>
+# include <signal.h>
 # include "colors.h"
 # include "errors.h"
 # include "ConnectedSocket.hpp"
@@ -128,6 +129,7 @@ protected:
 	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------
 
+	static std::string intToString(int const i);
 };
 
 #endif // HTTPRESPONSE_HPP
