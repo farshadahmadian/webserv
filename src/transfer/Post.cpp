@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/15 14:18:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/16 12:55:54 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,7 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 
 	parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 
-	std::cout << "name = " << this->_data["name"] << "filename = " << this->_data["filename"] << std::endl;
+	std::cout << "name = " << this->_data["name"] << ", filename = " << this->_data["filename"] << std::endl;
 
 	if (this->_data["name"].empty() || this->_data["filename"].empty()) {
 		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
@@ -250,9 +250,9 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 	ostring << html;
 	this->_responses[connectedSocketFd] = ostring.str();
-	std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
-	this->printData();
-	this->printResponses();
+	// std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
+	// this->printData();
+	// this->printResponses();
 	return;
 }
 

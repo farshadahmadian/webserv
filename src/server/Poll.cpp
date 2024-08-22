@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/12 11:09:10 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/16 11:44:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
 }
 Poll::~Poll(void)
 {
-	std::cout << BLUE << "Poll destructor called" RESET << std::endl;
 	delete[] _totalFds;
 	this->_totalFds = NULL;
 	
@@ -237,9 +236,7 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, 
 		nfds_t i = this->mapConnectedSocketFdToPollFd(connectedSocketFd);
 		if ((_totalFds[i].revents & POLLIN)) {
 			if (!this->receiveRequest(s, i, connectedSocketFd, connectedSocketIt))
-			{
 				return;
-			}
 		}
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP))
 		{

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/15 09:49:01 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/15 15:28:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void Delete::parseDeleteRequest(std::string const &requestHeader, std::ostringst
 }
 
 bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
-	std::cout << YELLOW << "finding the file and deleting it . . ." << RESET << std::endl;
+	std::cout << YELLOW << "Deleting ..." << RESET << std::endl;
 
 	DIR *directory = opendir(this->getStorageDirectory().c_str());
 	if (!directory) {
@@ -123,17 +123,19 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 		ostring << html;
 		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		return false;
 	}
-	std::cout << directory << std::endl;
+	// std::cout << directory << std::endl;
 	closedir(directory);
 	std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
-	std::cout << "file to be deleted: " << fileToDelete << std::endl;
-	struct stat buffer;
-	memset(&buffer, 0, sizeof(buffer));
-	stat(fileToDelete.c_str(), &buffer);
-	std::cout << buffer.st_size << std::endl;
+	std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
+
+	// struct stat buffer;
+	// memset(&buffer, 0, sizeof(buffer));
+	// stat(fileToDelete.c_str(), &buffer);
+	// std::cout << buffer.st_size << std::endl;
+
 	// int result = access(fileToDelete.c_str(), F_OK);
 	// if (result == 0)
 	// 	std::cout << "file: " << fileToDelete << " exists" << std::endl;
@@ -154,11 +156,11 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	
 	if ((exist = access(fileToDelete.c_str(), F_OK)) == 0)
 	{
-		std::cout << fileToDelete << " exists " << std::endl;
+		std::cout << YELLOW << fileToDelete << " exists. " << YELLOW << std::endl;
 	}
 	else
 	{
-		std::cout << fileToDelete << " does not exist" << std::endl;
+		std::cout << YELLOW << fileToDelete << " does not exist." << RESET << std::endl;
 
 		std::string html = "<html><body><h1>Bad Request, File Does Not Exist </h1></body></html>";
 		std::ostringstream ostring;
@@ -168,19 +170,19 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 		ostring << html;
 		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 
 		return (false);
 	}
 	
 	if ((isWritable = access(fileToDelete.c_str(), W_OK)) == 0)
 	{
-		std::cout << fileToDelete << " is writable" << std::endl;
+		std::cout << YELLOW << fileToDelete << " is writable." << RESET << std::endl;
 
 		directory = opendir(fileToDelete.c_str());
 		if (directory)
 		{
-			std::cout << fileToDelete << " is a directory, and not a file!" << std::endl;
+			std::cout << YELLOW << fileToDelete << " is a directory, and not a file!" << RESET << std::endl;
 			closedir(directory);
 
 			std::string html = "<html><body><h1>Bad Request, cannot delete the whole directory </h1></body></html>";
@@ -191,20 +193,20 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 			ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 			ostring << html;
 			this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-			std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+			// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 
 			return false;
 		}
 		else
 		{
-			std::cout << fileToDelete << " is a file, and not a directory." << std::endl;
+			std::cout << YELLOW << fileToDelete << " is a file, and not a directory." << RESET << std::endl;
 			remove(fileToDelete.c_str());
-			std::cout << "File " << fileToDelete << " is deleted" << std::endl;
+			std::cout << YELLOW << fileToDelete << " is deleted" << RESET << std::endl;
 			return true;
 		}
 	}
 	else {
-		std::cout << fileToDelete << " is not writable" << std::endl;
+		std::cout << YELLOW << fileToDelete << " is not writable" << RESET << std::endl;
 
 		std::string html = "<html><body><h1>Bad Request, cannot delete the file due to permissions </h1></body></html>";
 		std::ostringstream ostring;
@@ -214,7 +216,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 		ostring << html;
 		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 
 		return false;
 	}
@@ -254,7 +256,7 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 		ostring << html;
 		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		return;
 }
 
@@ -270,6 +272,6 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 	ostring << html;
 	this->_responses[connectedSocket.getSocketFd()] = ostring.str();
-	std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocket.getSocketFd()] << RESET << std::endl;
+	// std::cout << CYAN << "DELETE RESPONSE:\n" << this->_responses[connectedSocket.getSocketFd()] << RESET << std::endl;
 	return;
 }
