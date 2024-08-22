@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/16 11:40:14 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/22 12:03:30 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
+#include "Server.hpp"
+
 
 HTTPRequest::HTTPRequest( void ) {}
 
@@ -29,7 +31,7 @@ HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig
 
 bool HTTPRequest::isValidMethod(const std::string &method)
 {
-	return (method == "GET" || method == "POST" || method == "HEAD" || method == "DELETE");
+	return (method == "GET" || method == "POST" || method == "HEAD" || method == "PUT" || method == "DELETE");
 }
 
 /*Check The HTTP Version Validity*/
@@ -41,13 +43,18 @@ bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 bool HTTPRequest::isCgiRequest( void ) {
 	const std::string validExt[3] = { ".sh", ".py", ".pl" };
 
-	if (_uri.find_last_of('.') == std::string::npos)
+	if (_uri.find_last_of('.') == std::string::npos){
+		Server::logMessage("ERROR: Sig Request With No Extention!");
 		return (false);
+	}
 	std::string extension = _uri.substr(_uri.find_last_of('.'), _uri.length() - 1);
 	for (size_t i = 0; i < 3; i++) {
-		if (extension == validExt[i])
+		if (extension == validExt[i]){
+			Server::logMessage("INFO: Sig Request Received!");
 			return (true);
+		}
 	}
+	Server::logMessage("ERROR: Sig Request With Unsupported Extention!");
 	return (false);
 }
 
@@ -67,10 +74,10 @@ bool HTTPRequest::parse(ConnectedSocket &connectedSocket)
 	if (!isValidMethod(_method) || !isValidHttpVersion(_version))
 		return (false);
 
-	if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
-		if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
-			return (false); // which error should be ?
-	}
+	// if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
+	// 	if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
+	// 		return (false); // which error should be ?
+	// }
 
 	// Parse headers
 	_requestMap["version"] = _version;

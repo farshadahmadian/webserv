@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/19 11:11:06 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/13 14:30:10 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __PARSER_HPP__
 
 #include "HttpConf.hpp"
+# include "Server.hpp"
 
 class Parser
 {
@@ -40,6 +41,7 @@ class Parser
 		std::string extractDirective( std::string& line );
 		bool isValidContext( std::string directive );
 		bool isValidSetting( std::string directive );
+		bool isDuplicate( std::string directive );
 		void openContext( std::string contextToOpen );
 		void closeContext( void );
 		bool isCorrectContextOpen( void );

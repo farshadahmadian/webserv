@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/14 16:17:05 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/22 12:14:27 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define LF   	"\n"
 # define CRLF 	"\r\n"
 # define MIME	"./src/transfer/MIME.type"
+# define HTML_EXTENSION ".html"
 # define CGI	".sh"
 
 # include <iostream>
@@ -39,6 +40,7 @@
 # include "colors.h"
 # include "errors.h"
 # include "ConnectedSocket.hpp"
+# include "HttpRequest.hpp"
 
 
 enum POLLEvents {
@@ -60,8 +62,10 @@ public:
 	void setRequestStringInResponse(std::string const & requestString);
     void displayRequestMap();
 	void displayServerConfig();
+	bool isDirectory(const std::string& uri) const;
 	//-------------------------------MIME------------------------------
 	std::string getMimeType(const std::string& extension) const;
+	//-----------------------------------------------------------------
 
 	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket);
 	std::string const &getSocketResponse(int connectedSocketFd);
@@ -71,6 +75,15 @@ public:
 	void clearData(void);
 	std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
 	std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
+
+	//-------------------------------ERROR-----------------------------
+	std::string generateDefaultErrorPage(int statusCode, std::string const & message);
+	std::string generateErrorPage(int statusCode);
+	std::string generateErrorHeaders(int statusCode, size_t contentLength);
+	//-----------------------------------------------------------------
+
+
+	friend class HTTPRequest;
 
 protected:
 	std::string const &getStorageDirectory(void) const;
@@ -88,13 +101,18 @@ protected:
 	std::string generateGeneralHeaders(std::string & filePath);
 
 	//-------------------------------CGI-------------------------------
-	// nico
+	bool isCGI(std::string const & filePath);
+	std::string const handleCGI(std::string & uri);
 	std::string cgi( std::string& uri );
-	char** createEnv( void );
+	char** createEnv( std::string * uri );
+	size_t acceptedCgiExtention(std::string const &filePath);
+	std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
+	std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
+	//-----------------------------------------------------------------
+
 
 	std::string getCurrentTime();
 	std::string formatTimeHTTP(std::time_t rawTime);
-	//-----------------------------------------------------------------
 
 
 	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map

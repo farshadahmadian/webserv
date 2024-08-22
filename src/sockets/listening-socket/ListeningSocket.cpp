@@ -14,8 +14,8 @@
 #include <fcntl.h>
 #include "ListeningSocket.hpp"
 
-
 // change default values
+// should not be used
 ListeningSocket::ListeningSocket(void):
 	Socket(),
 	_maxIncomingConnections(10),

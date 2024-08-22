@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/06 12:19:53 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/13 11:43:00 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,17 +34,17 @@
 #define DEFAULT_TIMEOUT			"10"
 #define DEFAULT_CLIENT_SIZE		"80"
 #define DEFAULT_INDEX			"index index.html"
-#define DEFAULT_AUTOINDEX		"off"
+#define DEFAULT_AUTOINDEX		"on"
 #define DEFAULT_ROOT			"./www/"
 
 /* SERVER DIRECTIVE DEFAULTS */
-#define DEFAULT_SERVER_NAME		"127.0.0.1" /* need to decide something */
+#define DEFAULT_SERVER_NAME		"127.0.0.1" 	/* need to decide something */
 #define DEFAULT_PORT			"8080"
 
 /* LOCATION DIRECTIVE DEFAULTS */
-#define DEFAULT_URI				"" /* need to decide something */
+#define DEFAULT_URI				"/"
 #define DEFAULT_METHOD			"GET"
-#define DEFAULT_CGI				"" /* need to decide something */
+#define DEFAULT_CGI				"" 				/* need to decide something */
 
 #define	SPACES				" \t\v\f\r"
 #define	COMMENT(c)			((c) == '#')

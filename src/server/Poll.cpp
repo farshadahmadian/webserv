@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/16 11:44:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/22 12:02:48 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ Poll::Poll(const Parser &configuration) : _serverList(std::vector<Server>()),
 	_totalMonitored(0),
 	_totalFds(NULL)
 {
+	Server::logMessage("INFO: The Poll Constructor Called!");
 	createServers(configuration);
 	initFds();
 }
@@ -48,6 +49,7 @@ Poll::~Poll(void)
 */
 void Poll::createServers(const Parser &configuration)
 {
+	Server::logMessage("INFO: The Servers In The Poll Constructor Created!");
 	std::vector<ServerConf>::const_iterator serverConfIt = configuration.getHttp().getServer().begin();
 	while (serverConfIt != configuration.getHttp().getServer().end())
 	{
@@ -93,6 +95,7 @@ bool Poll::mergeServerWithSamePort(std::map<std::string, std::string> serverConf
 
 void Poll::init(void)
 {
+	Server::logMessage("INFO: The Poll On The Server List start To set!");
 	std::vector<Server>::iterator serverIt = _serverList.begin();
 
 	while (serverIt != _serverList.end())
@@ -133,11 +136,13 @@ void Poll::start(void)
 			// this->printCurrentPollFds();
 			if (eventsNum < 0)
 			{
+				Server::logMessage("WARNING: EventsNum Is Less Than: 0");
 				Exception pollException("Poll exception", POLL_FAILED);
 				throw pollException;
 			}
 			if (eventsNum == 0)
 			{
+				Server::logMessage("WARNING: EventsNum Is Equal To: 0");
 				// std::cout << "Time's up, but no event occured on any monitored file descriptors!" << std::endl;
 			}
 			if (eventsNum > 0)
@@ -288,6 +293,7 @@ void Poll::addConnectedSocketToMonitoredList(int connectedSocketFd)
 		return;
 	_currentMonitored++;
 	if (_currentMonitored > _totalMonitored) {
+		Server::logMessage("ERROR: CurrentMonitored Fd Is Bigger Than The _totalMonitored!");
 		std::cout << "??????????????\n";
 		exit(1);
 	}
@@ -295,6 +301,7 @@ void Poll::addConnectedSocketToMonitoredList(int connectedSocketFd)
 
 void Poll::initFds(void)
 {
+	Server::logMessage("INFO: The Fds In The Poll Constructor Initiated!");
 	size_t n_servers = _serverList.size();
 	_totalMonitored = (n_servers * MAX_CONNECTIONS) + n_servers;
 	_currentMonitored = static_cast<nfds_t>(n_servers);
@@ -317,7 +324,8 @@ void Poll::initFds(void)
 		_totalFds[i].events = POLLIN;
 
 		if (fcntl(_totalFds[i].fd, F_SETFL, O_NONBLOCK) == -1) {
-        perror("fcntl F_SETFL");
+			Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
+        	perror("fcntl F_SETFL");
 		}
 		it++;
 		i++;
@@ -420,6 +428,7 @@ void Poll::closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket
 }
 
 void Poll::cleanConnectedSockets(int counter) {
+	Server::logMessage("INFO: Connected Sockets Cleaned!");
 	std::vector<Server>::iterator serverIt;
 	std::vector<Server>::iterator serverItEnd = this->_serverList.end();
 

@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/15 15:20:07 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/22 12:03:07 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 // new constructor to create the vectors
-Server::Server(std::map<std::string, std::string> settings) : 
+Server::Server(std::map<std::string, std::string> settings) :
 	_port(settings["port"]),
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_httpReq(settings),
 	_httpResp(settings)
-{ 
+{
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
@@ -31,7 +31,7 @@ Server::Server(std::map<std::string, std::string> settings) :
 	// std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
 
-Server::Server(const Server &other) : 
+Server::Server(const Server &other) :
 	_port(other._port),
 	_serverNames(other._serverNames),
 	_roots(other._roots),
@@ -186,7 +186,7 @@ std::string Server::readHtmlFile(std::string path)
 	return ss.str();
 }
 
-const std::string Server::getPort(void) const { 
+const std::string Server::getPort(void) const {
 	return (_port);
 };
 
@@ -208,6 +208,13 @@ void Server::addServerName(std::string newName) { _serverNames.push_back(newName
 void Server::addRoot(std::string newRoot) { _roots.push_back(newRoot); };
 void Server::addIndex(std::string newIndex) { _indexes.push_back(newIndex); };
 
+
+std::string Server::intToString(int const i) {
+	std::ostringstream convert;
+	convert << i;
+	return (convert.str());
+}
+
 int Server::stringToInt(const std::string &str) {
     std::stringstream ss(str);
     int value;
@@ -216,4 +223,34 @@ int Server::stringToInt(const std::string &str) {
         throw std::runtime_error("Error: Invalid number");
     }
     return value;
+}
+
+
+void Server::logMessage(const std::string &message) {
+    const std::string logFileName = "./src/server.log";
+
+    // Check if the log file exists
+    struct stat buffer;
+    if (stat(logFileName.c_str(), &buffer) != 0) {
+        // Log file doesn't exist, create it
+        std::ofstream createLogFile(logFileName.c_str());
+        if (!createLogFile.is_open()) {
+            std::cerr << "Error: Unable to create log file!" << std::endl;
+            return;
+        }
+    }
+
+    // Open the log file in append mode
+    std::ofstream logFile(logFileName.c_str(), std::ios_base::app);
+    if (logFile.is_open()) {
+        // Get the current time
+        std::time_t now = std::time(NULL);
+        char timeBuffer[80];
+        std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+
+        // Write the timestamp and message to the log file
+        logFile << "[" << timeBuffer << "] " << message << std::endl;
+    } else {
+        std::cerr << "Error: Unable to open log file!" << std::endl;
+    }
 }
