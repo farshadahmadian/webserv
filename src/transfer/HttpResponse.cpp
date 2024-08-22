@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/21 16:44:05 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/22 11:27:09 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,12 +165,13 @@ static void free_dptr( char** env ) {
 /*Check whether the accepted cgi extension exits or not.*/
 bool HTTPResponse::isCGI(std::string const & filePath) {
     size_t pos = acceptedCgiExtention(filePath);
-    if (pos != std::string::npos && pos + 3 < filePath.length()) {
-        char charAfterExtension = filePath[pos + 3];
-        if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
+    // if (pos != std::string::npos && pos + 3 < filePath.length()) {
+		if (pos != std::string::npos) {
+        // char charAfterExtension = filePath[pos + 3];
+        // if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
             return true;
         }
-    }
+    // }
     return false;
 }
 
@@ -199,7 +200,6 @@ std::string const setInterpreter(std::string const & cgiPath) {
 		return("/bin/bash"); // Assuming the default is shell scripts
 	}
 }
-
 
 bool createPipes(int fd_pipe[2]) {
 	if (pipe(fd_pipe) == -1) {

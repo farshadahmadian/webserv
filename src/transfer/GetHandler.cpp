@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/17 00:04:17 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/22 11:30:38 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,8 +128,10 @@ std::string GetHandler::GetMethod() {
     // Serve the file if it's not a directory or an index file was found
     if (!content.empty() || isCGI(filePath)) {
         std::string extension = filePath.substr(filePath.find_last_of("."));
+		// std::cout << "extension: " << extension << std::endl;
         if (isCGI(filePath)) {
 			extension = HTML_EXTENSION;
+		// std::cout << "extension: " << extension << std::endl;
             content = handleCGI(uri);
 
 		}
