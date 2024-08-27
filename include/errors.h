@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 12:33:53 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/27 13:16:26 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,13 @@ enum conf_err {
 };
 
 enum server_err {
+	ACCEPTING_FAILED = -1,
 	NO_ERROR = 0,
-	GET_ADDR_INFO_FAILD = 200,
+	GET_ADDR_INFO_FAILED = 200,
 	SOCKET_CREATION_FAILD,
-	BIND_SOCKET_FAILD,
+	BIND_SOCKET_FAILED,
 	LISTENING_FAILED,
-	SOCKET_OPTIONS_FAILD,
-	ACCEPTING_FAILED,
+	SOCKET_OPTIONS_FAILED,
 	POLL_FAILED,
 	EVENT_ERROR,
 	CLIENTSOCKET_RECEIVE_FAILED,

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/22 12:02:48 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/27 20:07:55 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,8 +136,8 @@ void Poll::start(void)
 			// this->printCurrentPollFds();
 			if (eventsNum < 0)
 			{
-				Server::logMessage("WARNING: EventsNum Is Less Than: 0");
-				Exception pollException("Poll exception", POLL_FAILED);
+				Server::logMessage("ERROR: EventsNum Is Less Than: 0");
+				Exception pollException("Poll Interruption by a signal", POLL_FAILED);
 				throw pollException;
 			}
 			if (eventsNum == 0)
@@ -205,11 +205,11 @@ void Poll::handleEvent(int counter)
 
 void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 {
-	try
-	{
+	// try
+	// {
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL))
 		{
-			std::cout << PURPLE << "************** close fd, remove from pollfds list ***************" << RESET << std::endl;
+			std::cout << PURPLE << "************** close fd, remove from pollFds list ***************" << RESET << std::endl;
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " <<(this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
 			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
@@ -222,22 +222,24 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 				return;
 
 			int connectedSocketFd = s.acceptFirstRequestInQueue(true);
+			if (connectedSocketFd < 0)
+				return ;
 			addConnectedSocketToMonitoredList(connectedSocketFd);
 			s.getConnectedSockets()[connectedSocketFd].setIterationNum(counter);
 			this->_totalFds[i].revents = 0;
 			// this->printCurrentPollFds();
 		}
-	}
-	catch (Exception const &exception)
-	{
-		throw exception;
-	}
+	// }
+	// catch (Exception const &exception)
+	// {
+	// 	throw exception;
+	// }
 }
 
 void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, ConnectedSocket>::iterator *connectedSocketIt)
 {
-	try
-	{
+	// try
+	// {
 		nfds_t i = this->mapConnectedSocketFdToPollFd(connectedSocketFd);
 		if ((_totalFds[i].revents & POLLIN)) {
 			if (!this->receiveRequest(s, i, connectedSocketFd, connectedSocketIt))
@@ -250,10 +252,7 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, 
 				closeResult = close(this->_totalFds[i].fd);
 		
 			if (closeResult == -1)
-			{
-				std::cout << RED << "POLL ERROR - CLOSING FAILED! fd: " << this->_totalFds[i].fd << RESET << std::endl;
-				std::cout << errno << std::endl;
-			}
+				Server::logMessage("ERROR: POLL ERROR - CLOSING FAILED! fd: " + Server::intToString(this->_totalFds[i].fd));
 		}
 		if (((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL)) && (this->_totalFds[i].fd != -1)) {
 			s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
@@ -269,11 +268,11 @@ void Poll::handleConnectedEvent(int connectedSocketFd, Server &s, std::map<int, 
 		}
 		else if (_totalFds[i].revents & POLLOUT)
 			this->sendResponse(s, i, connectedSocketFd, connectedSocketIt);
-	}
-	catch (Exception const &exception)
-	{
-		throw exception;
-	}
+	// }
+	// catch (Exception const &exception)
+	// {
+	// 	throw exception;
+	// }
 }
 
 void Poll::addConnectedSocketToMonitoredList(int connectedSocketFd)
@@ -535,7 +534,7 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int
 	
 	time_t now = time(NULL);
 	s.getConnectedSockets()[connectedSocketFd].clearRequestProperties();
-	if (s.getKeepAliveTimeout() && (now < s.getConnectedSockets()[connectedSocketFd].getConnectionStartTime() + s.getKeepAliveTimeout())) {
+	if ( ((*connectedSocketIt)->second.getState() == WRITING) || (s.getKeepAliveTimeout() && (now < s.getConnectedSockets()[connectedSocketFd].getConnectionStartTime() + s.getKeepAliveTimeout()))) {
 		// this->_totalFds[i].events = POLLIN;
 		// this->_totalFds[i].revents = 0;
 		return;

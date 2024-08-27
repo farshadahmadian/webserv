@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/15 15:28:25 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/27 16:57:16 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Delete.hpp"
+#include "Server.hpp"
 
 Delete::Delete(void) : HTTPResponse() {
 	return;
@@ -115,41 +116,13 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 
 	DIR *directory = opendir(this->getStorageDirectory().c_str());
 	if (!directory) {
-		std::string html = "<html><body><h1>Bad Request, Storage Directory (/file) Does Not Exist </h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(500);
 		return false;
 	}
 	// std::cout << directory << std::endl;
 	closedir(directory);
 	std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
 	std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
-
-	// struct stat buffer;
-	// memset(&buffer, 0, sizeof(buffer));
-	// stat(fileToDelete.c_str(), &buffer);
-	// std::cout << buffer.st_size << std::endl;
-
-	// int result = access(fileToDelete.c_str(), F_OK);
-	// if (result == 0)
-	// 	std::cout << "file: " << fileToDelete << " exists" << std::endl;
-	// else
-	// 	std::cout << "file: " << fileToDelete << " does not exist" << std::endl;
-
-	// if (result == 0) {
-	// 	if ((result = access(fileToDelete.c_str(), W_OK)) == 0) 
-	// 		std::cout << "file: " << fileToDelete << " has write access" << std::endl;
-	// 	else
-	// 		std::cout << "file: " << fileToDelete << " does not have write access" << std::endl;
-	// }
-
-
 
 	int isWritable = 0;
 	int exist = 0;
@@ -160,18 +133,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	}
 	else
 	{
-		std::cout << YELLOW << fileToDelete << " does not exist." << RESET << std::endl;
-
-		std::string html = "<html><body><h1>Bad Request, File Does Not Exist </h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(404); 
 		return (false);
 	}
 	
@@ -182,19 +144,10 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		directory = opendir(fileToDelete.c_str());
 		if (directory)
 		{
+			Server::logMessage("INFO: " + fileToDelete + " is a directory, and not a file!");
 			std::cout << YELLOW << fileToDelete << " is a directory, and not a file!" << RESET << std::endl;
 			closedir(directory);
-
-			std::string html = "<html><body><h1>Bad Request, cannot delete the whole directory </h1></body></html>";
-			std::ostringstream ostring;
-			ostring << "HTTP/1.1 400 Bad Request\r\n";
-			ostring << "Content-Type: text/html\r\n";
-			ostring << "Connection: close\r\n";
-			ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-			ostring << html;
-			this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-			// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-
+			this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 			return false;
 		}
 		else
@@ -207,17 +160,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	}
 	else {
 		std::cout << YELLOW << fileToDelete << " is not writable" << RESET << std::endl;
-
-		std::string html = "<html><body><h1>Bad Request, cannot delete the file due to permissions </h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 		return false;
 	}
 	
@@ -228,7 +171,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	return true;
 }
 
-void Delete::handleDelete(ConnectedSocket &connectedSocket) {
+std::string const & Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	
 	// if (connectedSocket.getRequestMap()["uri"] != "/delete") {
 	// 	std::string html = "<html><body><h1>Bad Request</h1></body></html>";
@@ -248,20 +191,21 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	// std::cout << RED << this->_data["filename"] << RESET << std::endl;
 
 	if (this->_data["filename"].empty()) {
-		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
+		// std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
+		// std::ostringstream ostring;
+		// ostring << "HTTP/1.1 400 Bad Request\r\n";
+		// ostring << "Content-Type: text/html\r\n";
+		// ostring << "Connection: close\r\n";
+		// ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		// ostring << html;
+		// this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
 		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-		return;
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400); 
+		return (this->_responses[connectedSocket.getSocketFd()]);
 }
 
 	if (!this->deleteFile(connectedSocket))
-		return;
+		return (this->_responses[connectedSocket.getSocketFd()]);
 
 	std::string message = "File " + this->_data["filename"] + " is deleted.";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
@@ -273,5 +217,5 @@ void Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	ostring << html;
 	this->_responses[connectedSocket.getSocketFd()] = ostring.str();
 	// std::cout << CYAN << "DELETE RESPONSE:\n" << this->_responses[connectedSocket.getSocketFd()] << RESET << std::endl;
-	return;
+	return (this->_responses[connectedSocket.getSocketFd()]);
 }

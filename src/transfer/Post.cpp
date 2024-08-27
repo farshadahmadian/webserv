@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/16 12:55:54 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/27 15:23:57 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,70 +178,23 @@ void Post::parsePostRequest(std::string const &requestHeader, std::ostringstream
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 
-void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
-
-	// std::cout << "POST REQUEST = \n" << request << std::endl;
-
-	// size_t index = connectedSocket.getRequestHeader().find("Content-Type: multipart/form-data");
-	// if (index == std::string::npos) {
-	// 	std::ostringstream ostring;
-	// 	ostring << "HTTP/1.1 400 Bad Request\r\n";
-	// 	ostring << "Connection: close\r\n\r\n";
-	// 	this->_responses[connectedSocketFd] = ostring.str(); 
-	// 	// this->printPostData();
-	// 	std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-	// 	return;
-	// }
-
+std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 	if (connectedSocket.getRequestMap()["uri"] != "/submit") {
-		
-		std::string html = "<html><body><h1>Bad Request</h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocketFd] = ostring.str(); 
-		// this->printPostData();
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-		return;
+		this->_responses[connectedSocketFd] = generateErrorPage(400);
+		return (this->_responses[connectedSocketFd]);
 	}
-
 	parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
-
 	std::cout << "name = " << this->_data["name"] << ", filename = " << this->_data["filename"] << std::endl;
-
 	if (this->_data["name"].empty() || this->_data["filename"].empty()) {
-		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 400 Bad Request\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocketFd] = ostring.str(); 
-		// this->printPostData();
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-		return;
+		this->_responses[connectedSocketFd] = generateErrorPage(400);
+		return (this->_responses[connectedSocketFd]);
 	}
-
 	if (!this->_isFileSaved)
 	{
-		std::string html = "<html><body><h1>500 Internal Server Error</h1></body></html>";
-		std::ostringstream ostring;
-		ostring << "HTTP/1.1 500 Internal Server Error\r\n";
-		ostring << "Content-Type: text/html\r\n";
-		ostring << "Connection: close\r\n";
-		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		ostring << html;
-		this->_responses[connectedSocketFd] = ostring.str(); 
-		// this->printPostData();
-		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-		return;
+		this->_responses[connectedSocketFd] = generateErrorPage(500);
+		return (this->_responses[connectedSocketFd]);
 	}
-
-	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received.";
+	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received, and Stored in ./files/.";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";
@@ -250,11 +203,85 @@ void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 	ostring << html;
 	this->_responses[connectedSocketFd] = ostring.str();
-	// std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
-	// this->printData();
-	// this->printResponses();
-	return;
+	return (this->_responses[connectedSocketFd]);
 }
+// void Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
+
+// 	// std::cout << "POST REQUEST = \n" << request << std::endl;
+
+// 	// size_t index = connectedSocket.getRequestHeader().find("Content-Type: multipart/form-data");
+// 	// if (index == std::string::npos) {
+// 	// 	std::ostringstream ostring;
+// 	// 	ostring << "HTTP/1.1 400 Bad Request\r\n";
+// 	// 	ostring << "Connection: close\r\n\r\n";
+// 	// 	this->_responses[connectedSocketFd] = ostring.str(); 
+// 	// 	// this->printPostData();
+// 	// 	std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+// 	// 	return;
+// 	// }
+
+// 	if (connectedSocket.getRequestMap()["uri"] != "/submit") {
+		
+// 		std::string html = "<html><body><h1>Bad Request</h1></body></html>";
+// 		std::ostringstream ostring;
+// 		ostring << "HTTP/1.1 400 Bad Request\r\n";
+// 		ostring << "Content-Type: text/html\r\n";
+// 		ostring << "Connection: close\r\n";
+// 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+// 		ostring << html;
+// 		this->_responses[connectedSocketFd] = ostring.str(); 
+// 		// this->printPostData();
+// 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+// 		return;
+// 	}
+
+// 	parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
+
+// 	std::cout << "name = " << this->_data["name"] << ", filename = " << this->_data["filename"] << std::endl;
+
+// 	if (this->_data["name"].empty() || this->_data["filename"].empty()) {
+// 		std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
+// 		std::ostringstream ostring;
+// 		ostring << "HTTP/1.1 400 Bad Request\r\n";
+// 		ostring << "Content-Type: text/html\r\n";
+// 		ostring << "Connection: close\r\n";
+// 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+// 		ostring << html;
+// 		this->_responses[connectedSocketFd] = ostring.str(); 
+// 		// this->printPostData();
+// 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+// 		return;
+// 	}
+
+// 	if (!this->_isFileSaved)
+// 	{
+// 		std::string html = "<html><body><h1>500 Internal Server Error</h1></body></html>";
+// 		std::ostringstream ostring;
+// 		ostring << "HTTP/1.1 500 Internal Server Error\r\n";
+// 		ostring << "Content-Type: text/html\r\n";
+// 		ostring << "Connection: close\r\n";
+// 		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+// 		ostring << html;
+// 		this->_responses[connectedSocketFd] = ostring.str(); 
+// 		// this->printPostData();
+// 		std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
+// 		return;
+// 	}
+
+// 	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received.";
+// 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
+// 	std::ostringstream ostring;
+// 	ostring << "HTTP/1.1 200 OK\r\n";
+// 	ostring << "Content-Type: text/html\r\n";
+// 	ostring << "Connection: close\r\n";
+// 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+// 	ostring << html;
+// 	this->_responses[connectedSocketFd] = ostring.str();
+// 	// std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
+// 	// this->printData();
+// 	// this->printResponses();
+// 	return;
+// }
 
 
 

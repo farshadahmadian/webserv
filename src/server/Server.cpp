@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/22 12:03:07 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/27 19:53:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@ Server::Server(std::map<std::string, std::string> settings) :
 	_roots.push_back(settings["root"]);
 	_indexes.push_back(settings["index"]);
 	_keepAliveTimeout = stringToInt(settings["keepalive_timeout"]);
+	if (_keepAliveTimeout == 0)
+		logMessage("Warning: KeepAlive Is Wrong Or Zero!, And Default Is Set.");
+	std::cout << "keep alive time: " << _keepAliveTimeout << std::endl;
 	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
 	// _autoindexes.push_back(settings["autoindex"]);
 	// _clientSizes.push_back(settings["client_body_buffer_size"]);
@@ -100,7 +103,8 @@ void Server::setPortAvailable(void)
 	int setSocketOptionResult = setsockopt(this->_listeningSocket.getSocketFd(), SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
 	if (setSocketOptionResult == -1)
 	{
-		Exception exception("Setting socket options faild!", SOCKET_OPTIONS_FAILD);
+		logMessage("ERROR: Setting socket options failed!");
+		Exception exception("Setting socket options failed!", SOCKET_OPTIONS_FAILED);
 		throw exception;
 	}
 	// std::cout << GREEN << "Listening Socket with fd(" << this->_listeningSocket.getSocketFd() << ") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
@@ -112,7 +116,8 @@ void Server::bindSocket(void) const
 	int bindResult = bind(this->_listeningSocket.getSocketFd(), this->_listeningSocket.getAddressInfo()->ai_addr, this->_listeningSocket.getAddressInfo()->ai_addrlen);
 	if (bindResult != 0)
 	{
-		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILD);
+		logMessage("ERROR: Binding the socket to the address failed!");
+		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILED);
 		throw exception;
 	}
 	std::string ip = static_cast<std::string>(inet_ntoa(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_addr)); // REMOVE
@@ -126,6 +131,7 @@ void Server::listenToRequests(void) const
 	int listenResult = listen(this->_listeningSocket.getSocketFd(), static_cast<int>(this->_listeningSocket.getMaxIncomingConnections()));
 	if (listenResult == -1)
 	{
+		logMessage("ERROR: Listening to incoming connections failed!");
 		Exception exception("Listening to incoming connections failed!", LISTENING_FAILED);
 		throw exception;
 	}
@@ -147,8 +153,10 @@ int Server::acceptFirstRequestInQueue(bool addToConnectedSocketsList)
 	}
 	if (connectedSocketFd < 0)
 	{
-		Exception exception("Accepting the request failed", ACCEPTING_FAILED);
-		throw exception;
+		// Exception exception("Accepting the request failed", ACCEPTING_FAILED);
+		Server::logMessage("ERROR: Accepting the request failed");
+		return (ACCEPTING_FAILED);
+		// throw exception;
 	}
 
 	if (addToConnectedSocketsList) {
@@ -220,7 +228,8 @@ int Server::stringToInt(const std::string &str) {
     int value;
     ss >> value;
     if (ss.fail()) {
-        throw std::runtime_error("Error: Invalid number");
+			std::cout << "*****************FAILED TO CONVERT*****************" << value << std::endl;
+			return 0;
     }
     return value;
 }

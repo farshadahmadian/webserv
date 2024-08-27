@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 16:23:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/27 14:51:47 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Post : public HTTPResponse {
 		Post(Post const &other);
 		Post &operator=(Post const &rhs);
 		~Post(void);
-		void handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket);
+		std::string const & handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket);
 		
 	private:
 		bool _isFileSaved;

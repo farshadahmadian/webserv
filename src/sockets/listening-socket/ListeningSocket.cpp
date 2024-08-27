@@ -12,6 +12,7 @@
 
 
 #include <fcntl.h>
+#include "Server.hpp"
 #include "ListeningSocket.hpp"
 
 // change default values
@@ -40,12 +41,17 @@ ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::stri
 	_port(port),
 	_addressInfo(NULL) {
 
-	this->_addressInfo = this->allocateAddrInfo();
-	int socketFd = this->createSocket();
-	// if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1) {
-  //       perror("fcntl F_SETFL");
-	// }
-	this->setSocketFd(socketFd);
+	try {
+		this->_addressInfo = this->allocateAddrInfo();
+		int socketFd = this->createSocket();
+		// if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1) {
+	//       perror("fcntl F_SETFL");
+		// }
+		this->setSocketFd(socketFd);
+	} catch (Exception const &exception) {
+		Server::logMessage("ERROR: " + std::string(exception.what()));
+		throw exception;
+	}
 	return;
 }
 
@@ -88,7 +94,8 @@ struct addrinfo *ListeningSocket::allocateAddrInfo( void ) const {
 	if (getAddrResult != 0)
 	{
 		std::string errMsg = static_cast<std::string>(gai_strerror(getAddrResult));
-		Exception exception(errMsg, GET_ADDR_INFO_FAILD);
+		// Server::logMessage("ERROR: " + errMsg);
+		Exception exception(errMsg, GET_ADDR_INFO_FAILED);
 		throw exception;
 	}
 	return (addrInfo);
@@ -107,7 +114,7 @@ int ListeningSocket::createSocket(void) const {
 		socketFd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (socketFd == -1)
 		{
-			// Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILD);
+			// Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILED);
 			// throw exception;
 			continue;
 		}
@@ -117,8 +124,8 @@ int ListeningSocket::createSocket(void) const {
 	}
 
 	if (socketFd == -1)
-		{
-			Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILD);
+		{		
+			Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILED);
 			throw exception;
 		}
 	// freeaddrinfo(this->_addressInfo);
