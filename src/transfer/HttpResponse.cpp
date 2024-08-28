@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/27 17:36:53 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/27 21:47:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 		if (method == "POST" && this->_requestMap["uri"] == "/delete")
 			return createHandleDelete(connectedSocket);
 		else if (method == "POST")
-			return createHandlePost(clientSocket, connectedSocket);
+			return createHandlePost(clientSocket, connectedSocket, this->_serverConfig);
 		else if (method == "DELETE")
 			return createHandleDelete(connectedSocket);
 	}
@@ -99,9 +99,9 @@ std::string HTTPResponse::createHandleGet() {
 	return (Get.GetMethod());
 }
 
-std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket) {
+std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
 	Post postResponse;
-	postResponse.handlePost(connectedSocketFd, connectedSocket);
+	postResponse.handlePost(connectedSocketFd, connectedSocket, serverConfig);
 	std::string response = postResponse.getSocketResponse(connectedSocketFd);
 	postResponse.removeSocketResponse(connectedSocketFd);
 	postResponse.clearData();

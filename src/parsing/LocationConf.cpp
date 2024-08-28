@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConf.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:21 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/28 09:21:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ LocationConf& LocationConf::operator=( const LocationConf& rhs ) {
 const std::string LocationConf::locationSettings[N_LOCATION_DIR] = {
 	"uri",
 	"method",
-	"cgi"
+	"cgi",
+	"redirect"
 };
 
 void LocationConf::setDefaults( void ) {
@@ -35,6 +36,7 @@ void LocationConf::setDefaults( void ) {
 	if (_settings.find("uri") == _settings.end()) _settings["uri"] = DEFAULT_URI;
 	if (_settings.find("methos") == _settings.end()) _settings["method"] = DEFAULT_METHOD;
 	if (_settings.find("cgi") == _settings.end()) _settings["cgi"] = DEFAULT_CGI;
+	if (_settings.find("redirect") == _settings.end()) _settings["redirect"] = DEFAULT_REDIRECT;
 };
 
 void LocationConf::addNestedBlock( context type ) { (void)type; /* not implemented */}

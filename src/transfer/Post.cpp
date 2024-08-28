@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/27 15:23:57 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/27 22:01:17 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Post.hpp"
+#include "Server.hpp"
 
 Post::Post(void) : HTTPResponse(), _isFileSaved(true) {
 	return;
@@ -178,7 +179,33 @@ void Post::parsePostRequest(std::string const &requestHeader, std::ostringstream
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
 
-std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket) {
+std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
+
+	size_t maxBodySize = static_cast<size_t>(Server::stringToInt(serverConfig["client_body_buffer_size"]));
+
+	if (connectedSocket.getRequestBody().str().length() > maxBodySize)
+	{
+		this->_responses[connectedSocketFd] = generateErrorPage(400);
+		std::cout << "******************** BODY IS TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
+		return(this->_responses[connectedSocketFd]);
+	} else {
+		std::cout << "******************** BODY IS NOT TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
+	}
+
+	if (connectedSocket.getRequestMap()["Content-Type"] == "plain/text") {
+
+		std::string html = "<html><body><h1>" + connectedSocket.getRequestBody().str() + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
+		std::ostringstream ostring;
+		ostring << "HTTP/1.1 200 OK\r\n";
+		ostring << "Content-Type: text/html\r\n";
+		ostring << "Connection: close\r\n";
+		ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+		ostring << html;
+		this->_responses[connectedSocketFd] = ostring.str();
+		return (this->_responses[connectedSocketFd]);
+
+	}
+
 	if (connectedSocket.getRequestMap()["uri"] != "/submit") {
 		this->_responses[connectedSocketFd] = generateErrorPage(400);
 		return (this->_responses[connectedSocketFd]);
@@ -194,7 +221,7 @@ std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &con
 		this->_responses[connectedSocketFd] = generateErrorPage(500);
 		return (this->_responses[connectedSocketFd]);
 	}
-	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received, and Stored in ./files/.";
+	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received, and Stored in" + this->_storageDirectory +".";
 	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";

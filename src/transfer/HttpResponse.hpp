@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/27 11:23:40 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/27 21:47:11 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ public:
 	void displayResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
 	void setRequestStringInResponse(std::string const & requestString);
-    void displayRequestMap();
+	void displayRequestMap();
 	void displayServerConfig();
 	bool isDirectory(const std::string& uri) const;
 	//-------------------------------MIME------------------------------
@@ -90,7 +90,7 @@ protected:
 	std::string const &getStorageDirectory(void) const;
 
 	std::string createHandleGet();
-	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket);
+	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
 	std::string createHandleDelete(ConnectedSocket &connectedSocket);
 	std::string httpStatusCode(int statusCode);
 	std::string readBinaryFile(const std::string& path);
