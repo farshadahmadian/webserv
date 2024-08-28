@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 09:21:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 11:47:37 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,11 @@ void LocationConf::displaySettings( void ) const {
 		it++;
 	}
 	std::cout << std::endl;
+}
+
+std::string LocationConf::getASettingValue(std::string key) {
+	if (this->_settings.find(key) != this->_settings.end()) {
+		return this->_settings[key];
+	}
+	return "";
 }

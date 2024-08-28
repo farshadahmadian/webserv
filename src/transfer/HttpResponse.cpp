@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/27 21:47:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 13:10:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@ HTTPResponse::HTTPResponse() : _storageDirectory("./www/farshad/cloudStorage"), 
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
 	_serverConfig(serverConfig)  {
+	loadMimeTypes(MIME);
+	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
+}
+
+HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations) :
+	_serverConfig(serverConfig), _locations(locations)  {
 	loadMimeTypes(MIME);
 	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
@@ -95,7 +101,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 /*Creat An Instance of GetHandler Class And
 Call The Get Method To Prepare The Response.*/
 std::string HTTPResponse::createHandleGet() {
-	GetHandler  Get(_requestMap, _serverConfig);
+	GetHandler  Get(_requestMap, _serverConfig, this->_locations);
 	return (Get.GetMethod());
 }
 
@@ -124,6 +130,7 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
 	switch (statusCode) {
 		case 200: return "HTTP/1.1 200 OK";
 		case 304: return "HTTP/1.1 304 Not Modified";
+		case 302: return "HTTP/1.1 302 Found";
 		case 400: return "HTTP/1.1 400 Bad Request";
 		case 403: return "HTTP/1.1 403 Forbidden";
 		case 404: return "HTTP/1.1 404 Not Found";

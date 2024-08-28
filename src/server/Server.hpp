@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/16 23:49:23 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/28 10:47:52 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ private:
 	std::string readHtmlFile(std::string path);
 
 public:
-	Server(std::map<std::string, std::string> settings);
+	Server(std::map<std::string, std::string> settings, std::vector<LocationConf> const &locations);
 	~Server(void);
 	Server(const Server &other);
 

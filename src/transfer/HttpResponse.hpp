@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/27 21:47:11 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 12:01:05 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@
 # include "errors.h"
 # include "ConnectedSocket.hpp"
 # include "HttpRequest.hpp"
+# include "LocationConf.hpp"
 
 
 enum POLLEvents {
@@ -55,6 +56,7 @@ class HTTPResponse {
 public:
 	HTTPResponse();
 	HTTPResponse(std::map<std::string, std::string> const & serverConfig);
+	HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations);
 	virtual ~HTTPResponse();
 	 //---------------------------------------------------Return Error Or Call The Related HTTP Methods
 	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
@@ -125,6 +127,7 @@ protected:
 
 	std::string _storageDirectory;
 	std::map<std::string, std::string> _data;
+	std::vector<LocationConf> _locations;
 
 	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------

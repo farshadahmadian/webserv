@@ -3,19 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/22 11:30:38 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/28 13:22:44 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "GetHandler.hpp"
 
 GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
-					   const std::map<std::string, std::string>& serverConfig) :
-	HTTPResponse(serverConfig) {
+					   const std::map<std::string, std::string>& serverConfig, std::vector<LocationConf> const &locations) :
+	HTTPResponse(serverConfig, locations) {
 	setRequestMapInResponse(requestMap);
+	this->setRedirections();
+	this->printRedirections();
 }
 
 GetHandler::~GetHandler() {}
@@ -98,11 +100,18 @@ bool isFile(std::string const & filePath) {
 
 
 std::string GetHandler::GetMethod() {
-    std::string content;
-    std::string date, lastMfd, eTag;
-    std::ostringstream responseHeaders;
-    std::string uri = _requestMap["uri"];
-    std::string filePath = _serverConfig.at("root") + uri;
+	std::string content;
+	std::string date, lastMfd, eTag;
+	std::ostringstream responseHeaders;
+	std::string uri = _requestMap["uri"];
+	std::string filePath = _serverConfig.at("root") + uri;
+
+	if (getRedirections(uri).length()) {
+		 responseHeaders << httpStatusCode(302) << CRLF
+										 << "Location: " << getRedirections(uri) << CRLF
+										 << "Connection: keep-alive" << CRLF << CRLF;
+			return responseHeaders.str();
+	}	
 
 	Server::logMessage("INFO: Received GET request for " + filePath);
 
@@ -157,4 +166,42 @@ std::string GetHandler::GetMethod() {
     } else {
         return generateErrorPage(404); // Not Found
     }
+}
+
+
+std::string GetHandler::getRedirections(std::string const &uri) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
+
+	for (iterator = this->_redirections.begin(); iterator != iteratorEnd; iterator++) {
+		if (iterator->first == uri)
+			return iterator->second;
+	}
+
+	return "";
+}
+
+void GetHandler::setRedirections(void) {
+	std::vector<LocationConf>::iterator iterator;
+	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
+
+	for (iterator = this->_locations.begin(); iterator != iteratorEnd; iterator++) {
+		if ((iterator->getSettings().find("redirect") != iterator->getSettings().end()) && (iterator->getSettings().find("uri") != iterator->getSettings().end())) {
+			const std::string uri = iterator->getASettingValue("uri");
+			const std::string redirect = iterator->getASettingValue("redirect");
+			this->_redirections[uri] = redirect;
+		}
+	}
+}
+
+void GetHandler::printRedirections(void) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
+
+	std::cout << "Redirections:" << std::endl;
+
+	for (iterator = this->_redirections.begin(); iterator != iteratorEnd; iterator++) {
+		std::cout << iterator->first << " = " << iterator->second << std::endl;
+	}
+
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConf.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:33:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 13:27:01 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/28 11:42:41 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class LocationConf: public AConf
 		~LocationConf( void );
 		LocationConf& operator=( const LocationConf& );
 
+		std::string getASettingValue(std::string key);
 		void setDefaults( void );
 		void setSetting( std::string key, std::string value, context active );
 		void addNestedBlock( context type );

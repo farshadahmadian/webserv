@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:36:51 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/15 13:30:53 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/28 12:50:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,19 @@
 
 class GetHandler : public HTTPResponse {
 	public:
-		GetHandler(const std::map<std::string, std::string>& requestMap, const std::map<std::string, std::string>& serverConfig);
+		GetHandler(const std::map<std::string, std::string>& requestMap, const std::map<std::string, std::string>& serverConfig, std::vector<LocationConf> const &locations);
 		~GetHandler();
 		std::string GetMethod();
 	
 	private:
+	std::map<std::string, std::string> _redirections;
+	
 	std::string handleDirectoryListing(const std::string& dirPath);
 	std::string findIndexFile(std::string const & dirPath);
 	std::string const setServerRoot(std::string const & filePath);
+	std::string getRedirections(std::string const &uri);
+	void setRedirections(void);
+	void printRedirections(void);
 
 	// protected:
 	// 	std::string createHandleGet();

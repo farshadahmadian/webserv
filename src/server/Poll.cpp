@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/27 20:07:55 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 10:48:51 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,10 @@ void Poll::createServers(const Parser &configuration)
 				continue;
 			}
 		}
-		Server s((*serverConfIt).getSettings());
+		Server s((*serverConfIt).getSettings(), (*serverConfIt).getLocation());
+		// s._locations = serverConfIt->getLocation();
+		// std::cout << "+++++"  << "-----" << std::endl;
+		// s._location[0].displaySettings();
 		_serverList.push_back(s);
 		serverConfIt++;
 	}

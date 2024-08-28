@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/27 22:01:17 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 14:31:05 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &con
 
 	if (connectedSocket.getRequestBody().str().length() > maxBodySize)
 	{
-		this->_responses[connectedSocketFd] = generateErrorPage(400);
+		this->_responses[connectedSocketFd] = generateErrorPage(413);
 		std::cout << "******************** BODY IS TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
 		return(this->_responses[connectedSocketFd]);
 	} else {

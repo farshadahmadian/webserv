@@ -6,19 +6,19 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/27 19:53:53 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 10:46:18 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 // new constructor to create the vectors
-Server::Server(std::map<std::string, std::string> settings) :
+Server::Server(std::map<std::string, std::string> settings, std::vector<LocationConf> const &locations) :
 	_port(settings["port"]),
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
 	_connectedSockets(std::map<int, ConnectedSocket>()),
 	_httpReq(settings),
-	_httpResp(settings)
+	_httpResp(settings, locations)
 {
 	_serverNames.push_back(settings["server_name"]);
 	_roots.push_back(settings["root"]);
