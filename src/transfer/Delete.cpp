@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/27 16:57:16 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/28 18:08:26 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ std::string const & Delete::handleDelete(ConnectedSocket &connectedSocket) {
 		return (this->_responses[connectedSocket.getSocketFd()]);
 
 	std::string message = "File " + this->_data["filename"] + " is deleted.";
-	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
+	std::string html = "<html><body><h1>" + message + "</h1><a href=\"form/index.html\">Back</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";
 	ostring << "Content-Type: text/html\r\n";

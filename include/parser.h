@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 09:20:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 14:52:15 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #define DEFAULT_FILE_PATH		"./conf/default.conf"
 
 /* NUMBER OF DIRECTIVES */
-#define N_SHARED_DIR	5
+#define N_SHARED_DIR	6
 #define N_SERVER_DIR	3
 #define N_LOCATION_DIR	4
 
@@ -36,6 +36,7 @@
 #define DEFAULT_INDEX			"index index.html"
 #define DEFAULT_AUTOINDEX		"on"
 #define DEFAULT_ROOT			"./www/"
+#define DEFAULT_MAX_BODY_SIZE "100000000"
 
 /* SERVER DIRECTIVE DEFAULTS */
 #define DEFAULT_SERVER_NAME		"127.0.0.1" 	/* need to decide something */

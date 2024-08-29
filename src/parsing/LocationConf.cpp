@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 11:47:37 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 14:34:36 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ const std::string LocationConf::locationSettings[N_LOCATION_DIR] = {
 	"uri",
 	"method",
 	"cgi",
-	"redirect"
+	"redirect",
 };
 
 void LocationConf::setDefaults( void ) {

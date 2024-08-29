@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AConf.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:24:02 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:10 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/08/28 14:52:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ const std::string AConf::sharedSettings[N_SHARED_DIR] = {
 	"client_body_buffer_size",
 	"root",
 	"index",
-	"autoindex"
+	"autoindex",
+	"client_max_body_size"
 };
 
 /*	If a setting is left in the configuration is autocompleted in this function,
@@ -36,6 +37,7 @@ void AConf::setSharedSettingsDefaults( void ) {
 	if (_settings.find("client_body_buffer_size") == _settings.end()) _settings["client_body_buffer_size"] = DEFAULT_CLIENT_SIZE;
 	if (_settings.find("index") == _settings.end()) _settings["autoindex"] = DEFAULT_AUTOINDEX;
 	if (_settings.find("autoindex") == _settings.end()) _settings["root"] = DEFAULT_ROOT;
+	if (_settings.find("client_max_body_size") == _settings.end()) _settings["client_max_body_size"] = DEFAULT_MAX_BODY_SIZE;
 };
 
 enum conf_err AConf::checkSharedSettings( void ) {

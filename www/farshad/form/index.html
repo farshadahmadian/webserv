@@ -1,27 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>server-0</title>
-	<!-- <link rel="stylesheet" href="./styles.css"> -->
-</head>
-<body>
-	<form action="/submit" method="POST" enctype="multipart/form-data">
-		<label for="name">Name</label>
-		<input type="text" name="name" placeholder="name" required />
-		<label for="file">File</label>
-		<input type="file" name="file" required />
-		<button type="submit">Send / POST</button>
-	</form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>server-0</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="banner">
+      <h1 class="header">WebServe</h1>
+    </div>
+    <main class="main">
+      <div class="form-container">
+        <h2>Please send us your file</h2>
+        <form action="/submit" method="POST" enctype="multipart/form-data">
+          <div class="input-container">
+            <label for="name">
+              <input
+                class="input text-input"
+                type="text"
+                name="name"
+                placeholder="Enter your name"
+                required
+              />
+            </label>
+            <label class="select-file" for="file">
+              <span>select your file</span>
+            </label>
 
-	<form action="/delete" method="POST" enctype="multipart/form-data">
-		<input type="hidden" name="_method" value="delete" />
-		<label for="name">File</label>
-		<input class="file-to-delete" type="text" name="name" required />
-		<button  type="submit"> Delete / POST </button>
-	</form>
-	<button class="delete"> Delete / DELETE </button>
-	<script src="./script.js"></script>
-</body>
+            <input
+              class="input file-input"
+              id="file"
+              type="file"
+              name="file"
+              required
+            />
+          </div>
+          <button class="btn" type="submit">Send / POST</button>
+        </form>
+      </div>
+
+      <div class="form-container">
+        <h2>Please choose the file you want to delete</h2>
+        <form action="/delete" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_method" value="delete" />
+          <div class="input-container">
+            <label for="name">
+              <input
+                class="input text-input file-to-delete"
+                type="text"
+                name="name"
+                required
+              />
+            </label>
+          </div>
+          <button class="btn" type="submit">Delete / POST</button>
+        </form>
+      </div>
+      <button class="btn delete">Delete / DELETE</button>
+    </main>
+    <script src="./script.js"></script>
+  </body>
 </html>

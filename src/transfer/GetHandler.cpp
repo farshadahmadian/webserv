@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/28 13:22:44 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 19:21:49 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
 	HTTPResponse(serverConfig, locations) {
 	setRequestMapInResponse(requestMap);
 	this->setRedirections();
-	this->printRedirections();
+	// this->printRedirections();
 }
 
 GetHandler::~GetHandler() {}
@@ -107,29 +107,38 @@ std::string GetHandler::GetMethod() {
 	std::string filePath = _serverConfig.at("root") + uri;
 
 	if (getRedirections(uri).length()) {
-		 responseHeaders << httpStatusCode(302) << CRLF
-										 << "Location: " << getRedirections(uri) << CRLF
-										 << "Connection: keep-alive" << CRLF << CRLF;
-			return responseHeaders.str();
+		std::cout << GREEN << "Redirecting from " << uri << " to " << getRedirections(uri) << RESET << std::endl;
+		responseHeaders << httpStatusCode(302) << CRLF
+										<< "Location: " << getRedirections(uri) << CRLF
+										<< "Connection: keep-alive" << CRLF << CRLF;
+		return responseHeaders.str();
 	}	
 
 	Server::logMessage("INFO: Received GET request for " + filePath);
 
     // Check if the requested path is a directory
     if (!isFile(filePath)) {
-        // Check for an index file in the directory
-        std::string indexFilePath = findIndexFile(filePath);
-        if (!indexFilePath.empty()) {
-            filePath = indexFilePath; // Update filePath to point to the index file
-        } else {
-            // If no index file is found and autoindex is enabled, generate directory listing
-            if (_serverConfig["autoindex"] == "on") {
-                return handleDirectoryListing(filePath);
-            } else {
-                Server::logMessage("WARNING: AutoIndex Is Off for " + filePath);
-                return generateErrorPage(403); // Forbidden
-            }
-        }
+
+			if (uri[uri.length() - 1] != '/') {
+				responseHeaders << httpStatusCode(302) << CRLF
+												<< "Location: " << uri << "/" << CRLF
+												<< "Connection: keep-alive" << CRLF << CRLF;
+												return responseHeaders.str();
+			}
+			
+			// Check for an index file in the directory
+			std::string indexFilePath = findIndexFile(filePath);
+			if (!indexFilePath.empty()) {
+					filePath = indexFilePath; // Update filePath to point to the index file
+			} else {
+					// If no index file is found and autoindex is enabled, generate directory listing
+					if (_serverConfig["autoindex"] == "on") {
+							return handleDirectoryListing(filePath);
+					} else {
+							Server::logMessage("WARNING: AutoIndex Is Off for " + filePath);
+							return generateErrorPage(403); // Forbidden
+					}
+			}
 	}
     content = readBinaryFile(filePath);
     Server::logMessage("INFO: Received GET request for " + filePath);

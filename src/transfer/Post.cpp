@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/28 14:31:05 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/28 18:08:45 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,15 +181,15 @@ void Post::parsePostRequest(std::string const &requestHeader, std::ostringstream
 
 std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
 
-	size_t maxBodySize = static_cast<size_t>(Server::stringToInt(serverConfig["client_body_buffer_size"]));
+	size_t maxBodySize = static_cast<size_t>(Server::stringToInt(serverConfig["client_max_body_size"]));
 
 	if (connectedSocket.getRequestBody().str().length() > maxBodySize)
 	{
 		this->_responses[connectedSocketFd] = generateErrorPage(413);
-		std::cout << "******************** BODY IS TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
+		// std::cout << "******************** BODY IS TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
 		return(this->_responses[connectedSocketFd]);
 	} else {
-		std::cout << "******************** BODY IS NOT TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
+		// std::cout << "******************** BODY IS NOT TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
 	}
 
 	if (connectedSocket.getRequestMap()["Content-Type"] == "plain/text") {
@@ -222,7 +222,7 @@ std::string const & Post::handlePost(int connectedSocketFd, ConnectedSocket &con
 		return (this->_responses[connectedSocketFd]);
 	}
 	std::string message = "Thank you " + this->_data["name"] + ", file " + this->_data["filename"] + " is Received, and Stored in" + this->_storageDirectory +".";
-	std::string html = "<html><body><h1>" + message + "</h1><a href=\"index.html\">Back to Homepage</a></body></html>";
+	std::string html = "<html><body><h1>" + message + "</h1><a href=\"form/index.html\">Back</a></body></html>";
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";
 	ostring << "Content-Type: text/html\r\n";
