@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/31 15:59:25 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 19:48:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	std::string method = _requestMap["method"];
 	std::string uri = _requestMap["uri"];
 
-	displayRequestMap();
-	displayServerConfig();
+	// displayRequestMap();
+	// displayServerConfig();
 	if (statusCode == 400) {
 		return generateErrorPage(400);
 	}
@@ -564,11 +564,11 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		std::string response = iter->second;
 		// printStringToFile(response, "./src/request/response.txt");
 
-		std::cout << CYAN << "Connected socket " << clientSocket << " is sending the response ..." << RESET << std::endl;
+		// std::cout << CYAN << "Connected socket " << clientSocket << " is sending the response ..." << RESET << std::endl;
 
 		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
 
-		std::cout <<  "******" << bytesSent << "******" << std::endl;
+		// std::cout <<  "******" << bytesSent << "******" << std::endl;
 		if (bytesSent == -1) {
 			Server::logMessage("Error: No Byte Sent for socket fd: " + Server::intToString(clientSocket));
 			return false;

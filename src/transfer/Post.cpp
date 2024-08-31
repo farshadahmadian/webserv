@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/31 16:47:19 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 19:49:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 		connectedSocket.setIsCgi(true);
 		connectedSocket.setCgiStartTime();
 		// this->_responses[connectedSocketFd] = handlePostCgi(connectedSocketFd, connectedSocket);
-		connectedSocket._childProcessData= handlePostCgi(connectedSocketFd, connectedSocket);
+		connectedSocket._childProcessData= handlePostCgi(connectedSocket);
 		if (connectedSocket._childProcessData.isError)
 			return this->_responses[connectedSocketFd];
 		else
@@ -334,19 +334,13 @@ std::string Post::findCommand(std::string const &command) {
 }
 
 
-ChildProcessData Post::handlePostCgi(int connectedSocketFd, ConnectedSocket &connectedSocket) {
-
+ChildProcessData Post::handlePostCgi(ConnectedSocket &connectedSocket) {
 	int pipeFds[2];
 	// int stdInCopy = dup(STDIN_FILENO);
 	// int stdOutCopy = dup(STDOUT_FILENO);
 
 	if (pipe(pipeFds) == -1) {
-		this->_responses[connectedSocketFd] = generateErrorPage(500);
-		// return this->_responses[connectedSocketFd];
-		connectedSocket._childProcessData.id = -1;
-		connectedSocket._childProcessData.pipeFds[0] = -1;
-		connectedSocket._childProcessData.pipeFds[1] = -1;
-		connectedSocket._childProcessData.isError = true;
+		cgiError(connectedSocket);
 		return connectedSocket._childProcessData ;
 	}
 
@@ -355,86 +349,96 @@ ChildProcessData Post::handlePostCgi(int connectedSocketFd, ConnectedSocket &con
 
 	pid_t id = fork();
 	if (id == -1) {
-		this->_responses[connectedSocketFd] = generateErrorPage(500);
-		// return this->_responses[connectedSocketFd];
-		connectedSocket._childProcessData.id = -1;
-		connectedSocket._childProcessData.pipeFds[0] = -1;
-		connectedSocket._childProcessData.pipeFds[1] = -1;
-		connectedSocket._childProcessData.isError = true;
+		close(pipeFds[0]);
+		close(pipeFds[1]);
+		this->cgiError(connectedSocket);
 		return connectedSocket._childProcessData;
 	}
 
 	if (id == 0) {		
-		if (close(pipeFds[0]) == -1) {
-			Server::logMessage(Server::intToString(pipeFds[0]) + ": error when closing");
-		}
-		else {
-			Server::logMessage(Server::intToString(pipeFds[0]) + "is closed in child process");
-
-		}
-		pipeFds[0] = -1;
-		dup2(pipeFds[1], STDOUT_FILENO);
-		if (close(pipeFds[1]) == -1) {
-			Server::logMessage(Server::intToString(pipeFds[1]) + ": error when closing");
-		}
-		else {
-			Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in child process");
-		}
-		pipeFds[1] = -1;
-		// dup2(STDOUT_FILENO, stdOutCopy);
-		// dup2(STDIN_FILENO, stdInCopy);
-		this->parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
-		std::string requestData = this->_data["name"];
-
-		// std::string command = this->findCommand("node");
-
-		std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
-		char *cmd = const_cast<char *>(command.c_str());
-
-		std::string file = "./www/farshad/form/cgi.js";
-		char *filePath = const_cast<char *>(file.c_str());
-
-		char *const argv[] = {cmd, filePath ,NULL};
-		execve(cmd, argv, NULL);
-		std::cerr << RED << "cmd or argv are wrong => execve failed" << RESET << std::endl;
-		exit(1);
-
+		this->handleCgiChildProcess(connectedSocket, pipeFds);
 	} else {
-		// dup2(pipeFds[0], STDIN_FILENO);
+		handleCgiMainProcess(connectedSocket, pipeFds, id);
+	 	return connectedSocket._childProcessData;;
+	}
+	return connectedSocket._childProcessData;;
+}
 
-	 	connectedSocket._childProcessData.id = id;
-		// connectedSocket._childProcessData.pipeFds[0] = pipeFds[0];
-		// connectedSocket._childProcessData.pipeFds[1] = pipeFds[1];
-		connectedSocket._childProcessData.pipeFds[0] = pipeFds[0];
-		connectedSocket._childProcessData.pipeFds[1] = pipeFds[1];
-		connectedSocket._childProcessData.isError = false;
-		if (connectedSocket._childProcessData.pipeFds[1] != -1)
-		{
-			if (close(pipeFds[1]) == -1) {
-			Server::logMessage(Server::intToString(pipeFds[1]) + ": error when closing");
-			}
-			else {
-			Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in parent process");
+void Post::cgiError(ConnectedSocket &connectedSocket) {
+	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(500);
+	int fds[2] = {-1, -1};
+	this->UpdateCgiProperties(connectedSocket, -1, fds, true);
+	connectedSocket.setState(DONE);
+	return;
+}
 
-			}
+void Post::handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2]) {
+	if (close(pipeFds[0]) == -1) {
+			Server::logMessage(Server::intToString(pipeFds[0]) + ": error when closing");
+	}
+	else {
+		Server::logMessage(Server::intToString(pipeFds[0]) + "is closed in child process");
+
+	}
+	pipeFds[0] = -1;
+	dup2(pipeFds[1], STDOUT_FILENO);
+	if (close(pipeFds[1]) == -1) {
+		Server::logMessage(Server::intToString(pipeFds[1]) + ": error when closing");
+	}
+	else {
+		Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in child process");
+	}
+	pipeFds[1] = -1;
+	// dup2(STDOUT_FILENO, stdOutCopy);
+	// dup2(STDIN_FILENO, stdInCopy);
+	this->parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
+	std::string requestData = this->_data["name"];
+	std::string keyValue = "NAME=" + requestData;
+	// std::cerr << "keyValue = " << keyValue << std::endl;
+	char *name = const_cast<char *>(keyValue.c_str());
+	char *const env[] = {name, NULL};
+
+	// std::string command = this->findCommand("node");
+
+	std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
+	char *cmd = const_cast<char *>(command.c_str());
+
+	std::string file = "./www/farshad/form/cgi.js";
+	char *filePath = const_cast<char *>(file.c_str());
+
+	char *const argv[] = {cmd, filePath, NULL};
+
+
+
+	execve(cmd, argv, env);
+	std::cerr << RED << "cmd or argv are wrong => execve failed" << RESET << std::endl;
+	exit(-1);
+
+}
+
+void Post::handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id) {
+	// dup2(pipeFds[0], STDIN_FILENO);
+	this->UpdateCgiProperties(connectedSocket, id, pipeFds, false);
+
+	if (connectedSocket._childProcessData.pipeFds[1] != -1)
+	{
+		if (close(pipeFds[1]) == -1) {
+		connectedSocket._childProcessData.pipeFds[1] = -1;
+		Server::logMessage(Server::intToString(pipeFds[1]) + ": error when closing");
 		}
+		else {
+		Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in parent process");
+		}
+	}
 			// close(pipeFds[1]);
 		// dup2(STDOUT_FILENO, stdOutCopy);
 		// dup2(STDIN_FILENO, stdInCopy);
 		// close(connectedSocket._childProcessData.pipeFds[1]);
-		connectedSocket._childProcessData.pipeFds[1] = -1;
+}
 
-	 	return connectedSocket._childProcessData;;
-	}
-
-
-	// std::string html = "<html><body><h1>CGI</h1></body></html>";
-	// std::ostringstream ostring;
-	// ostring << "HTTP/1.1 200 OK\r\n";
-	// ostring << "Content-Type: text/html\r\n";
-	// ostring << "Connection: close\r\n";
-	// ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-	// ostring << html;
-	// this->_responses[connectedSocketFd] = ostring.str();
-	// return (this->_responses[connectedSocketFd]);
+void Post::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError) {
+		connectedSocket._childProcessData.id = id;
+		connectedSocket._childProcessData.pipeFds[0] = pipeFds[0];
+		connectedSocket._childProcessData.pipeFds[1] = pipeFds[1];
+		connectedSocket._childProcessData.isError = isError;
 }

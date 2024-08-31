@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/30 20:30:33 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 18:55:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ class ConnectedSocket : public Socket {
 
 	public:
 		ChildProcessData _childProcessData;
+		std::string _cgiBuffer;
 
 		ConnectedSocket(void);
 		ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t  const &incomingConnectionAddressSize);

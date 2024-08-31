@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/28 08:38:37 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 19:47:21 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,9 +205,9 @@ std::string HTTPRequest::extractHeader(std::string request) {
 bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket)
 {
 	char buffer[40960];
-	std::cout << MAGENTA << "Connected socket " << connectedSocketFd << " is receiving ..." << RESET << std::endl;
+	// std::cout << MAGENTA << "Connected socket " << connectedSocketFd << " is receiving ..." << RESET << std::endl;
 	ssize_t bytesRead = recv(connectedSocketFd, buffer, sizeof(buffer) - 1, 0);
-	std::cout << MAGENTA << "Bytes read = " << bytesRead << RESET << std::endl;
+	// std::cout << MAGENTA << "Bytes read = " << bytesRead << RESET << std::endl;
 	if (bytesRead == -1) {// && (errno == EAGAIN || errno == EWOULDBLOCK)){
 		//close and remove
 		return (false);

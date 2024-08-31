@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/31 17:33:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 19:52:15 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -583,13 +583,16 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 	// Server::logMessage("Parent process: connectedSocket._childProcessData.pipeFds[0] = " + Server::intToString(connectedSocket._childProcessData.pipeFds[0]));
 	int status = 0;
 	// close(connectedSocket._childProcessData.pipeFds[1]);
-	pid_t result = waitpid(connectedSocket._childProcessData.id, &status, WNOHANG);
+	int result = 0;
+	if (connectedSocket.getState() != WRITING) {
+		result = waitpid(connectedSocket._childProcessData.id, &status, WNOHANG);
+		// std::cout << "result = " << result <<  ", id =  " << connectedSocket._childProcessData.id << std::endl;
+	}
 	// close(connectedSocket._childProcessData.pipeFds[0]);
-	std::cout << "now = " << std::time(NULL) <<  "timeout = " << connectedSocket.getCgiStartTime() + CGI_TIMEOUT << std::endl;
-	std::cout << "result = " << result <<  "id =  " << connectedSocket._childProcessData.id << std::endl;
+	// std::cout << "now = " << std::time(NULL) <<  "timeout = " << connectedSocket.getCgiStartTime() + CGI_TIMEOUT << std::endl;
 
 	if (std::time(NULL) > connectedSocket.getCgiStartTime() + CGI_TIMEOUT) {
-		std::cout << "cgi timeout" << std::endl;
+		// std::cout << "cgi timeout" << std::endl;
 		HTTPResponse temp;
 		std::string response = temp.generateErrorPage(500);
 		finishCgi(connectedSocket, s, response);
@@ -597,25 +600,33 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 		return response;
 	}
 
-	if (result == connectedSocket._childProcessData.id) {
-		std::cout << "child exited normally" << std::endl;
+	if (result == connectedSocket._childProcessData.id || connectedSocket.getState() == READING) {
+		// std::cout << "child exited normally" << std::endl;
 
 		// if (WIFEXITED(status)){
 			// std::cout << "Parent Process: child process exited normally, without any signals" << std::endl;
 			// int exitStatus = WEXITSTATUS(status);
 			// std::cout << "exitStatus = " << exitStatus << std::endl;
 
-			char buff[1024];
-			buff[1023] = '\0';
+			char buffer[1024];
+			buffer[1023] = '\0';
 			std::cout << "Parent1" << std::endl;
-			read(connectedSocket._childProcessData.pipeFds[0], buff, sizeof(buff));
-			std::cout << "Parent: " << buff << std::endl;
+			int result = read(connectedSocket._childProcessData.pipeFds[0], buffer, sizeof(buffer) - 1);
 
-			std::string name = std::string(buff);
+			if (result > 0) {
+				connectedSocket.setState(READING);
+				connectedSocket._cgiBuffer += buffer;
+				// std::cout << buffer << std::endl;
+				return "";
+			}
+			// std::cout << "Parent:\n" << connectedSocket._cgiBuffer << std::endl;
+
+			std::string html = connectedSocket._cgiBuffer;
+			connectedSocket._cgiBuffer = "";
 
 
-			std::string message = "Welcome" + name + "!";
-			std::string html = "<html><body><h1>" + message + "</h1><a href=\"form/index.html\">Back</a></body></html>";
+			// std::string message = "Welcome" + name + "!";
+			// std::string html = "<html><body><h1>" + message + "</h1><a href=\"form/index.html\">Back</a></body></html>";
 			std::ostringstream ostring;
 			ostring << "HTTP/1.1 200 OK\r\n";
 			ostring << "Content-Type: text/html\r\n";
@@ -632,7 +643,7 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 		// }
 	}
 	else if (result == -1) {
-		std::cout << "child encountered error" << std::endl;
+		// std::cout << "child encountered error" << std::endl;
 		
 		// std::string str = (WIFSIGNALED(status) ? "true" : "false");
 		// std::string str2 = (WEXITSTATUS(status) ? "true" : "false");
@@ -640,7 +651,7 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 		// Server::logMessage("WIFSIGNALED(status) = " + str);
 		// Server::logMessage("WEXITSTATUS(status) = " + str2);
 		// if (WIFSIGNALED(status)) {
-			std::cout << "Parent Process: child process exited with a signal" << std::endl;
+			// std::cout << "Parent Process: child process exited with a signal" << std::endl;
 			// int exitStatus = WTERMSIG(status);
 			// std::cout << "exitStatus = " << exitStatus << std::endl;
 
@@ -657,8 +668,8 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 		// }
 	}
 	else {
-		std::cout << "child process is still going on" << std::endl;
-		connectedSocket.setState(WRITING);
+		// std::cout << "child process is still going on" << std::endl;
+		// connectedSocket.setState(WRITING);
 		return "";
 	}
 
