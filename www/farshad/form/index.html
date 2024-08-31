@@ -11,7 +11,7 @@
       <h1 class="header">WebServe</h1>
     </div>
     <main class="main">
-      <div class="form-container">
+      <div class="form-container form-container-post">
         <h2>Please send us your file</h2>
         <form action="/submit" method="POST" enctype="multipart/form-data">
           <div class="input-container">
@@ -40,7 +40,7 @@
         </form>
       </div>
 
-      <div class="form-container">
+      <div class="form-container form-container-delete">
         <h2>Please choose the file you want to delete</h2>
         <form action="/delete" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="_method" value="delete" />
@@ -58,6 +58,24 @@
         </form>
       </div>
       <button class="btn delete">Delete / DELETE</button>
+
+      <div class="form-container form-container-cgi">
+        <h2>CGI</h2>
+        <form action="/cgi-post" method="POST" enctype="multipart/form-data">
+          <div class="input-container">
+            <label for="name">
+              <input
+                class="input text-input file-to-delete"
+                type="text"
+                name="name"
+                required
+                placeholder="Enter your name"
+              />
+            </label>
+          </div>
+          <button class="btn" type="submit">CGI / POST</button>
+        </form>
+      </div>
     </main>
     <script src="./script.js"></script>
   </body>

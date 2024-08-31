@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/14 08:44:36 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/30 20:31:14 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,13 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_requestHeader(""),
 	_isHeaderComplete(false),
 	_requestMap(std::map<std::string, std::string>()),
-	_avoidBodyFirstChunckRepeat(false) {
+	_avoidBodyFirstChunckRepeat(false),
+	_cgiStartTime(std::time(NULL)),
+	_isCgi(false) {
+		this->_childProcessData.id = -1;
+		this->_childProcessData.pipeFds[0] = -1;
+		this->_childProcessData.pipeFds[1] = -1;
+		this->_childProcessData.isError = false;
 	return;
 }
 
@@ -47,7 +53,10 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	_requestHeader(other._requestHeader),
 	_isHeaderComplete(other._isHeaderComplete),
 	_requestMap(other._requestMap),
-	_avoidBodyFirstChunckRepeat(other._avoidBodyFirstChunckRepeat) {
+	_avoidBodyFirstChunckRepeat(other._avoidBodyFirstChunckRepeat),
+	_cgiStartTime(other._cgiStartTime),
+	_isCgi(other._isCgi),
+	_childProcessData(other._childProcessData) {
 	this->_requestBody << other._requestBody.rdbuf();
 	return;
 }
@@ -69,6 +78,9 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_isHeaderComplete = rhs._isHeaderComplete;
 		this->_requestMap = rhs._requestMap;
 		this->_avoidBodyFirstChunckRepeat = rhs._avoidBodyFirstChunckRepeat;
+		this->_cgiStartTime = rhs._cgiStartTime;
+		this->_isCgi = rhs._isCgi;
+		this->_childProcessData = rhs._childProcessData;
 	}
 	return *this;
 }
@@ -202,4 +214,20 @@ void ConnectedSocket::clearRequestProperties(void) {
 void ConnectedSocket::setIterationNum(int iterationNum) {
 	this->_iterationNum = iterationNum;
 	return;
+}
+
+time_t const &ConnectedSocket::getCgiStartTime(void) const {
+	return this->_cgiStartTime;
+}
+
+void ConnectedSocket::setCgiStartTime() {
+	this->_cgiStartTime = std::time(NULL);
+}
+
+bool ConnectedSocket::getIsCgi(void) const {
+	return this->_isCgi;
+}
+
+void ConnectedSocket::setIsCgi(bool isCgi) {
+	this->_isCgi = isCgi;
 }

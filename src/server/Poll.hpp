@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:54:58 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/08/31 17:29:36 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ private:
 	bool receiveRequest(Server &s, size_t i, int connectedSocketFd, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
 	void sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
 	void closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket);
+	std::string waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s);
+	void finishCgi(ConnectedSocket &connectedSocket, Server &s, std::string const &response);
 
 	// UN-USED CONSTRUCTORS
 	Poll(void);

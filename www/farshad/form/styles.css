@@ -55,8 +55,9 @@ h2 {
   gap: 1rem;
 }
 
-.form-container:not(:last-of-type) {
-  margin-bottom: 6rem;
+.form-container-delete,
+.form-container-cgi {
+  margin-top: 6rem;
 }
 
 .input-container {

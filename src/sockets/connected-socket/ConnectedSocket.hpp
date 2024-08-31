@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/12 13:52:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/30 20:30:33 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,22 @@ typedef enum e_state {
 	CLOSED
 }t_state;
 
+struct ChildProcessData {
+	pid_t id;
+	int pipeFds[2];
+	bool isError;
+
+	ChildProcessData &operator=(ChildProcessData const &rhs) {
+		if (this != &rhs) {
+			this->id =rhs.id;
+			this->pipeFds[0] = rhs.pipeFds[0];
+			this->pipeFds[1] = rhs.pipeFds[1];
+			this->isError = rhs.id;
+		}
+		return *this;
+	}
+};
+
 class ConnectedSocket : public Socket {
 	private:
 		struct sockaddr_storage _incomingRequestAddress;
@@ -48,8 +64,12 @@ class ConnectedSocket : public Socket {
 		bool _isHeaderComplete;
 		std::map<std::string, std::string> _requestMap;
 		bool _avoidBodyFirstChunckRepeat;
+		time_t _cgiStartTime;
+		bool _isCgi;
 
 	public:
+		ChildProcessData _childProcessData;
+
 		ConnectedSocket(void);
 		ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t  const &incomingConnectionAddressSize);
 		ConnectedSocket(ConnectedSocket const &other);
@@ -69,6 +89,9 @@ class ConnectedSocket : public Socket {
 		bool getIsHeaderComplete(void);
 		std::map<std::string, std::string> &getRequestMap(void);
 		bool getAvoidBodyFirstChunckRepeat(void);
+		time_t const &getCgiStartTime(void) const;
+		bool getIsCgi(void) const;
+
 
 		void setState(t_state state);
 		void setConnectionStartTime();
@@ -77,6 +100,8 @@ class ConnectedSocket : public Socket {
 		void setIsHeaderComplete(bool isHeaderComplete);
 		void setRequestMap(std::map<std::string, std::string> const &requestMap);
 		void setAvoidBodyFirstChunckRepeat(bool isBodyFirstChunckReceived);
+		void setCgiStartTime();
+		void setIsCgi(bool isCgi);
 
 		std::string const &appendToRequest(std::string const &toAppend);
 		std::ostringstream const & appendToBody(std::ostringstream const &outputStringStream);

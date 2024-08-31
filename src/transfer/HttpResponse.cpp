@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/28 13:10:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 15:59:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -548,6 +548,9 @@ From The Response Map And Return True. */
 
 bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket) {
 	if (pollEvent == POLLIN_TMP) {
+		if (connectedSocket.getIsCgi() && this->_responses[clientSocket].empty()) {
+			return true;
+		}
 		_responses[clientSocket] = getResponse(clientSocket, connectedSocket);
 		Server::logMessage("INFO: Response Generated for socket fd: " + Server::intToString(clientSocket));
 		return true;
@@ -564,6 +567,8 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		std::cout << CYAN << "Connected socket " << clientSocket << " is sending the response ..." << RESET << std::endl;
 
 		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
+
+		std::cout <<  "******" << bytesSent << "******" << std::endl;
 		if (bytesSent == -1) {
 			Server::logMessage("Error: No Byte Sent for socket fd: " + Server::intToString(clientSocket));
 			return false;
@@ -572,6 +577,8 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		std::cout << CYAN << "Response size: " << this->_responses[clientSocket].size() << RESET << std::endl;
 
 		connectedSocket.setConnectionStartTime();
+
+		// if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size()) || (connectedSocket.getRequestMap()["uri"] == "/cgi-post")) {
 		if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
 			Server::logMessage("WARNING: Sent Byte Less Than The Response for socket fd: " + Server::intToString(clientSocket));
 			pollFds[i].events = POLLOUT;
@@ -772,4 +779,8 @@ std::string HTTPResponse::generateErrorPage(int statusCode) {
 		std::string headers = generateErrorHeaders(statusCode, contentLength);
 		return headers + data;
 	}
+}
+
+void HTTPResponse::setResponseForAConnectedSocket(std::string const &response, int connectedSocketFd) {
+	this->_responses[connectedSocketFd] = response;
 }

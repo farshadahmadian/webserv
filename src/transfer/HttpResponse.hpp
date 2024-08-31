@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/28 12:01:05 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/31 15:53:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@
 # include "HttpRequest.hpp"
 # include "LocationConf.hpp"
 
-
 enum POLLEvents {
 	POLLIN_TMP  = 0,
 	POLLOUT_TMP = 1,
@@ -79,6 +78,7 @@ public:
 	std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
 	std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
 
+	void setResponseForAConnectedSocket(std::string const &response, int connectedSocketFd);
 	//-------------------------------ERROR-----------------------------
 	std::string generateDefaultErrorPage(int statusCode, std::string const & message);
 	std::string generateErrorPage(int statusCode);

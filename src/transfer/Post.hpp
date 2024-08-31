@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/27 21:48:02 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/08/30 19:46:35 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <fstream>
 # include <sys/types.h>
 # include <dirent.h>
+# include <unistd.h>
 # include "colors.h"
 # include "ConnectedSocket.hpp"
 # include "HttpResponse.hpp"
@@ -30,7 +31,7 @@ class Post : public HTTPResponse {
 		Post(Post const &other);
 		Post &operator=(Post const &rhs);
 		~Post(void);
-		std::string const & handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
+		std::string handlePost(int connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
 		
 	private:
 		bool _isFileSaved;
@@ -43,7 +44,11 @@ class Post : public HTTPResponse {
 		std::string getName(std::string string);
 		std::string getFileName(std::string string);
 		void saveFile(std::string string);
+		ChildProcessData handlePostCgi(int connectedSocketFd, ConnectedSocket &connectedSocket);
+		std::string findCommand(std::string const &command);
 
 };
+
+
 
 #endif
