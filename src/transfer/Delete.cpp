@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/28 18:08:26 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 18:55:33 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		else
 		{
 			std::cout << YELLOW << fileToDelete << " is a file, and not a directory." << RESET << std::endl;
-			remove(fileToDelete.c_str());
+			std::remove(fileToDelete.c_str());
 			std::cout << YELLOW << fileToDelete << " is deleted" << RESET << std::endl;
 			return true;
 		}

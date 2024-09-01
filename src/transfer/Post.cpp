@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/01 15:43:52 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 19:58:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -400,10 +400,12 @@ void Post::handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2
 
 	// std::string command = this->findCommand("node");
 
-	std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
+	// std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
+	std::string command = "/usr/bin/python";
 	char *cmd = const_cast<char *>(command.c_str());
 
-	std::string file = "./www/farshad/form/cgi.js";
+	// std::string file = "./www/farshad/form/cgi.js";
+	std::string file = "./www/farshad/form/cgi-post.py";
 	char *filePath = const_cast<char *>(file.c_str());
 
 	char *const argv[] = {cmd, filePath, NULL};

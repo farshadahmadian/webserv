@@ -10,12 +10,16 @@ const html = `<!DOCTYPE html>
 	<title>Document</title>
 	<style>
 		h1 {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			color: blue;
 		}
 	</style>
 </head>
 <body>
 <h1>Welcome ${process.env.NAME}</h1>
+<p>Time: </p>
 </body>
 </html>`;
 console.log(html);
