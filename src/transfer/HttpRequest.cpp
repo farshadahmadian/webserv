@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/31 19:47:21 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 15:45:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,7 +236,7 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 	if (receiveInChuncks(connectedSocket, pollFds, i, outputStream))
 	{
 		pollFds[i].events = POLLOUT;
-		std::cout << MAGENTA << "Request received completely." << RESET << std::endl;
+		// std::cout << MAGENTA << "Request received completely." << RESET << std::endl;
 		connectedSocket.setState(DONE);
 	}
 	else

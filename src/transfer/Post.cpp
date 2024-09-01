@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/31 19:49:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 15:43:52 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 	}
 
 	if (connectedSocket.getRequestMap()["uri"] == "/cgi-post") {
-		std::cout << "****cgi*****" << std::endl;
+		// std::cout << "****cgi*****" << std::endl;
 		connectedSocket.setIsCgi(true);
 		connectedSocket.setCgiStartTime();
 		// this->_responses[connectedSocketFd] = handlePostCgi(connectedSocketFd, connectedSocket);

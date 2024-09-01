@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/31 19:48:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 15:46:17 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -573,8 +573,8 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 			Server::logMessage("Error: No Byte Sent for socket fd: " + Server::intToString(clientSocket));
 			return false;
 		}
-		std::cout << CYAN << "Bytes sent: " << bytesSent << RESET << std::endl;
-		std::cout << CYAN << "Response size: " << this->_responses[clientSocket].size() << RESET << std::endl;
+		// std::cout << CYAN << "Bytes sent: " << bytesSent << RESET << std::endl;
+		// std::cout << CYAN << "Response size: " << this->_responses[clientSocket].size() << RESET << std::endl;
 
 		connectedSocket.setConnectionStartTime();
 

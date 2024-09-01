@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/31 19:52:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 16:47:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -610,13 +610,26 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 
 			char buffer[1024];
 			buffer[1023] = '\0';
-			std::cout << "Parent1" << std::endl;
+
+			if (fcntl(connectedSocket._childProcessData.pipeFds[0], F_SETFL, O_NONBLOCK) == -1) {
+					Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
+        	perror("fcntl F_SETFL");
+			}
+
 			int result = read(connectedSocket._childProcessData.pipeFds[0], buffer, sizeof(buffer) - 1);
 
 			if (result > 0) {
 				connectedSocket.setState(READING);
-				connectedSocket._cgiBuffer += buffer;
+				// std::ostringstream os (std::ios::binary);
+				std::string temp(buffer, result);
+				// std::string temp2 = "";
+				// temp2.assign(buffer, result);
+				// os.write(buffer, result);
+				// connectedSocket._cgiBuffer += os.str();
+				// connectedSocket._cgiBuffer += temp2;
+				connectedSocket._cgiBuffer += temp;
 				// std::cout << buffer << std::endl;
+				// std::cout << "---" << std::endl;
 				return "";
 			}
 			// std::cout << "Parent:\n" << connectedSocket._cgiBuffer << std::endl;
