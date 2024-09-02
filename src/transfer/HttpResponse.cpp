@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/01 15:46:17 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 20:18:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,8 @@ std::string HTTPResponse::createHandleGet() {
 std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
 	Post postResponse;
 	postResponse.handlePost(connectedSocketFd, connectedSocket, serverConfig);
+	if (connectedSocket._isCgiChildProcessReturning)
+		return "";
 	std::string response = postResponse.getSocketResponse(connectedSocketFd);
 	postResponse.removeSocketResponse(connectedSocketFd);
 	postResponse.clearData();

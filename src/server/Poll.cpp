@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/01 16:47:53 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 20:42:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,15 @@ void Poll::handleEvent(int counter)
 
 		for (connectedSocketIt = serverIt->getConnectedSockets().begin(); connectedSocketIt != connectedSocketItEnd; connectedSocketIt++)
 		{
+			// connectedSocketIt->second._isCgiChildProcessReturning = false;
 			handleConnectedEvent(connectedSocketIt->second.getSocketFd(), (*serverIt), &connectedSocketIt);
+			if (connectedSocketIt->second._isCgiChildProcessReturning == true)
+			{
+
+				std::cerr << RED << "STOP " << connectedSocketIt->second._isCgiChildProcessReturning << RESET << std::endl;
+				stopServer = true;
+				// exit(1);
+			}
 			i++;
 			if (connectedSocketIt == connectedSocketItEnd)
 				break;
@@ -580,6 +588,9 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int
 }
 
 std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s) {
+
+	// std::cout << "connectedSocket._isCgiChildProcessReturning = " << connectedSocket._isCgiChildProcessReturning << std::endl;
+
 	// Server::logMessage("Parent process: connectedSocket._childProcessData.pipeFds[0] = " + Server::intToString(connectedSocket._childProcessData.pipeFds[0]));
 	int status = 0;
 	// close(connectedSocket._childProcessData.pipeFds[1]);

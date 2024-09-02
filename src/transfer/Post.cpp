@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/01 19:58:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/01 20:16:54 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,9 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 		connectedSocket.setCgiStartTime();
 		// this->_responses[connectedSocketFd] = handlePostCgi(connectedSocketFd, connectedSocket);
 		connectedSocket._childProcessData= handlePostCgi(connectedSocket);
+		if (connectedSocket._isCgiChildProcessReturning) {
+			return "";
+		}
 		if (connectedSocket._childProcessData.isError)
 			return this->_responses[connectedSocketFd];
 		else
@@ -357,6 +360,7 @@ ChildProcessData Post::handlePostCgi(ConnectedSocket &connectedSocket) {
 
 	if (id == 0) {		
 		this->handleCgiChildProcess(connectedSocket, pipeFds);
+		return connectedSocket._childProcessData;
 	} else {
 		handleCgiMainProcess(connectedSocket, pipeFds, id);
 	 	return connectedSocket._childProcessData;;
@@ -414,7 +418,8 @@ void Post::handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2
 
 	execve(cmd, argv, env);
 	std::cerr << RED << "cmd or argv are wrong => execve failed" << RESET << std::endl;
-	exit(-1);
+	connectedSocket._isCgiChildProcessReturning = true;
+	return;
 
 }
 
