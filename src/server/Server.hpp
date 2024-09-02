@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/02 10:15:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 18:33:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 
 #define MAX_CONNECTIONS 130
 #define CGI_TIMEOUT 10
+#define MAX_CGI_CHILD_PROCESSES 5
 
 class Server
 {

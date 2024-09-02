@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/01 20:42:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 18:05:46 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "Poll.hpp"
 
 bool stopServer = false;
+
+int Poll::cgiChildProcessNum = 0;
 
 void printCurrentPollFdsTEST(nfds_t currentMonitored, struct pollfd* pollFd) {
 	nfds_t i = 0;
@@ -595,9 +597,10 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 	int status = 0;
 	// close(connectedSocket._childProcessData.pipeFds[1]);
 	int result = 0;
-	if (connectedSocket.getState() != WRITING) {
+
+	if (connectedSocket.getState() != WRITING && connectedSocket.getState() != READING) {
 		result = waitpid(connectedSocket._childProcessData.id, &status, WNOHANG);
-		// std::cout << "result = " << result <<  ", id =  " << connectedSocket._childProcessData.id << std::endl;
+		// std::cout << "connectedSocket.getState() = " << connectedSocket.getState() << " ,result = " << result <<  ", id =  " << connectedSocket._childProcessData.id << std::endl;
 	}
 	// close(connectedSocket._childProcessData.pipeFds[0]);
 	// std::cout << "now = " << std::time(NULL) <<  "timeout = " << connectedSocket.getCgiStartTime() + CGI_TIMEOUT << std::endl;
@@ -612,84 +615,33 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 	}
 
 	if (result == connectedSocket._childProcessData.id || connectedSocket.getState() == READING) {
-		// std::cout << "child exited normally" << std::endl;
+		if (WIFEXITED(status)) {
 
-		// if (WIFEXITED(status)){
-			// std::cout << "Parent Process: child process exited normally, without any signals" << std::endl;
-			// int exitStatus = WEXITSTATUS(status);
-			// std::cout << "exitStatus = " << exitStatus << std::endl;
-
-			char buffer[1024];
-			buffer[1023] = '\0';
-
-			if (fcntl(connectedSocket._childProcessData.pipeFds[0], F_SETFL, O_NONBLOCK) == -1) {
-					Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
-        	perror("fcntl F_SETFL");
+			if (WEXITSTATUS(status) == 0)
+			{
+				std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
+				std::string response = this->cgiChildProcessSuccess(connectedSocket, s);
+				return response;
 			}
-
-			int result = read(connectedSocket._childProcessData.pipeFds[0], buffer, sizeof(buffer) - 1);
-
-			if (result > 0) {
-				connectedSocket.setState(READING);
-				// std::ostringstream os (std::ios::binary);
-				std::string temp(buffer, result);
-				// std::string temp2 = "";
-				// temp2.assign(buffer, result);
-				// os.write(buffer, result);
-				// connectedSocket._cgiBuffer += os.str();
-				// connectedSocket._cgiBuffer += temp2;
-				connectedSocket._cgiBuffer += temp;
-				// std::cout << buffer << std::endl;
-				// std::cout << "---" << std::endl;
-				return "";
+			else {
+				std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
+				std::string response = this->cgiChildProcessFail(connectedSocket, s);
+				return response;
 			}
-			// std::cout << "Parent:\n" << connectedSocket._cgiBuffer << std::endl;
-
-			std::string html = connectedSocket._cgiBuffer;
-			connectedSocket._cgiBuffer = "";
-
-
-			// std::string message = "Welcome" + name + "!";
-			// std::string html = "<html><body><h1>" + message + "</h1><a href=\"form/index.html\">Back</a></body></html>";
-			std::ostringstream ostring;
-			ostring << "HTTP/1.1 200 OK\r\n";
-			ostring << "Content-Type: text/html\r\n";
-			ostring << "Connection: close\r\n";
-			ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-			ostring << html;
+		}
+		else {
+				std::string response = this->cgiChildProcessFail(connectedSocket, s);
+				return response;
+		}
 		
-
 			
-			std::string response = ostring.str();
-			finishCgi(connectedSocket, s, response);
-			return response;
-			// return this->_responses[connectedSocketFd];
-		// }
-	}
-	else if (result == -1) {
-		// std::cout << "child encountered error" << std::endl;
-		
-		// std::string str = (WIFSIGNALED(status) ? "true" : "false");
-		// std::string str2 = (WEXITSTATUS(status) ? "true" : "false");
-
-		// Server::logMessage("WIFSIGNALED(status) = " + str);
-		// Server::logMessage("WEXITSTATUS(status) = " + str2);
-		// if (WIFSIGNALED(status)) {
-			// std::cout << "Parent Process: child process exited with a signal" << std::endl;
-			// int exitStatus = WTERMSIG(status);
-			// std::cout << "exitStatus = " << exitStatus << std::endl;
-
-			// Server::logMessage("exitStatus" + Server::intToString(exitStatus));
-
+			
+	}	else if (result == -1) {
 			HTTPResponse temp;
 			std::string response = temp.generateErrorPage(500);
 			 
 			this->finishCgi(connectedSocket, s, response);
 			return response;
-			// this->_responses[connectedSocketFd] = generateErrorPage(500);
-			// return this->_responses[connectedSocketFd];
-
-		// }
 	}
 	else {
 		// std::cout << "child process is still going on" << std::endl;
@@ -710,5 +662,54 @@ void Poll::finishCgi(ConnectedSocket &connectedSocket, Server &s, std::string co
 	connectedSocket.setState(DONE);
 	s.getHttpResp().setResponseForAConnectedSocket(response, connectedSocket.getSocketFd());
 	connectedSocket.setIsCgi(false);
+	connectedSocket._isCgiChildProcessSuccessful = false;
+	connectedSocket.setCgiStartTime();
+	connectedSocket._cgiBuffer = "";
+	connectedSocket._isCgiChildProcessReturning = false;
+
+	Poll::cgiChildProcessNum--;
+	std::cout << "Poll::cgiChildProcessNum = " << Poll::cgiChildProcessNum << std::endl;
 	return;
+}
+
+std::string Poll::cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Server &s) {
+	connectedSocket._isCgiChildProcessSuccessful = true;
+
+	char buffer[1024];
+	buffer[1023] = '\0';
+
+	if (fcntl(connectedSocket._childProcessData.pipeFds[0], F_SETFL, O_NONBLOCK) == -1) {
+			Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
+			perror("fcntl F_SETFL");
+	}
+
+	int result = read(connectedSocket._childProcessData.pipeFds[0], buffer, sizeof(buffer) - 1);
+
+	if (result > 0) {
+		connectedSocket.setState(READING);
+		std::string temp(buffer, result);
+		connectedSocket._cgiBuffer += temp;
+		return "";
+	}
+	std::string html = connectedSocket._cgiBuffer;
+	connectedSocket._cgiBuffer = "";
+
+	std::cout << BLUE << "RESULT = " << result << RESET << std::endl;
+	std::cerr << RED << "ERROR" << RESET << std::endl;
+	std::ostringstream ostring;
+	ostring << "HTTP/1.1 200 OK\r\n";
+	ostring << "Content-Type: text/html\r\n";
+	ostring << "Connection: close\r\n";
+	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
+	ostring << html;
+
+	std::string response = ostring.str();
+	finishCgi(connectedSocket, s, response);
+	return response;
+}
+
+std::string Poll::cgiChildProcessFail(ConnectedSocket &connectedSocket, Server &s) {
+	std::string response = s.getHttpResp().generateErrorPage(500);
+	finishCgi(connectedSocket, s, response);
+	return response;
 }

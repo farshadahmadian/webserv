@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/01 20:16:54 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 18:17:24 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,6 +192,11 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 	}
 
 	if (connectedSocket.getRequestMap()["uri"] == "/cgi-post") {
+		if (Poll::cgiChildProcessNum >= MAX_CGI_CHILD_PROCESSES)
+		{
+			this->_responses[connectedSocketFd] = generateErrorPage(503);
+			return this->_responses[connectedSocketFd];
+		}
 		// std::cout << "****cgi*****" << std::endl;
 		connectedSocket.setIsCgi(true);
 		connectedSocket.setCgiStartTime();
@@ -358,6 +363,9 @@ ChildProcessData Post::handlePostCgi(ConnectedSocket &connectedSocket) {
 		return connectedSocket._childProcessData;
 	}
 
+	Poll::cgiChildProcessNum++;
+	std::cout << "Poll::cgiChildProcessNum = " << Poll::cgiChildProcessNum << std::endl;
+
 	if (id == 0) {		
 		this->handleCgiChildProcess(connectedSocket, pipeFds);
 		return connectedSocket._childProcessData;
@@ -416,8 +424,8 @@ void Post::handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2
 
 
 
-	execve(cmd, argv, env);
-	std::cerr << RED << "cmd or argv are wrong => execve failed" << RESET << std::endl;
+	int result = execve(cmd, argv, env);
+	std::cerr << RED << "cmd or argv are wrong => execve failed. execve() returned: " << result << RESET << std::endl;
 	connectedSocket._isCgiChildProcessReturning = true;
 	return;
 

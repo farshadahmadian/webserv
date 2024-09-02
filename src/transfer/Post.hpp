@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/31 18:10:45 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 14:39:58 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <sys/types.h>
 # include <dirent.h>
 # include <unistd.h>
+# include "Poll.hpp"
 # include "colors.h"
 # include "ConnectedSocket.hpp"
 # include "HttpResponse.hpp"

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/01 20:13:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 14:42:48 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 		this->_childProcessData.isError = false;
 
 		this->_isCgiChildProcessReturning = false;
+		this->_isCgiChildProcessSuccessful = false;
 	return;
 }
 
@@ -62,6 +63,7 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	this->_requestBody << other._requestBody.rdbuf();
 
 	this->_isCgiChildProcessReturning = other._isCgiChildProcessReturning;
+	this->_isCgiChildProcessSuccessful = other. _isCgiChildProcessSuccessful;
 	return;
 }
 
@@ -87,6 +89,7 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_childProcessData = rhs._childProcessData;
 
 		this->_isCgiChildProcessReturning = rhs._isCgiChildProcessReturning;
+		this->_isCgiChildProcessSuccessful = rhs._isCgiChildProcessSuccessful;
 	}
 	return *this;
 }

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/31 17:29:36 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 15:20:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ public:
 	void start(void);
 	nfds_t mapConnectedSocketFdToPollFd(int connectedSocketFd);
 	void cleanConnectedSockets(int counter);
+
+	int static cgiChildProcessNum;
 
 private:
 	std::vector<Server> _serverList;
@@ -54,6 +56,8 @@ private:
 	void closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket);
 	std::string waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s);
 	void finishCgi(ConnectedSocket &connectedSocket, Server &s, std::string const &response);
+	std::string cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Server &s);
+	std::string cgiChildProcessFail(ConnectedSocket &connectedSocket, Server &s);
 
 	// UN-USED CONSTRUCTORS
 	Poll(void);
