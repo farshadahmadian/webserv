@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/02 15:20:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:37:03 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ public:
 	void init(void);
 	void start(void);
 	nfds_t mapConnectedSocketFdToPollFd(int connectedSocketFd);
-	void cleanConnectedSockets(int counter);
+	void cleanConnectedSockets(void);
 
 	int static cgiChildProcessNum;
 
@@ -42,8 +42,8 @@ private:
 	bool mergeServerWithSamePort(std::map<std::string, std::string> serverConf);
 	void initFds(void);
 
-	void handleEvent(int counter);
-	void handleListeningEvent(size_t i, Server &s, int counter);
+	void handleEvent(void);
+	void handleListeningEvent(size_t i, Server &s);
 	void handleConnectedEvent(int i, Server &s, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
 	void addConnectedSocketToMonitoredList(int connectedSocketFd);
 	void removeClosedSocketsFromMap(Server &s);

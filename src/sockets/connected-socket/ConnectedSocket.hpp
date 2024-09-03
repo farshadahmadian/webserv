@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 15:05:20 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:38:16 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ class ConnectedSocket : public Socket {
 		socklen_t const &getIncomingConnectionAddressSize(void) const;
 		bool getIsConnected(void) const;
 		time_t const &getConnectionStartTime(void) const;
-		int getIterationNum();
+		// int getIterationNum();
 		t_state getState(void);
 		std::string const &getRequest(void)const;
 		size_t getContentLength(void);
@@ -99,7 +99,7 @@ class ConnectedSocket : public Socket {
 
 		void setState(t_state state);
 		void setConnectionStartTime();
-		void setIterationNum(int iterationNum);
+		// void setIterationNum(int iterationNum);
 		void setRequestBodyLength(std::string contentLength);
 		void setIsHeaderComplete(bool isHeaderComplete);
 		void setRequestMap(std::map<std::string, std::string> const &requestMap);

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 15:09:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:38:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,9 +124,9 @@ time_t const &ConnectedSocket::getConnectionStartTime(void) const {
 	return this->_connectionStartTime;
 }
 
-int ConnectedSocket::getIterationNum() {
-	return this->_iterationNum;
-}
+// int ConnectedSocket::getIterationNum() {
+// 	return this->_iterationNum;
+// }
 
 t_state ConnectedSocket::getState(void) {
 	return this->_state;
@@ -222,10 +222,10 @@ void ConnectedSocket::clearRequestProperties(void) {
 	this->_requestMap.clear();
 }
 
-void ConnectedSocket::setIterationNum(int iterationNum) {
-	this->_iterationNum = iterationNum;
-	return;
-}
+// void ConnectedSocket::setIterationNum(int iterationNum) {
+// 	this->_iterationNum = iterationNum;
+// 	return;
+// }
 
 time_t const &ConnectedSocket::getCgiStartTime(void) const {
 	return this->_cgiStartTime;

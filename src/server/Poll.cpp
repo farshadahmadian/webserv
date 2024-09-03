@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/03 15:10:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:37:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,10 +125,8 @@ void signalHandler(int sigNum) {
 
 void Poll::start(void)
 {
-	int counter = 0;
 	while (true)
 	{
-		counter++;
 		// std::cout << BLUE << "* Poll counter = " << counter <<  RESET << std::endl;
 
 		signal(SIGPIPE, SIG_IGN);
@@ -141,7 +139,7 @@ void Poll::start(void)
 			// sleep(1);
 			// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			int eventsNum = poll(_totalFds, _currentMonitored, 10000);
-			cleanConnectedSockets(counter);
+			cleanConnectedSockets();
 			// printCurrentPollFdsTEST(_currentMonitored, _totalFds);
 			// std::cout << "* Event num: " << eventsNum << std::endl; 
 			// this->printCurrentPollFds();
@@ -158,7 +156,7 @@ void Poll::start(void)
 			}
 			if (eventsNum > 0)
 			{
-				handleEvent(counter);
+				handleEvent();
 			}
 
 			if (stopServer)
@@ -172,7 +170,7 @@ void Poll::start(void)
 	}
 }
 
-void Poll::handleEvent(int counter)
+void Poll::handleEvent(void)
 {
 	std::vector<Server>::iterator serverIt = _serverList.begin();
 
@@ -182,7 +180,7 @@ void Poll::handleEvent(int counter)
 		// std::cout << serverIt->getListeningSocket().getSocketFd() << ": " << _totalFds[i].fd << std::endl;
 		if (_totalFds[i].fd == (*serverIt).getListeningSocket().getSocketFd())
 		{
-			handleListeningEvent(i, (*serverIt), counter);
+			handleListeningEvent(i, (*serverIt));
 			serverIt++;
 			i++;
 			//  std::cout << RED << "Iteration count on servers: " << i << RESET << std::endl; 
@@ -222,7 +220,7 @@ void Poll::handleEvent(int counter)
 	}
 }
 
-void Poll::handleListeningEvent(size_t i, Server &s, int counter)
+void Poll::handleListeningEvent(size_t i, Server &s)
 {
 	// try
 	// {
@@ -247,7 +245,7 @@ void Poll::handleListeningEvent(size_t i, Server &s, int counter)
 			if (connectedSocketFd < 0)
 				return ;
 			addConnectedSocketToMonitoredList(connectedSocketFd);
-			s.getConnectedSockets()[connectedSocketFd].setIterationNum(counter);
+			// s.getConnectedSockets()[connectedSocketFd].setIterationNum(counter);
 			this->_totalFds[i].revents = 0;
 			// this->printCurrentPollFds();
 		}
@@ -448,7 +446,7 @@ void Poll::closeTimedoutSockets(nfds_t pollNum, ConnectedSocket &connectedSocket
 		this->_totalFds[pollNum].fd = -1;
 }
 
-void Poll::cleanConnectedSockets(int counter) {
+void Poll::cleanConnectedSockets() {
 	// Server::logMessage("INFO: Connected Sockets Cleaned!");
 	std::vector<Server>::iterator serverIt;
 	std::vector<Server>::iterator serverItEnd = this->_serverList.end();
@@ -475,7 +473,7 @@ void Poll::cleanConnectedSockets(int counter) {
 				if (serverIt->getKeepAliveTimeout() && (serverIt->getKeepAliveTimeout() + connectedSocketIt->second.getConnectionStartTime() < now ) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
 					closeTimedoutSockets(pollNum, connectedSocketIt->second);
 				}
-				else if (!(serverIt->getKeepAliveTimeout()) && (counter > connectedSocketIt->second.getIterationNum() + 8) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
+				else if (!(serverIt->getKeepAliveTimeout()) && !(this->_totalFds[pollNum].revents & POLLIN) && !(this->_totalFds[pollNum].revents & POLLOUT)) {
 					closeTimedoutSockets(pollNum, connectedSocketIt->second);
 				}
 

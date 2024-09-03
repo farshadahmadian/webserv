@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 16:42:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:42:11 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -946,7 +946,7 @@ void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t i
 }
 
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
-	std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
+	// std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
 	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
 	if (index == 0)
 		return true;
