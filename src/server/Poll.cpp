@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/02 18:47:31 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 09:22:50 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,7 @@ void Poll::handleEvent(int counter)
 		{
 			// connectedSocketIt->second._isCgiChildProcessReturning = false;
 			handleConnectedEvent(connectedSocketIt->second.getSocketFd(), (*serverIt), &connectedSocketIt);
-			if (connectedSocketIt->second._isCgiChildProcessReturning == true)
+			if (connectedSocketIt->second._isCgiChildProcessReturning == true && connectedSocketIt->second.getIsCgi() == true)
 			{
 
 				std::cerr << RED << "STOP " << connectedSocketIt->second._isCgiChildProcessReturning << RESET << std::endl;

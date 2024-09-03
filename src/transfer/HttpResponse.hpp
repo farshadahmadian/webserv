@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 08:57:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 13:21:52 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ public:
 protected:
 	std::string const &getStorageDirectory(void) const;
 
-	std::string createHandleGet();
+	std::string createHandleGet(ConnectedSocket &connectedSocket);
 	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
 	std::string createHandleDelete(ConnectedSocket &connectedSocket);
 	std::string httpStatusCode(int statusCode);
@@ -104,13 +104,13 @@ protected:
 	std::string generateGeneralHeaders(std::string & filePath);
 
 	//-------------------------------CGI-------------------------------
-	bool isCGI(std::string const & filePath);
-	std::string const handleCGI(std::string & uri);
-	std::string cgi( std::string& uri );
-	char** createEnv( std::string * uri );
-	size_t acceptedCgiExtention(std::string const &filePath);
-	std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
-	std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
+	// bool isCGI(std::string const & filePath);
+	// std::string const handleCGI(std::string & uri);
+	// std::string cgi( std::string& uri );
+	// char** createEnv( std::string * uri );
+	// size_t acceptedCgiExtention(std::string const &filePath);
+	// std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
+	// std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
 	//-----------------------------------------------------------------
 
 
@@ -128,6 +128,11 @@ protected:
 	void handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id);
 	void UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError);
 	bool isCgiUri(ConnectedSocket &connectedSocket);
+	void storeKeyValuePairsOfQueryString(void);
+	void resetCgiProperties(void);
+	void printQueryStringKeyValues(void);
+	char **getEnv(void);
+	void printEnv(char **env);
 
 
 	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map
@@ -143,6 +148,8 @@ protected:
 	std::string _cgiDirectory;
 	std::string _cgiFilePath;
 	std::string _cgiFileName;
+	std::string _queryString;
+	std::vector<std::string> _queryStringKeyValues;
 
 	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------

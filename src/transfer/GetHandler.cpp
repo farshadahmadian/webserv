@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/28 19:21:49 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 09:32:37 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
 	HTTPResponse(serverConfig, locations) {
 	setRequestMapInResponse(requestMap);
 	this->setRedirections();
+	this->_cgiDirectory = "/cgi-get/";
 	// this->printRedirections();
 }
 
@@ -99,12 +100,18 @@ bool isFile(std::string const & filePath) {
 }
 
 
-std::string GetHandler::GetMethod() {
+std::string GetHandler::GetMethod(ConnectedSocket &connectedSocket) {
 	std::string content;
 	std::string date, lastMfd, eTag;
 	std::ostringstream responseHeaders;
 	std::string uri = _requestMap["uri"];
 	std::string filePath = _serverConfig.at("root") + uri;
+
+	if (isCgiUri(connectedSocket)) {
+		std::string response = this->handleCgi(connectedSocket);
+		return response;
+	}
+
 
 	if (getRedirections(uri).length()) {
 		std::cout << GREEN << "Redirecting from " << uri << " to " << getRedirections(uri) << RESET << std::endl;
@@ -144,15 +151,15 @@ std::string GetHandler::GetMethod() {
     Server::logMessage("INFO: Received GET request for " + filePath);
 
     // Serve the file if it's not a directory or an index file was found
-    if (!content.empty() || isCGI(filePath)) {
+    if (!content.empty()){// || isCGI(filePath)) {
         std::string extension = filePath.substr(filePath.find_last_of("."));
 		// std::cout << "extension: " << extension << std::endl;
-        if (isCGI(filePath)) {
-			extension = HTML_EXTENSION;
-		// std::cout << "extension: " << extension << std::endl;
-            content = handleCGI(uri);
+    //     if (isCGI(filePath)) {
+		// 	extension = HTML_EXTENSION;
+		// // std::cout << "extension: " << extension << std::endl;
+    //         // content = handleCGI(uri);
 
-		}
+		// }
         std::string mimeType = getMimeType(extension);
         eTag = generateETag(filePath, date, lastMfd);
 

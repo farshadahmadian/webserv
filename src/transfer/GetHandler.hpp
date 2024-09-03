@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:36:51 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/08/28 12:50:53 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 09:03:38 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class GetHandler : public HTTPResponse {
 	public:
 		GetHandler(const std::map<std::string, std::string>& requestMap, const std::map<std::string, std::string>& serverConfig, std::vector<LocationConf> const &locations);
 		~GetHandler();
-		std::string GetMethod();
+		std::string GetMethod(ConnectedSocket &connectedSocket);
 	
 	private:
 	std::map<std::string, std::string> _redirections;

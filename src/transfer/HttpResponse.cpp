@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 08:57:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 13:40:02 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "Post.hpp"
 #include "Delete.hpp"
 
-HTTPResponse::HTTPResponse() : _storageDirectory("./www/farshad/cloudStorage"), _data(std::map<std::string, std::string>()) {
+HTTPResponse::HTTPResponse() : _storageDirectory("./www/farshad/cloudStorage"), _data(std::map<std::string, std::string>()), _cgiDirectory(""), _cgiFilePath(""), _cgiFileName(""), _queryString(""), _queryStringKeyValues(std::vector<std::string>()) {
 	// std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
@@ -80,7 +80,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 
 	// First, check if the method is GET or HEAD
 	if (method == "GET" || method == "HEAD") {
-		return createHandleGet();
+		return createHandleGet(connectedSocket);
 	}
 
 	// Then, check if the method is POST or DELETE and the URI is not a directory
@@ -100,15 +100,15 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 
 /*Creat An Instance of GetHandler Class And
 Call The Get Method To Prepare The Response.*/
-std::string HTTPResponse::createHandleGet() {
+std::string HTTPResponse::createHandleGet(ConnectedSocket &connectedSocket) {
 	GetHandler  Get(_requestMap, _serverConfig, this->_locations);
-	return (Get.GetMethod());
+	return (Get.GetMethod(connectedSocket));
 }
 
 std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
 	Post postResponse;
 	postResponse.handlePost(connectedSocketFd, connectedSocket, serverConfig);
-	if (connectedSocket._isCgiChildProcessReturning)
+	if (connectedSocket._isCgiChildProcessReturning == true)
 		return "";
 	std::string response = postResponse.getSocketResponse(connectedSocketFd);
 	postResponse.removeSocketResponse(connectedSocketFd);
@@ -186,31 +186,31 @@ static void free_dptr( char** env ) {
 }
 
 /*Check whether the accepted cgi extension exits or not.*/
-bool HTTPResponse::isCGI(std::string const & filePath) {
-    size_t pos = acceptedCgiExtention(filePath);
-    // if (pos != std::string::npos && pos + 3 < filePath.length()) {
-		if (pos != std::string::npos) {
-        // char charAfterExtension = filePath[pos + 3];
-        // if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
-            return true;
-        }
-    // }
-    return false;
-}
+// bool HTTPResponse::isCGI(std::string const & filePath) {
+//     size_t pos = acceptedCgiExtention(filePath);
+//     // if (pos != std::string::npos && pos + 3 < filePath.length()) {
+// 		if (pos != std::string::npos) {
+//         // char charAfterExtension = filePath[pos + 3];
+//         // if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
+//             return true;
+//         }
+//     // }
+//     return false;
+// }
 
 /*create body of the received cgi response.*/
-std::string const HTTPResponse::handleCGI(std::string & uri) {
-	std::string cgiResult = cgi(uri);
+// std::string const HTTPResponse::handleCGI(std::string & uri) {
+// 	std::string cgiResult = cgi(uri);
 
-	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
-	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
-	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
-	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
-	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
-	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
+// 	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
+// 	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+// 	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
+// 	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
+// 	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
+// 	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
 	
-	return (content);
-}
+// 	return (content);
+// }
 
 /*check the cgi extension, and return the corresponding interpreter.*/
 std::string const setInterpreter(std::string const & cgiPath) {
@@ -267,68 +267,68 @@ void executeCGI(const std::string& path, char** env, const std::string& method, 
 	exit(1);
 }
 
-std::string HTTPResponse::readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout) {
-	std::string responseBody;
-	close(fd_pipe[1]);
+// std::string HTTPResponse::readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout) {
+// 	std::string responseBody;
+// 	close(fd_pipe[1]);
 
-	char buff[100];
-	int ret = 1;
-	fd_set readfds;
-	struct timeval tv;
-	int fd_max = fd_pipe[0];
-	time_t start_time = time(NULL);
+// 	char buff[100];
+// 	int ret = 1;
+// 	fd_set readfds;
+// 	struct timeval tv;
+// 	int fd_max = fd_pipe[0];
+// 	time_t start_time = time(NULL);
 
-	while (true) {
-		FD_ZERO(&readfds);
-		FD_SET(fd_pipe[0], &readfds);
+// 	while (true) {
+// 		FD_ZERO(&readfds);
+// 		FD_SET(fd_pipe[0], &readfds);
 
-		tv.tv_sec = timeout - (time(NULL) - start_time);
-		tv.tv_usec = 0;
+// 		tv.tv_sec = timeout - (time(NULL) - start_time);
+// 		tv.tv_usec = 0;
 
-		if (tv.tv_sec <= 0) {
-			Server::logMessage("ERROR: CGI Timeout!");
-			kill(forked_ps, SIGKILL);
-			waitpid(forked_ps, NULL, 0);
-			close(fd_pipe[0]);
-			free_dptr(env);
-			return generateErrorPage(504);
-		}
+// 		if (tv.tv_sec <= 0) {
+// 			Server::logMessage("ERROR: CGI Timeout!");
+// 			kill(forked_ps, SIGKILL);
+// 			waitpid(forked_ps, NULL, 0);
+// 			close(fd_pipe[0]);
+// 			free_dptr(env);
+// 			return generateErrorPage(504);
+// 		}
 
-		int sel = select(fd_max + 1, &readfds, NULL, NULL, &tv);
-		if (sel > 0) {
-			if (FD_ISSET(fd_pipe[0], &readfds)) {
-				bzero(buff, sizeof(buff));
-				ret = read(fd_pipe[0], buff, sizeof(buff) - 1);
-				if (ret > 0) {
-					responseBody += buff;
-				} else if (ret == 0) {
-					break;
-				} else {
-					Server::logMessage("ERROR: Reading from CGI failed!");
-					close(fd_pipe[0]);
-					free_dptr(env);
-					return generateErrorPage(500);
-				}
-			}
-		} else if (sel == 0) {
-			Server::logMessage("ERROR: CGI Timeout!");
-			kill(forked_ps, SIGKILL);
-			waitpid(forked_ps, NULL, 0);
-			close(fd_pipe[0]);
-			free_dptr(env);
-			return generateErrorPage(504);
-		} else {
-			Server::logMessage("ERROR: select() failed!");
-			close(fd_pipe[0]);
-			free_dptr(env);
-			return generateErrorPage(500);
-		}
-	}
+// 		int sel = select(fd_max + 1, &readfds, NULL, NULL, &tv);
+// 		if (sel > 0) {
+// 			if (FD_ISSET(fd_pipe[0], &readfds)) {
+// 				bzero(buff, sizeof(buff));
+// 				ret = read(fd_pipe[0], buff, sizeof(buff) - 1);
+// 				if (ret > 0) {
+// 					responseBody += buff;
+// 				} else if (ret == 0) {
+// 					break;
+// 				} else {
+// 					Server::logMessage("ERROR: Reading from CGI failed!");
+// 					close(fd_pipe[0]);
+// 					free_dptr(env);
+// 					return generateErrorPage(500);
+// 				}
+// 			}
+// 		} else if (sel == 0) {
+// 			Server::logMessage("ERROR: CGI Timeout!");
+// 			kill(forked_ps, SIGKILL);
+// 			waitpid(forked_ps, NULL, 0);
+// 			close(fd_pipe[0]);
+// 			free_dptr(env);
+// 			return generateErrorPage(504);
+// 		} else {
+// 			Server::logMessage("ERROR: select() failed!");
+// 			close(fd_pipe[0]);
+// 			free_dptr(env);
+// 			return generateErrorPage(500);
+// 		}
+// 	}
 
-	close(fd_pipe[0]);
-	free_dptr(env);
-	return responseBody;
-}
+// 	close(fd_pipe[0]);
+// 	free_dptr(env);
+// 	return responseBody;
+// }
 
 /*Check and retrieve the status code inside the error generated inside the readFromCGI.*/
 bool checkStatusCode(std::string & text, int *err = NULL) {
@@ -341,67 +341,67 @@ bool checkStatusCode(std::string & text, int *err = NULL) {
 	return false;
 }
 
-std::string HTTPResponse::cgi(std::string& uri) {
-	char** env = createEnv(&uri);    
-	std::string path = _serverConfig["root"] + uri;
+// std::string HTTPResponse::cgi(std::string& uri) {
+// 	char** env = createEnv(&uri);    
+// 	std::string path = _serverConfig["root"] + uri;
 
-	if (!env) {
-		Server::logMessage("ERROR: Environment Variable Not Available!");
-		return generateErrorPage(500);
-	}
+// 	if (!env) {
+// 		Server::logMessage("ERROR: Environment Variable Not Available!");
+// 		return generateErrorPage(500);
+// 	}
 
-	int fd_pipe[2];
-	if (!createPipes(fd_pipe)) {
-		free_dptr(env);
-		return generateErrorPage(500);
-	}
+// 	int fd_pipe[2];
+// 	if (!createPipes(fd_pipe)) {
+// 		free_dptr(env);
+// 		return generateErrorPage(500);
+// 	}
 
-	pid_t forked_ps = fork();
-	if (forked_ps == -1) {
-		free_dptr(env);
-		Server::logMessage("ERROR: Fork failed!");
-		return generateErrorPage(500);
-	} else if (forked_ps == 0) {
-		executeCGI(path, env, _requestMap["method"], _requestMap["body"], fd_pipe);
-	} else {
-		std::string responseBody = readFromCGI(fd_pipe, forked_ps, env, 5);
-		int status;
-		waitpid(forked_ps, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-			Server::logMessage("INFO: CGI Passed!");
-			return responseBody;
-		} else if (!responseBody.empty() && checkStatusCode(responseBody)) {
-			int err;
-			checkStatusCode(responseBody, &err);
-			Server::logMessage("ERROR: CGI Failed!");
-			return generateErrorPage(err);
-		}
-	}
-	return generateErrorPage(500);
-}
+// 	pid_t forked_ps = fork();
+// 	if (forked_ps == -1) {
+// 		free_dptr(env);
+// 		Server::logMessage("ERROR: Fork failed!");
+// 		return generateErrorPage(500);
+// 	} else if (forked_ps == 0) {
+// 		executeCGI(path, env, _requestMap["method"], _requestMap["body"], fd_pipe);
+// 	} else {
+// 		std::string responseBody = readFromCGI(fd_pipe, forked_ps, env, 5);
+// 		int status;
+// 		waitpid(forked_ps, &status, 0);
+// 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+// 			Server::logMessage("INFO: CGI Passed!");
+// 			return responseBody;
+// 		} else if (!responseBody.empty() && checkStatusCode(responseBody)) {
+// 			int err;
+// 			checkStatusCode(responseBody, &err);
+// 			Server::logMessage("ERROR: CGI Failed!");
+// 			return generateErrorPage(err);
+// 		}
+// 	}
+// 	return generateErrorPage(500);
+// }
 
 /*Check whether the accepted script format exists, returns its position,
 otherwise returns npos*/
-size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
-	std::vector<std::string> cgiExtension;
-	size_t	pos;
-	size_t	extensionPos;
-	int		count = 0;
-	cgiExtension.push_back(".sh");
-	cgiExtension.push_back(".pl");
-	cgiExtension.push_back(".py");
-	for (std::vector<std::string>::iterator it = cgiExtension.begin(); it != cgiExtension.end(); ++it) {
-		pos = filePath.find(*it);
-		if (pos != std::string::npos)
-		{
-			extensionPos = pos;
-			count++;
-		}
-	}
-	if (count == 1)
-		return (extensionPos);
-	return (std::string::npos);
-}
+// size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
+// 	std::vector<std::string> cgiExtension;
+// 	size_t	pos;
+// 	size_t	extensionPos;
+// 	int		count = 0;
+// 	cgiExtension.push_back(".sh");
+// 	cgiExtension.push_back(".pl");
+// 	cgiExtension.push_back(".py");
+// 	for (std::vector<std::string>::iterator it = cgiExtension.begin(); it != cgiExtension.end(); ++it) {
+// 		pos = filePath.find(*it);
+// 		if (pos != std::string::npos)
+// 		{
+// 			extensionPos = pos;
+// 			count++;
+// 		}
+// 	}
+// 	if (count == 1)
+// 		return (extensionPos);
+// 	return (std::string::npos);
+// }
 
 void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable) {
     std::string query;
@@ -450,29 +450,29 @@ std::string CutQueryString (std::string * uri, size_t extension, std::string * p
 	return (queryString);
 }
 
-std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::string * uri) {
-	std::map<std::string, std::string> additionalEnvVariable;
-	std::string pathInfo;
-	size_t extension = acceptedCgiExtention(*uri);
-	std::string queryString = CutQueryString(uri, extension, &pathInfo);
-	*uri = uri->substr(0,extension + 3);
+// std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::string * uri) {
+// 	std::map<std::string, std::string> additionalEnvVariable;
+// 	std::string pathInfo;
+// 	size_t extension = acceptedCgiExtention(*uri);
+// 	std::string queryString = CutQueryString(uri, extension, &pathInfo);
+// 	*uri = uri->substr(0,extension + 3);
 
-	// Add necessary CGI environment variables
-	additionalEnvVariable["PATH_INFO"] = pathInfo;
-	additionalEnvVariable["SCRIPT_NAME"] = *uri;
-	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
-	additionalEnvVariable["SERVER_NAME"] = _serverConfig["server_name"];
-	additionalEnvVariable["SERVER_PROTOCOL"] = _requestMap["version"];
-	additionalEnvVariable["SERVER_PORT"] = _serverConfig["port"];
-	additionalEnvVariable["HOST_NAME"] = _requestMap["Host"];
-	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
-	if (_requestMap["method"] == "POST")
-		additionalEnvVariable["CONTENT_LENGTH"] = Server::intToString(_requestMap["body"].size());
-	additionalEnvVariable["QUERY_STRING"] = queryString;
+// 	// Add necessary CGI environment variables
+// 	additionalEnvVariable["PATH_INFO"] = pathInfo;
+// 	additionalEnvVariable["SCRIPT_NAME"] = *uri;
+// 	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
+// 	additionalEnvVariable["SERVER_NAME"] = _serverConfig["server_name"];
+// 	additionalEnvVariable["SERVER_PROTOCOL"] = _requestMap["version"];
+// 	additionalEnvVariable["SERVER_PORT"] = _serverConfig["port"];
+// 	additionalEnvVariable["HOST_NAME"] = _requestMap["Host"];
+// 	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
+// 	if (_requestMap["method"] == "POST")
+// 		additionalEnvVariable["CONTENT_LENGTH"] = Server::intToString(_requestMap["body"].size());
+// 	additionalEnvVariable["QUERY_STRING"] = queryString;
 	
-	parseQueryString(additionalEnvVariable);
-	return (additionalEnvVariable);
-}
+// 	parseQueryString(additionalEnvVariable);
+// 	return (additionalEnvVariable);
+// }
 
 void feedEnv(char **env, std::map<std::string, std::string> & variableMap) {
 	size_t i = 0;
@@ -495,19 +495,19 @@ void feedEnv(char **env, std::map<std::string, std::string> & variableMap) {
 /*Retrieve the position of script extension by calling acceptedCgiExtention(),
 create a sub string if the infoPath exists,
 create the env according to the variable are needed, and return it.*/
-char** HTTPResponse::createEnv(std::string * uri) {
-	std::map<std::string, std::string> additionalEnvVariables = addAdditionalEnvVariables(uri);
+// char** HTTPResponse::createEnv(std::string * uri) {
+// 	std::map<std::string, std::string> additionalEnvVariables = addAdditionalEnvVariables(uri);
 	
-	char** env = (char**)calloc(_requestMap.size() + additionalEnvVariables.size() + 1, sizeof(char*)); // Adjust size as needed
-	if (!env){
-		Server::logMessage("ERROR: Environment Variable Creation Failed!");
-		return NULL;
-	}
-	feedEnv(env, _requestMap);
-	feedEnv(env, additionalEnvVariables);
-	Server::logMessage("INFO: Environment Variable Created!");
-	return env;
-}
+// 	char** env = (char**)calloc(_requestMap.size() + additionalEnvVariables.size() + 1, sizeof(char*)); // Adjust size as needed
+// 	if (!env){
+// 		Server::logMessage("ERROR: Environment Variable Creation Failed!");
+// 		return NULL;
+// 	}
+// 	feedEnv(env, _requestMap);
+// 	feedEnv(env, additionalEnvVariables);
+// 	Server::logMessage("INFO: Environment Variable Created!");
+// 	return env;
+// }
 
 /*Return a String Of Current Time In a HTTP Header Format.*/
 std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
@@ -854,34 +854,53 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	pipeFds[1] = -1;
 	// dup2(STDOUT_FILENO, stdOutCopy);
 	// dup2(STDIN_FILENO, stdInCopy);
-	std::string requestData = "";
-	std::string keyValue = "";
+
 	if (connectedSocket.getRequestMap()["method"] == "POST") {
 		Post post;
 		post.parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
-		requestData = post._data["name"];
-		keyValue = "NAME=" + requestData;
+		std::string requestData = post._data["name"];
+		std::string keyValue = "NAME=" + requestData;
+		// std::cerr << "keyValue = " << keyValue << std::endl;
+		char *name = const_cast<char *>(keyValue.c_str());
+		char *const env[] = {name, NULL};
+
+		// std::string command = this->findCommand("node");
+
+		// std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
+		std::string command = "/usr/bin/python";
+		char *cmd = const_cast<char *>(command.c_str());
+
+		// std::string file = "./www/farshad/form/cgi.js";
+		std::string file = this->_cgiFilePath;
+		char *filePath = const_cast<char *>(file.c_str());
+
+		char *const argv[] = {cmd, filePath, NULL};
+
+
+
+		execve(cmd, argv, env);
 	}
-	// std::cerr << "keyValue = " << keyValue << std::endl;
-	char *name = const_cast<char *>(keyValue.c_str());
-	char *const env[] = {name, NULL};
+	else if (connectedSocket.getRequestMap()["method"] == "GET") {
+		this->storeKeyValuePairsOfQueryString();
+		// this->printQueryStringKeyValues();
+		char **env = this->getEnv();
+		// printEnv(env);
 
-	// std::string command = this->findCommand("node");
+		std::string command = "/usr/bin/python";
+		char *cmd = const_cast<char *>(command.c_str());
 
-	// std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
-	std::string command = "/usr/bin/python";
-	char *cmd = const_cast<char *>(command.c_str());
+		std::string file = this->_cgiFilePath;
+		char *filePath = const_cast<char *>(file.c_str());
 
-	// std::string file = "./www/farshad/form/cgi.js";
-	std::string file = this->_cgiFilePath;
-	char *filePath = const_cast<char *>(file.c_str());
+		char *const argv[] = {cmd, filePath, NULL};
+		std::cerr << "cmd = " << cmd << std::endl;
+		std::cerr << "argv[1] = " << argv[1] << std::endl;
+		this->resetCgiProperties();
+		execve(cmd, argv, env);
+	}
 
-	char *const argv[] = {cmd, filePath, NULL};
 
-
-
-	int result = execve(cmd, argv, env);
-	std::cerr << RED << "cmd or argv are wrong => execve failed. execve() returned: " << result << RESET << std::endl;
+	// std::cerr << RED << "cmd or argv are wrong => execve failed. execve() returned: " << result << RESET << std::endl;
 	connectedSocket._isCgiChildProcessReturning = true;
 	return;
 
@@ -915,6 +934,7 @@ void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t i
 }
 
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
+	std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
 	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
 	if (index == 0)
 		return true;
@@ -924,13 +944,14 @@ bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
 std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 
 	if (!findScript(connectedSocket, connectedSocket.getRequestMap()["uri"])) {
-		// this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400);
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(404);
 		return this->_responses[connectedSocket.getSocketFd()];
 	}
 
 	
 
-	if (connectedSocket.getRequestMap()["uri"] == (_cgiDirectory + this->_cgiFileName)) {
+	// if (connectedSocket.getRequestMap()["uri"] == (_cgiDirectory + this->_cgiFileName)) {
+	if (connectedSocket.getRequestMap()["uri"].find(_cgiDirectory + this->_cgiFileName) != std::string::npos) {
 		if (Poll::cgiChildProcessNum >= MAX_CGI_CHILD_PROCESSES)
 		{
 			this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(503);
@@ -941,7 +962,7 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		connectedSocket.setCgiStartTime();
 		// this->_responses[connectedSocket.getSocketFd()] = handlePostCgi(connectedSocket.getSocketFd(), connectedSocket);
 		connectedSocket._childProcessData= createPipeAndFork(connectedSocket);
-		if (connectedSocket._isCgiChildProcessReturning) {
+		if (connectedSocket._isCgiChildProcessReturning == true) {
 			return "";
 		}
 		if (connectedSocket._childProcessData.isError)
@@ -957,11 +978,28 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 }
 
 bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri) {
-	std::cout << "uri = " << uri << std::endl;
-	std::string scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
-	this->_cgiFileName = scriptFile;
-	std::cout << "scriptFile = " << scriptFile << std::endl;
-	if (scriptFile.empty())
+	// std::cout << "uri = " << uri << std::endl;
+	if (connectedSocket.getRequestMap()["method"] == "POST") {
+		std::string scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
+		this->_cgiFileName = scriptFile;
+		// std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
+	} else if (connectedSocket.getRequestMap()["method"] == "GET") {
+		std::string scriptFile = "";
+		size_t queryStringStartIndex = uri.find_first_of("?");
+		if (queryStringStartIndex != std::string::npos)
+		{
+			std::string temp = uri.substr(this->_cgiDirectory.length(), std::string::npos);
+			scriptFile = this->getSubStringFromStartToIndex(temp, "?");
+			this->_queryString = uri.substr(queryStringStartIndex + 1, std::string::npos);
+			// std::cout << "queryStrig = " << this->_queryString << std::endl;
+		}
+		else
+			scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
+
+		this->_cgiFileName = scriptFile;
+		// std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
+	}
+	if (this->_cgiFileName.empty())
 		return false;
 
 	// DIR *directory = opendir(this->getStorageDirectory().c_str());
@@ -974,13 +1012,17 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 	// std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
 	// std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
 
-	std::string file = "./www/farshad/cgi-post/" + scriptFile;
+	std::string file = "";
+	if (connectedSocket.getRequestMap()["method"] == "POST")
+		file = "./www/farshad/cgi-post/" + this->_cgiFileName;
+	else if (connectedSocket.getRequestMap()["method"] == "GET")
+		file = "./www/farshad/cgi-get/" + this->_cgiFileName;
 
 	int exist = 0;
 	int isReadable = 0;
 	if ((exist = access(file.c_str(), F_OK)) == 0)
 	{
-		std::cout << YELLOW << scriptFile << " exists. " << RESET << std::endl;
+		std::cout << YELLOW << this->_cgiFileName << " exists. " << RESET << std::endl;
 		this->_cgiFilePath = file;
 		std::cout << "this->_cgiFile = " << this->_cgiFilePath << std::endl;
 	}
@@ -992,25 +1034,25 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 	
 	if ((isReadable = access(file.c_str(), R_OK)) == 0)
 	{
-		std::cout << YELLOW << scriptFile << " is readable." << RESET << std::endl;
+		std::cout << YELLOW << this->_cgiFileName << " is readable." << RESET << std::endl;
 
 		// DIR *directory = opendir(file.c_str());
 		// if (directory)
 		// {
-		// 	Server::logMessage("INFO: " + scriptFile + " is a directory, and not a file!");
-		// 	std::cout << YELLOW << scriptFile << " is a directory, and not a file!" << RESET << std::endl;
+		// 	Server::logMessage("INFO: " + this->_cgiFileName + " is a directory, and not a file!");
+		// 	std::cout << YELLOW << this->_cgiFileName << " is a directory, and not a file!" << RESET << std::endl;
 		// 	closedir(directory);
 		// 	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400); 
 		// 	return false;
 		// }
 		// else
 		// {
-		// 	std::cout << YELLOW << scriptFile << " is a file, and not a directory." << RESET << std::endl;
+		// 	std::cout << YELLOW << this->_cgiFileName << " is a file, and not a directory." << RESET << std::endl;
 		// 	return true;
 		// }
 	}
 	else {
-		std::cout << YELLOW << scriptFile << " is not readable" << RESET << std::endl;
+		std::cout << YELLOW << this->_cgiFileName << " is not readable" << RESET << std::endl;
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 		return false;
 	}
@@ -1018,3 +1060,69 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 	return true;
 }
 
+void HTTPResponse::storeKeyValuePairsOfQueryString(void) {
+	// std::cerr << RED << "queryStrig = " << this->_queryString << RESET << std::endl;
+	// std::cerr << RED << "scriptFile = " << this->_cgiFileName << RESET << std::endl;
+
+	// std::vector<std::string> keyValues;
+	std::string queryString = this->_queryString;
+	while (!queryString.empty())
+	{
+		if (queryString.find("&") == std::string::npos) {
+			// std::cerr << "*** " << queryString << std::endl;
+			this->_queryStringKeyValues.push_back(queryString);
+		} else {
+			std::string keyValue = this->getSubStringFromStartToIndex(queryString, "&");
+			if (!keyValue.empty()) {
+				// std::cerr << BLUE << keyValue << RESET << std::endl;
+				this->_queryStringKeyValues.push_back(keyValue);
+			}
+		}
+		queryString = this->getSubStringFromMiddleToIndex(queryString, "&", 1, std::string::npos);
+		// std::cerr << YELLOW << queryString << RESET << std::endl;
+	}
+}
+
+void HTTPResponse::resetCgiProperties(void) {
+	this->_cgiFilePath = "";
+	this->_cgiFileName = "";
+	this->_queryString = "";
+	this->_queryStringKeyValues.clear();
+}
+
+void HTTPResponse::printQueryStringKeyValues(void) {
+	std::vector<std::string>::iterator iterator;
+	std::vector<std::string>::iterator iteratorEnd = this->_queryStringKeyValues.end();
+	
+	std::cerr << "Query String Key-Values:" << std::endl;
+	for (iterator = this->_queryStringKeyValues.begin(); iterator != iteratorEnd; iterator++) {
+	std::cerr << *iterator << std::endl;
+	}
+}
+
+char **HTTPResponse::getEnv(void) {
+	std::vector<std::string>::iterator iterator;
+	std::vector<std::string>::iterator iteratorEnd = this->_queryStringKeyValues.end();
+	// std::cerr << "???" << this->_queryStringKeyValues.size() << "--" << std::endl;
+	char **env = new char*[this->_queryStringKeyValues.size() + 1];
+	env[this->_queryStringKeyValues.size()] = NULL;
+	int i = 0;
+	for (iterator = this->_queryStringKeyValues.begin(); iterator != iteratorEnd; iterator++) {
+		char *keyValue = new char[iterator->length() + 1];
+		keyValue[iterator->length()] = '\0';
+		env[i] = const_cast<char *>(iterator->c_str());
+		// std::cerr << "***" << env[i] << std::endl;
+		i++;
+	}
+	return env;
+}
+
+// void HTTPResponse::printEnv(char **env) {
+// 	int i = 0;
+// 	while (*env) {
+// 		std::cerr << "env[" << i<< "] = " << env[i] << std::endl;
+// 		(*env)++;
+// 		i++;
+// 	}
+// 	std::cerr << "here\n";
+// }

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/02 14:42:48 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 09:20:13 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,14 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_requestMap(std::map<std::string, std::string>()),
 	_avoidBodyFirstChunckRepeat(false),
 	_cgiStartTime(std::time(NULL)),
-	_isCgi(false) {
+	_isCgi(false),
+	_isCgiChildProcessReturning(false) {
 		this->_childProcessData.id = -1;
 		this->_childProcessData.pipeFds[0] = -1;
 		this->_childProcessData.pipeFds[1] = -1;
 		this->_childProcessData.isError = false;
 
-		this->_isCgiChildProcessReturning = false;
+		// this->_isCgiChildProcessReturning = false;
 		this->_isCgiChildProcessSuccessful = false;
 	return;
 }
