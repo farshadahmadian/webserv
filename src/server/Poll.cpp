@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/02 18:05:46 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 18:47:31 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -619,12 +619,12 @@ std::string Poll::waitForCgiResponse(ConnectedSocket &connectedSocket, Server &s
 
 			if (WEXITSTATUS(status) == 0)
 			{
-				std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
+				// std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
 				std::string response = this->cgiChildProcessSuccess(connectedSocket, s);
 				return response;
 			}
 			else {
-				std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
+				// std::cout << "WEXITSTATUS(status) = "<< WEXITSTATUS(status) << std::endl;
 				std::string response = this->cgiChildProcessFail(connectedSocket, s);
 				return response;
 			}
@@ -694,8 +694,8 @@ std::string Poll::cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Serve
 	std::string html = connectedSocket._cgiBuffer;
 	connectedSocket._cgiBuffer = "";
 
-	std::cout << BLUE << "RESULT = " << result << RESET << std::endl;
-	std::cerr << RED << "ERROR" << RESET << std::endl;
+	// std::cout << BLUE << "RESULT = " << result << RESET << std::endl;
+	// std::cerr << RED << "ERROR" << RESET << std::endl;
 	std::ostringstream ostring;
 	ostring << "HTTP/1.1 200 OK\r\n";
 	ostring << "Content-Type: text/html\r\n";

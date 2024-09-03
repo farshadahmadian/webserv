@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/08/31 15:53:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 20:25:11 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,9 @@ protected:
 	std::string _storageDirectory;
 	std::map<std::string, std::string> _data;
 	std::vector<LocationConf> _locations;
+	std::string _cgiDirectory;
+	std::string _cgiFilePath;
+	std::string _cgiFileName;
 
 	void loadMimeTypes(const std::string& filePath);
 	//-----------------------------------------------------------------

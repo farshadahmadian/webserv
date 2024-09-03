@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/02 14:39:58 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/02 19:49:40 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,15 @@ class Post : public HTTPResponse {
 		std::string getName(std::string string);
 		std::string getFileName(std::string string);
 		void saveFile(std::string string);
-		ChildProcessData handlePostCgi(ConnectedSocket &connectedSocket);
+		std::string handlePostCgi(ConnectedSocket &connectedSocket);
+		ChildProcessData createPipeAndFork(ConnectedSocket &connectedSocket);
+		bool findScript(ConnectedSocket &connectedSocket, std::string &uri);
 		std::string findCommand(std::string const &command);
 		void cgiError(ConnectedSocket &connectedSocket);
 		void handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2]);
 		void handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id);
 		void UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError);
+		bool isCgiPostUri(ConnectedSocket &connectedSocket);
 };
 
 

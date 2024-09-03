@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/02 18:17:24 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 08:33:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,20 @@
 #include "Server.hpp"
 
 Post::Post(void) : HTTPResponse(), _isFileSaved(true) {
+	this->_cgiDirectory = "/cgi-post/";
 	return;
 }
 
 Post::Post(Post const &other) : HTTPResponse(other) {
+	this->_cgiDirectory = other._cgiDirectory;
 	return;
 }
 
 Post &Post::operator=(Post const &rhs) {
-	if (this != &rhs)
+	if (this != &rhs) {
 		this->_isFileSaved = rhs._isFileSaved;
+		this->_cgiDirectory = rhs._cgiDirectory;
+	}
 	return *this;
 }
 
@@ -191,29 +195,12 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 		// std::cout << "******************** BODY IS NOT TOO BIG ********************" << connectedSocket.getRequestBody().str().length() << std::endl;
 	}
 
-	if (connectedSocket.getRequestMap()["uri"] == "/cgi-post") {
-		if (Poll::cgiChildProcessNum >= MAX_CGI_CHILD_PROCESSES)
-		{
-			this->_responses[connectedSocketFd] = generateErrorPage(503);
-			return this->_responses[connectedSocketFd];
-		}
-		// std::cout << "****cgi*****" << std::endl;
-		connectedSocket.setIsCgi(true);
-		connectedSocket.setCgiStartTime();
-		// this->_responses[connectedSocketFd] = handlePostCgi(connectedSocketFd, connectedSocket);
-		connectedSocket._childProcessData= handlePostCgi(connectedSocket);
-		if (connectedSocket._isCgiChildProcessReturning) {
-			return "";
-		}
-		if (connectedSocket._childProcessData.isError)
-			return this->_responses[connectedSocketFd];
-		else
-		{
-
-			this->_responses[connectedSocketFd] = "";
-			return this->_responses[connectedSocketFd];
-		}
+	if (isCgiPostUri(connectedSocket)) {
+		std::string response = this->handlePostCgi(connectedSocket);
+		return response;
 	}
+
+
 
 	if (connectedSocket.getRequestMap()["Content-Type"] == "plain/text") {
 
@@ -342,7 +329,7 @@ std::string Post::findCommand(std::string const &command) {
 }
 
 
-ChildProcessData Post::handlePostCgi(ConnectedSocket &connectedSocket) {
+ChildProcessData Post::createPipeAndFork(ConnectedSocket &connectedSocket) {
 	int pipeFds[2];
 	// int stdInCopy = dup(STDIN_FILENO);
 	// int stdOutCopy = dup(STDOUT_FILENO);
@@ -417,7 +404,7 @@ void Post::handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2
 	char *cmd = const_cast<char *>(command.c_str());
 
 	// std::string file = "./www/farshad/form/cgi.js";
-	std::string file = "./www/farshad/form/cgi-post.py";
+	std::string file = this->_cgiFilePath;
 	char *filePath = const_cast<char *>(file.c_str());
 
 	char *const argv[] = {cmd, filePath, NULL};
@@ -457,3 +444,109 @@ void Post::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int p
 		connectedSocket._childProcessData.pipeFds[1] = pipeFds[1];
 		connectedSocket._childProcessData.isError = isError;
 }
+
+bool Post::isCgiPostUri(ConnectedSocket &connectedSocket) {
+	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
+	if (index == 0)
+		return true;
+	return false;
+}
+
+std::string Post::handlePostCgi(ConnectedSocket &connectedSocket) {
+
+	if (!findScript(connectedSocket, connectedSocket.getRequestMap()["uri"])) {
+		// this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400);
+		return this->_responses[connectedSocket.getSocketFd()];
+	}
+
+	
+
+	if (connectedSocket.getRequestMap()["uri"] == (_cgiDirectory + this->_cgiFileName)) {
+		if (Poll::cgiChildProcessNum >= MAX_CGI_CHILD_PROCESSES)
+		{
+			this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(503);
+			return this->_responses[connectedSocket.getSocketFd()];
+		}
+		// std::cout << "****cgi*****" << std::endl;
+		connectedSocket.setIsCgi(true);
+		connectedSocket.setCgiStartTime();
+		// this->_responses[connectedSocket.getSocketFd()] = handlePostCgi(connectedSocket.getSocketFd(), connectedSocket);
+		connectedSocket._childProcessData= createPipeAndFork(connectedSocket);
+		if (connectedSocket._isCgiChildProcessReturning) {
+			return "";
+		}
+		if (connectedSocket._childProcessData.isError)
+			return this->_responses[connectedSocket.getSocketFd()];
+		else
+		{
+
+			this->_responses[connectedSocket.getSocketFd()] = "";
+			return this->_responses[connectedSocket.getSocketFd()];
+		}
+	}
+	return "";
+}
+
+bool Post::findScript(ConnectedSocket &connectedSocket, std::string &uri) {
+	std::cout << "uri = " << uri << std::endl;
+	std::string scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
+	this->_cgiFileName = scriptFile;
+	std::cout << "scriptFile = " << scriptFile << std::endl;
+	if (scriptFile.empty())
+		return false;
+
+	// DIR *directory = opendir(this->getStorageDirectory().c_str());
+	// if (!directory) {
+	// 	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(500);
+	// 	return false;
+	// }
+	// // std::cout << directory << std::endl;
+	// closedir(directory);
+	// std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
+	// std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
+
+	std::string file = "./www/farshad/cgi-post/" + scriptFile;
+
+	int exist = 0;
+	int isReadable = 0;
+	if ((exist = access(file.c_str(), F_OK)) == 0)
+	{
+		std::cout << YELLOW << scriptFile << " exists. " << RESET << std::endl;
+		this->_cgiFilePath = file;
+		std::cout << "this->_cgiFile = " << this->_cgiFilePath << std::endl;
+	}
+	else
+	{
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(404); 
+		return (false);
+	}
+	
+	if ((isReadable = access(file.c_str(), R_OK)) == 0)
+	{
+		std::cout << YELLOW << scriptFile << " is readable." << RESET << std::endl;
+
+		// DIR *directory = opendir(file.c_str());
+		// if (directory)
+		// {
+		// 	Server::logMessage("INFO: " + scriptFile + " is a directory, and not a file!");
+		// 	std::cout << YELLOW << scriptFile << " is a directory, and not a file!" << RESET << std::endl;
+		// 	closedir(directory);
+		// 	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400); 
+		// 	return false;
+		// }
+		// else
+		// {
+		// 	std::cout << YELLOW << scriptFile << " is a file, and not a directory." << RESET << std::endl;
+		// 	return true;
+		// }
+	}
+	else {
+		std::cout << YELLOW << scriptFile << " is not readable" << RESET << std::endl;
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
+		return false;
+	}
+
+	return true;
+}
+
+
