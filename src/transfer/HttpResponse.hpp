@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/02 20:25:11 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 08:57:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,18 @@ protected:
 
 	std::string getCurrentTime();
 	std::string formatTimeHTTP(std::time_t rawTime);
+
+
+
+	std::string handleCgi(ConnectedSocket &connectedSocket);
+	ChildProcessData createPipeAndFork(ConnectedSocket &connectedSocket);
+	bool findScript(ConnectedSocket &connectedSocket, std::string &uri);
+	// std::string findCommand(std::string const &command);
+	void cgiError(ConnectedSocket &connectedSocket);
+	void handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2]);
+	void handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id);
+	void UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError);
+	bool isCgiUri(ConnectedSocket &connectedSocket);
 
 
 	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map
