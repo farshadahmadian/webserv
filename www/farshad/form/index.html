@@ -60,7 +60,7 @@
       </div>
 
       <div class="form-container form-container-cgi">
-        <h2>CGI</h2>
+        <h2>CGI POST</h2>
         <form
           action="/cgi-post/cgi-post.py"
           method="POST"
@@ -78,6 +78,24 @@
             </label>
           </div>
           <button class="btn" type="submit">CGI / POST</button>
+        </form>
+      </div>
+
+      <div class="form-container form-container-cgi">
+        <h2>CGI GET</h2>
+        <form action="/cgi-get/cgi-get.py" method="GET">
+          <div class="input-container">
+            <label for="number">
+              <input
+                class="input text-input file-to-delete"
+                type="number"
+                name="number"
+                required
+                placeholder="Enter a number to multiply by 2"
+              />
+            </label>
+          </div>
+          <button class="btn" type="submit">CGI / GET</button>
         </form>
       </div>
     </main>

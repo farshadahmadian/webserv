@@ -1,37 +1,19 @@
-""" import os
-
-# Initialize an empty string to store HTML content
-html_content = ""
-
-# Iterate over the environment variables
-for key, value in os.environ.items():
-    # Append each environment variable in a <p> tag
-    html_content += "<p>{}: {}</p>\n".format(key, value)
-
-# Print the HTML content
-print(html_content)
- """
-
-""" import os
-
-# Initialize an empty string to store HTML content
-html_content = ""
-
-# Convert environment variables to a list of tuples for easy indexing
-env_items = list(os.environ.items())
-
-# Iterate over the environment variables, skipping the first and last
-for key, value in env_items[1:-1]:
-	# Append each environment variable in a <p> tag
-	html_content += "<p>{}: {}</p>\n".format(key, value)
-
-# Print the HTML content
-print(html_content)
- """
-
+#!/usr/bin/env python
 import os
+from datetime import datetime
+import urlparse
 
-# Initialize an empty string to store HTML content
+# while True:
+# 	pass
+
+
+
+string_value = os.environ.get('number', '')
+number = int(string_value)
+number *= 2
+
+current_time = datetime.now().strftime('%H:%M:%S')
+
 html = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,18 +21,21 @@ html = '''<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-				body {
+				body {{
 					padding: 40px 80px;
-				}
+				}}
 
-        h1 {
+        h1 {{
+          display: flex;
+          justify-content: center;
+          align-items: center;
 					margin-top: 100px;
-        }
+        }}
     </style>
 </head>
 <body>
 <span id="time">Time: {time}</span>
-<h1>Here is your data </h1>
+<h1>Result is {number} </h1>
 </body>
 <script>
     function updateTime() {{
@@ -61,18 +46,6 @@ html = '''<!DOCTYPE html>
     updateTime();
 </script>
 
-</html>'''
+</html>'''.format(number=number, time=current_time)
 
-# Convert environment variables to a list of tuples for easy indexing
-env_items = list(os.environ.items())
-
-# Reverse the list of environment variables and skip the first and last ones
-reversed_env_items = env_items[1:-1][::-1]
-
-# Iterate over the reversed environment variables
-for key, value in reversed_env_items:
-	# Append each environment variable in a <p> tag
-	html += "<p>{}: {}</p>\n".format(key, value)
-
-# Print the HTML content
 print(html)

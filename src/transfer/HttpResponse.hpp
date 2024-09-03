@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 13:21:52 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 16:40:47 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,13 @@
 # include "HttpRequest.hpp"
 # include "LocationConf.hpp"
 
+# define VALID_EXTENSIONS_NUM 2
+
 enum POLLEvents {
 	POLLIN_TMP  = 0,
 	POLLOUT_TMP = 1,
 };
+
 
 class GetHandler; // Forward declaration
 
@@ -133,6 +136,8 @@ protected:
 	void printQueryStringKeyValues(void);
 	char **getEnv(void);
 	void printEnv(char **env);
+	bool isScriptExtensionValid(ConnectedSocket &connectedSocket);
+	std::string getScriptExtension(ConnectedSocket &connectedSocket);
 
 
 	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map

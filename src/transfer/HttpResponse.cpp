@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 13:40:02 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 16:42:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
 		case 405: return "HTTP/1.1 405 Method Not Allowed";
 		case 413: return "HTTP/1.1 413 Payload Too Large";
 		case 503: return "HTTP/1.1 503 Service Unavailable";
+		case 501: return "HTTP/1.1 504 Not Implemented";
 		case 504: return "HTTP/1.1 504 Gateway Timeout";
 		default:  return "HTTP/1.1 500 Internal Server Error";
 	}
@@ -855,6 +856,17 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	// dup2(STDOUT_FILENO, stdOutCopy);
 	// dup2(STDIN_FILENO, stdInCopy);
 
+	std::string command = "";
+	if (connectedSocket._cgiScriptExtension == ".sh")
+		command = "/bin/bash";
+	else if (connectedSocket._cgiScriptExtension == ".py")
+		command = "/usr/bin/python";
+	else {
+		connectedSocket._isCgiChildProcessReturning = true;
+		return;
+	}
+
+
 	if (connectedSocket.getRequestMap()["method"] == "POST") {
 		Post post;
 		post.parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
@@ -867,7 +879,7 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 		// std::string command = this->findCommand("node");
 
 		// std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
-		std::string command = "/usr/bin/python";
+		// std::string command = "/usr/bin/python";
 		char *cmd = const_cast<char *>(command.c_str());
 
 		// std::string file = "./www/farshad/form/cgi.js";
@@ -886,7 +898,7 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 		char **env = this->getEnv();
 		// printEnv(env);
 
-		std::string command = "/usr/bin/python";
+		// std::string command = "/usr/bin/python";
 		char *cmd = const_cast<char *>(command.c_str());
 
 		std::string file = this->_cgiFilePath;
@@ -948,7 +960,16 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		return this->_responses[connectedSocket.getSocketFd()];
 	}
 
-	
+	if (getScriptExtension(connectedSocket).empty()) {
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(501);
+		return this->_responses[connectedSocket.getSocketFd()];
+	}
+
+
+	if(!isScriptExtensionValid(connectedSocket)) {
+		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(501);
+		return this->_responses[connectedSocket.getSocketFd()];
+	}
 
 	// if (connectedSocket.getRequestMap()["uri"] == (_cgiDirectory + this->_cgiFileName)) {
 	if (connectedSocket.getRequestMap()["uri"].find(_cgiDirectory + this->_cgiFileName) != std::string::npos) {
@@ -1126,3 +1147,24 @@ char **HTTPResponse::getEnv(void) {
 // 	}
 // 	std::cerr << "here\n";
 // }
+
+bool HTTPResponse::isScriptExtensionValid(ConnectedSocket &connectedSocket) {
+	std::string validExtensions[VALID_EXTENSIONS_NUM] = {".sh", ".py"};
+	
+	for (size_t i = 0; i < VALID_EXTENSIONS_NUM; i++) {
+		if (connectedSocket._cgiScriptExtension == validExtensions[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string HTTPResponse::getScriptExtension(ConnectedSocket &connectedSocket) {
+	size_t index = (this->_cgiFileName).find_last_of(".");
+	if (index == std::string::npos)
+		return "";
+	std::string scriptExtension = this->_cgiFileName.substr(index, std::string::npos);
+	connectedSocket._cgiScriptExtension = scriptExtension;
+	std::cerr << "-----extension = " <<connectedSocket._cgiScriptExtension << std::endl;
+	return scriptExtension;
+}

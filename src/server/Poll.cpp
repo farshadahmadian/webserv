@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/03 09:22:50 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 15:10:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -666,6 +666,7 @@ void Poll::finishCgi(ConnectedSocket &connectedSocket, Server &s, std::string co
 	connectedSocket.setCgiStartTime();
 	connectedSocket._cgiBuffer = "";
 	connectedSocket._isCgiChildProcessReturning = false;
+	connectedSocket._cgiScriptExtension = "";
 
 	Poll::cgiChildProcessNum--;
 	std::cout << "Poll::cgiChildProcessNum = " << Poll::cgiChildProcessNum << std::endl;
