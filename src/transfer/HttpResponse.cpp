@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 18:42:11 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/04 08:26:08 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ std::string HTTPResponse::createHandleGet(ConnectedSocket &connectedSocket) {
 std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
 	Post postResponse;
 	postResponse.handlePost(connectedSocketFd, connectedSocket, serverConfig);
-	if (connectedSocket._isCgiChildProcessReturning == true)
+	if (connectedSocket.getIsCgiChildProcessReturning() == true)
 		return "";
 	std::string response = postResponse.getSocketResponse(connectedSocketFd);
 	postResponse.removeSocketResponse(connectedSocketFd);
@@ -801,7 +801,7 @@ ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocke
 
 	if (pipe(pipeFds) == -1) {
 		cgiError(connectedSocket);
-		return connectedSocket._childProcessData ;
+		return connectedSocket.getChildProcessData() ;
 	}
 
 	Server::logMessage("pipeFds[0] = " + Server::intToString(pipeFds[0]));
@@ -812,7 +812,7 @@ ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocke
 		close(pipeFds[0]);
 		close(pipeFds[1]);
 		this->cgiError(connectedSocket);
-		return connectedSocket._childProcessData;
+		return connectedSocket.getChildProcessData();
 	}
 
 	Poll::cgiChildProcessNum++;
@@ -820,12 +820,12 @@ ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocke
 
 	if (id == 0) {		
 		this->handleCgiChildProcess(connectedSocket, pipeFds);
-		return connectedSocket._childProcessData;
+		return connectedSocket.getChildProcessData();
 	} else {
 		handleCgiMainProcess(connectedSocket, pipeFds, id);
-	 	return connectedSocket._childProcessData;;
+	 	return connectedSocket.getChildProcessData();;
 	}
-	return connectedSocket._childProcessData;;
+	return connectedSocket.getChildProcessData();;
 }
 
 void HTTPResponse::cgiError(ConnectedSocket &connectedSocket) {
@@ -842,8 +842,8 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	}
 	else {
 		Server::logMessage(Server::intToString(pipeFds[0]) + "is closed in child process");
-
 	}
+
 	pipeFds[0] = -1;
 	dup2(pipeFds[1], STDOUT_FILENO);
 	if (close(pipeFds[1]) == -1) {
@@ -857,12 +857,12 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	// dup2(STDIN_FILENO, stdInCopy);
 
 	std::string command = "";
-	if (connectedSocket._cgiScriptExtension == ".sh")
+	if (connectedSocket.getCgiScriptExtension() == ".sh")
 		command = "/bin/bash";
-	else if (connectedSocket._cgiScriptExtension == ".py")
+	else if (connectedSocket.getCgiScriptExtension() == ".py")
 		command = "/usr/bin/python";
 	else {
-		connectedSocket._isCgiChildProcessReturning = true;
+		connectedSocket.setIsCgiChildProcessReturning(true);
 		return;
 	}
 
@@ -888,8 +888,6 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 
 		char *const argv[] = {cmd, filePath, NULL};
 
-
-
 		execve(cmd, argv, env);
 	}
 	else if (connectedSocket.getRequestMap()["method"] == "GET") {
@@ -909,11 +907,12 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 		std::cerr << "argv[1] = " << argv[1] << std::endl;
 		this->resetCgiProperties();
 		execve(cmd, argv, env);
+		this->deleteChildProcessMemory(env);
 	}
 
 
 	// std::cerr << RED << "cmd or argv are wrong => execve failed. execve() returned: " << result << RESET << std::endl;
-	connectedSocket._isCgiChildProcessReturning = true;
+	connectedSocket.setIsCgiChildProcessReturning(true);
 	return;
 
 }
@@ -922,10 +921,10 @@ void HTTPResponse::handleCgiMainProcess(ConnectedSocket &connectedSocket, int pi
 	// dup2(pipeFds[0], STDIN_FILENO);
 	this->UpdateCgiProperties(connectedSocket, id, pipeFds, false);
 
-	if (connectedSocket._childProcessData.pipeFds[1] != -1)
+	if (connectedSocket.getChildProcessData().pipeFds[1] != -1)
 	{
 		if (close(pipeFds[1]) == -1) {
-		connectedSocket._childProcessData.pipeFds[1] = -1;
+		connectedSocket.getChildProcessData().pipeFds[1] = -1;
 		Server::logMessage(Server::intToString(pipeFds[1]) + ": error when closing");
 		}
 		else {
@@ -939,10 +938,10 @@ void HTTPResponse::handleCgiMainProcess(ConnectedSocket &connectedSocket, int pi
 }
 
 void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError) {
-		connectedSocket._childProcessData.id = id;
-		connectedSocket._childProcessData.pipeFds[0] = pipeFds[0];
-		connectedSocket._childProcessData.pipeFds[1] = pipeFds[1];
-		connectedSocket._childProcessData.isError = isError;
+		connectedSocket.getChildProcessData().id = id;
+		connectedSocket.getChildProcessData().pipeFds[0] = pipeFds[0];
+		connectedSocket.getChildProcessData().pipeFds[1] = pipeFds[1];
+		connectedSocket.getChildProcessData().isError = isError;
 }
 
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
@@ -982,11 +981,12 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		connectedSocket.setIsCgi(true);
 		connectedSocket.setCgiStartTime();
 		// this->_responses[connectedSocket.getSocketFd()] = handlePostCgi(connectedSocket.getSocketFd(), connectedSocket);
-		connectedSocket._childProcessData= createPipeAndFork(connectedSocket);
-		if (connectedSocket._isCgiChildProcessReturning == true) {
+		ChildProcessData childProcessData = createPipeAndFork(connectedSocket);
+		connectedSocket.setChildProcessData(childProcessData);
+		if (connectedSocket.getIsCgiChildProcessReturning() == true) {
 			return "";
 		}
-		if (connectedSocket._childProcessData.isError)
+		if (connectedSocket.getChildProcessData().isError)
 			return this->_responses[connectedSocket.getSocketFd()];
 		else
 		{
@@ -1127,32 +1127,33 @@ char **HTTPResponse::getEnv(void) {
 	// std::cerr << "???" << this->_queryStringKeyValues.size() << "--" << std::endl;
 	char **env = new char*[this->_queryStringKeyValues.size() + 1];
 	env[this->_queryStringKeyValues.size()] = NULL;
+	// std::cerr << BLUE << "** == " << env[3] << RESET << std::endl;
+	// std::cerr << RED << "_queryStringKeyValues.size() = " << _queryStringKeyValues.size() << RESET << std::endl;
 	int i = 0;
 	for (iterator = this->_queryStringKeyValues.begin(); iterator != iteratorEnd; iterator++) {
 		char *keyValue = new char[iterator->length() + 1];
 		keyValue[iterator->length()] = '\0';
 		env[i] = const_cast<char *>(iterator->c_str());
-		// std::cerr << "***" << env[i] << std::endl;
+		// std::cerr << "*** i: " << i << " " << env[i] << std::endl;
 		i++;
 	}
 	return env;
 }
 
-// void HTTPResponse::printEnv(char **env) {
-// 	int i = 0;
-// 	while (*env) {
-// 		std::cerr << "env[" << i<< "] = " << env[i] << std::endl;
-// 		(*env)++;
-// 		i++;
-// 	}
-// 	std::cerr << "here\n";
-// }
+void HTTPResponse::printEnv(char **env) {
+	int i = 0;
+	while (*env) {
+		std::cerr << "env[" << i << "] = " << *env << std::endl;
+		env++;
+		i++;
+	}
+}
 
 bool HTTPResponse::isScriptExtensionValid(ConnectedSocket &connectedSocket) {
 	std::string validExtensions[VALID_EXTENSIONS_NUM] = {".sh", ".py"};
 	
 	for (size_t i = 0; i < VALID_EXTENSIONS_NUM; i++) {
-		if (connectedSocket._cgiScriptExtension == validExtensions[i]) {
+		if (connectedSocket.getCgiScriptExtension() == validExtensions[i]) {
 			return true;
 		}
 	}
@@ -1164,7 +1165,16 @@ std::string HTTPResponse::getScriptExtension(ConnectedSocket &connectedSocket) {
 	if (index == std::string::npos)
 		return "";
 	std::string scriptExtension = this->_cgiFileName.substr(index, std::string::npos);
-	connectedSocket._cgiScriptExtension = scriptExtension;
-	std::cerr << "-----extension = " <<connectedSocket._cgiScriptExtension << std::endl;
+	connectedSocket.setCgiScriptExtension(scriptExtension);
+	std::cerr << "-----extension = " <<connectedSocket.getCgiScriptExtension() << std::endl;
 	return scriptExtension;
+}
+
+void HTTPResponse::deleteChildProcessMemory(char **env) {
+	char **temp = env;
+	while (*temp) {
+		delete[] *temp;
+		temp++;
+	}
+	delete []env;
 }

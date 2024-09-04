@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/03 16:40:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/04 08:13:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ protected:
 	void printEnv(char **env);
 	bool isScriptExtensionValid(ConnectedSocket &connectedSocket);
 	std::string getScriptExtension(ConnectedSocket &connectedSocket);
+	void deleteChildProcessMemory(char **env);
 
 
 	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map

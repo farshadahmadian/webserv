@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 18:38:25 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:41:06 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 	_avoidBodyFirstChunckRepeat(false),
 	_cgiStartTime(std::time(NULL)),
 	_isCgi(false),
+	_cgiBuffer(""),
 	_isCgiChildProcessReturning(false),
 	_isCgiChildProcessSuccessful(false),
 	_cgiScriptExtension("") {
@@ -61,11 +62,12 @@ ConnectedSocket::ConnectedSocket(ConnectedSocket const &other):
 	_avoidBodyFirstChunckRepeat(other._avoidBodyFirstChunckRepeat),
 	_cgiStartTime(other._cgiStartTime),
 	_isCgi(other._isCgi),
-	_childProcessData(other._childProcessData) {
+	_cgiBuffer(other._cgiBuffer),
+	_isCgiChildProcessReturning(other._isCgiChildProcessReturning),
+	_isCgiChildProcessSuccessful(other._isCgiChildProcessSuccessful),
+	_cgiScriptExtension(other._cgiScriptExtension) {
 	this->_requestBody << other._requestBody.rdbuf();
-
-	this->_isCgiChildProcessReturning = other._isCgiChildProcessReturning;
-	this->_isCgiChildProcessSuccessful = other. _isCgiChildProcessSuccessful;
+	this->_childProcessData = other._childProcessData;
 	return;
 }
 
@@ -88,10 +90,12 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 		this->_avoidBodyFirstChunckRepeat = rhs._avoidBodyFirstChunckRepeat;
 		this->_cgiStartTime = rhs._cgiStartTime;
 		this->_isCgi = rhs._isCgi;
-		this->_childProcessData = rhs._childProcessData;
-
+		this->_cgiBuffer = rhs._cgiBuffer;
 		this->_isCgiChildProcessReturning = rhs._isCgiChildProcessReturning;
 		this->_isCgiChildProcessSuccessful = rhs._isCgiChildProcessSuccessful;
+		this->_cgiScriptExtension = rhs._cgiScriptExtension;
+		this->_childProcessData = rhs._childProcessData;
+
 	}
 	return *this;
 }
@@ -160,6 +164,38 @@ bool ConnectedSocket::getAvoidBodyFirstChunckRepeat(void) {
 	return this->_avoidBodyFirstChunckRepeat;
 }
 
+time_t const &ConnectedSocket::getCgiStartTime(void) const {
+	return this->_cgiStartTime;
+}
+
+void ConnectedSocket::setCgiStartTime() {
+	this->_cgiStartTime = std::time(NULL);
+}
+
+bool ConnectedSocket::getIsCgi(void) const {
+	return this->_isCgi;
+}
+
+ChildProcessData &ConnectedSocket::getChildProcessData(void) {
+	return this->_childProcessData;
+}
+
+std::string const &ConnectedSocket::getCgiBuffer(void) const {
+	return this->_cgiBuffer;
+}
+
+bool ConnectedSocket::getIsCgiChildProcessReturning(void) {
+	return _isCgiChildProcessReturning;
+}
+
+bool ConnectedSocket::getIsCgiChildProcessSuccessful(void) {
+	return this->_isCgiChildProcessSuccessful;
+}
+
+std::string const &ConnectedSocket::getCgiScriptExtension(void) const {
+	return this->_cgiScriptExtension;
+}
+
 void ConnectedSocket::setRequestBodyLength(std::string contentLength) {
 	if (contentLength.empty())
 	{
@@ -196,6 +232,34 @@ void ConnectedSocket::setAvoidBodyFirstChunckRepeat(bool isBodyFirstChunckReceiv
 	this->_avoidBodyFirstChunckRepeat = isBodyFirstChunckReceived;
 }
 
+void ConnectedSocket::setIsCgi(bool isCgi) {
+	this->_isCgi = isCgi;
+}
+
+void ConnectedSocket::setChildProcessData(ChildProcessData const &childProcessData) {
+	this->_childProcessData = childProcessData;
+}
+
+void ConnectedSocket::setCgiBuffer(std::string const &cgiBuffer) {
+	this->_cgiBuffer = cgiBuffer;
+}
+
+void ConnectedSocket::appendToCgiBuffer(std::string const &cgiBuffer) {
+	this->_cgiBuffer += cgiBuffer;
+}
+
+void ConnectedSocket::setIsCgiChildProcessReturning(bool isCgiChildProcessReturning) {
+	this->_isCgiChildProcessReturning = isCgiChildProcessReturning;
+}
+
+void ConnectedSocket::setIsCgiChildProcessSuccessful(bool isCgiChildProcessSuccessful) {
+	this->_isCgiChildProcessSuccessful = isCgiChildProcessSuccessful;
+}
+
+void ConnectedSocket::setCgiScriptExtension(std::string const &cgiScriptExtension) {
+	this->_cgiScriptExtension = cgiScriptExtension;
+}
+
 std::string const &ConnectedSocket::appendToRequest(std::string const &toAppend) {
 	return this->_request.append(toAppend);
 }
@@ -227,18 +291,5 @@ void ConnectedSocket::clearRequestProperties(void) {
 // 	return;
 // }
 
-time_t const &ConnectedSocket::getCgiStartTime(void) const {
-	return this->_cgiStartTime;
-}
 
-void ConnectedSocket::setCgiStartTime() {
-	this->_cgiStartTime = std::time(NULL);
-}
 
-bool ConnectedSocket::getIsCgi(void) const {
-	return this->_isCgi;
-}
-
-void ConnectedSocket::setIsCgi(bool isCgi) {
-	this->_isCgi = isCgi;
-}

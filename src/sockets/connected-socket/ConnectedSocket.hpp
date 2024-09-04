@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 18:38:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:39:23 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,13 @@ class ConnectedSocket : public Socket {
 		bool _avoidBodyFirstChunckRepeat;
 		time_t _cgiStartTime;
 		bool _isCgi;
-
-	public:
 		ChildProcessData _childProcessData;
 		std::string _cgiBuffer;
 		bool _isCgiChildProcessReturning;
 		bool _isCgiChildProcessSuccessful;
 		std::string _cgiScriptExtension;
+
+	public:
 
 		ConnectedSocket(void);
 		ConnectedSocket(int socketFd, sockaddr_storage const &incomingRequestAddress, socklen_t  const &incomingConnectionAddressSize);
@@ -95,7 +95,11 @@ class ConnectedSocket : public Socket {
 		bool getAvoidBodyFirstChunckRepeat(void);
 		time_t const &getCgiStartTime(void) const;
 		bool getIsCgi(void) const;
-
+		ChildProcessData &getChildProcessData(void);
+		std::string const &getCgiBuffer(void) const;
+		bool getIsCgiChildProcessReturning(void);
+		bool getIsCgiChildProcessSuccessful(void);
+		std::string const &getCgiScriptExtension(void) const;
 
 		void setState(t_state state);
 		void setConnectionStartTime();
@@ -106,6 +110,12 @@ class ConnectedSocket : public Socket {
 		void setAvoidBodyFirstChunckRepeat(bool isBodyFirstChunckReceived);
 		void setCgiStartTime();
 		void setIsCgi(bool isCgi);
+		void setChildProcessData(ChildProcessData const &childProcessData);
+		void setCgiBuffer(std::string const &cgiBuffer);
+		void appendToCgiBuffer(std::string const &cgiBuffer);
+		void setIsCgiChildProcessReturning(bool isCgiChildProcessReturning);
+		void setIsCgiChildProcessSuccessful(bool isCgiChildProcessSuccessful);
+		void setCgiScriptExtension(std::string const &cgiScriptExtension);
 
 		std::string const &appendToRequest(std::string const &toAppend);
 		std::ostringstream const & appendToBody(std::ostringstream const &outputStringStream);
