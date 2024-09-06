@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/04 08:26:08 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/07 00:36:23 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
-#include "GetHandler.hpp"
+#include "Get.hpp"
 #include "Exception.hpp"
 #include "Post.hpp"
 #include "Delete.hpp"
@@ -29,6 +29,7 @@ HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConf
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations) :
 	_serverConfig(serverConfig), _locations(locations)  {
 	loadMimeTypes(MIME);
+	setMethods();
 	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
@@ -50,14 +51,60 @@ int HTTPResponse::validate() {
 	return (200);
 }
 
+// bool HTTPResponse::isDirectory(const std::string& uri) const {
+// 	std::string filePath = _serverConfig.at("root") + uri;
+// 	struct stat st;
+// 	if (stat(filePath.c_str(), &st) != 0) {
+// 		return false; // Error in accessing the path or path does not exist
+// 	}
+// 	return S_ISDIR(st.st_mode);
+// }
+
 bool HTTPResponse::isDirectory(const std::string& uri) const {
-	std::string filePath = _serverConfig.at("root") + uri;
-	std::cout << "Hiii: " << filePath << std::endl;
-	struct stat st;
-	if (stat(filePath.c_str(), &st) != 0) {
-		return false; // Error in accessing the path or path does not exist
-	}
-	return S_ISDIR(st.st_mode);
+    std::string filePath = _serverConfig.at("root") + uri;
+    DIR* dir = opendir(filePath.c_str());
+    if (dir) {
+        closedir(dir);
+        return true;
+    }
+    return false;
+}
+
+/*Check whether the passed file path is directory or not.*/
+bool HTTPResponse::isFile(const std::string &filePath) {
+    int fd = open(filePath.c_str(), O_RDONLY | O_DIRECTORY);
+    if (fd == -1) {
+        // If errno is ENOTDIR, the path is a regular file
+        return (errno == ENOTDIR);
+    } else {
+        // It's a directory, close the file descriptor
+        close(fd);
+        return false;
+    }
+}
+
+// bool HTTPResponse::isFile(std::string const & filePath) {
+//     struct stat st;
+// 	if (stat(filePath.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
+// 		return (false);
+// 	return (true);
+// }
+
+/*Check the the uri, and add '/' at the end of directory uri that is received without it.*/
+void HTTPResponse::fixUri(std::string const &filePath) {
+    // If it's not a file, fix the URI
+    if (!isFile(filePath)) {
+        // Safely access the last character manually
+        if (_requestMap["uri"][_requestMap["uri"].size() - 1] != '/') {
+            _requestMap["uri"] += "/";
+        } else {
+            // If the URI ends with multiple '/', reduce it to just one
+            while (_requestMap["uri"][_requestMap["uri"].size() - 2] == '/') {
+                _requestMap["uri"].erase(_requestMap["uri"].size() - 1);  // Remove extra slashes
+            }
+        }
+    }
+    // std::cout << "uri2: " << _requestMap["uri"] << std::endl;
 }
 
 /*Return Corresponding Status Code Response Or In Case
@@ -68,15 +115,27 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 
 	std::string method = _requestMap["method"];
 	std::string uri = _requestMap["uri"];
-
-	// displayRequestMap();
-	// displayServerConfig();
+	std::string filePath = _serverConfig.at("root") + uri;
+	
+	// printRequestMap();
+	printServerConfig();
 	if (statusCode == 400) {
 		return generateErrorPage(400);
 	}
 	if (statusCode == 304) {
 		return generateErrorPage(304);
 	}
+	// std::cout << "URI1: " << uri << std::endl;
+	fixUri(filePath);
+	uri = _requestMap["uri"];
+	// printMethods();
+	// std::cout << "URI3: " << uri << std::endl;
+	// std::cout << BLUE << splitLocationFromUri(uri) << RESET << std::endl;
+	if (getLocationMethod(uri) != "") {
+		if (getLocationMethod(uri).find(method) == std::string::npos)
+			return (generateErrorPage(405));
+	}
+		// std::cout << MAGENTA <<getLocationMethod(uri)<< RESET << std::endl;
 
 	// First, check if the method is GET or HEAD
 	if (method == "GET" || method == "HEAD") {
@@ -98,11 +157,11 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 }
 
 
-/*Creat An Instance of GetHandler Class And
+/*Creat An Instance of Get Class And
 Call The Get Method To Prepare The Response.*/
 std::string HTTPResponse::createHandleGet(ConnectedSocket &connectedSocket) {
-	GetHandler  Get(_requestMap, _serverConfig, this->_locations);
-	return (Get.GetMethod(connectedSocket));
+	Get  Get(_requestMap, _serverConfig, this->_locations);
+	return (Get.handleGet(connectedSocket));
 }
 
 std::string HTTPResponse::createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig) {
@@ -213,17 +272,73 @@ static void free_dptr( char** env ) {
 // 	return (content);
 // }
 
-/*check the cgi extension, and return the corresponding interpreter.*/
-std::string const setInterpreter(std::string const & cgiPath) {
-	if (cgiPath.substr(cgiPath.find_last_of(".")) == ".pl") {
-		return("/usr/bin/perl");
-	} else if (cgiPath.substr(cgiPath.find_last_of(".")) == ".py") {
-		return("/usr/bin/python3");
-	} else {
-		// Handle other cases, or default to shell script execution
-		return("/bin/bash"); // Assuming the default is shell scripts
-	}
+// Helper function to check if the file exists and is executable
+bool isExecutable(const std::string& path) {
+    return (access(path.c_str(), X_OK) == 0);  // Check if executable
 }
+
+// Helper function to split PATH by ':'
+std::vector<std::string> splitPath(const std::string& path) {
+    std::vector<std::string> paths;
+    std::stringstream ss(path);
+    std::string directory;
+
+    while (std::getline(ss, directory, ':')) {
+        paths.push_back(directory);
+    }
+    return paths;
+}
+
+// Main function to set the interpreter based on the file extension
+std::string setInterpreter(const std::string& cgiPath) {
+    std::string ext = cgiPath.substr(cgiPath.find_last_of("."));
+    const char* pathEnv = std::getenv("PATH");
+
+    if (!pathEnv) {
+        std::cerr << "ERROR: PATH environment variable not found!" << std::endl;
+        return "";
+    }
+
+    std::vector<std::string> paths = splitPath(pathEnv);
+
+    std::string interpreter;
+    if (ext == ".pl") {
+        interpreter = "perl";
+    } else if (ext == ".py") {
+        interpreter = "python3";
+    } else {
+        interpreter = "bash";  // Default interpreter
+    }
+
+    // Search in each directory in the PATH
+    for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it) {
+        std::string fullPath = *it + "/" + interpreter;
+        if (isExecutable(fullPath)) {
+            return fullPath;  // Found executable interpreter
+        }
+    }
+
+    // If not found in PATH, fallback to default paths
+    if (ext == ".pl") {
+        return "/usr/bin/perl";
+    } else if (ext == ".py") {
+        return "/usr/bin/python3";
+    } else {
+        return "/bin/bash";  // Default to bash
+    }
+}
+
+/*check the cgi extension, and return the corresponding interpreter.*/
+// std::string const setInterpreter(std::string const & cgiPath) {
+// 	if (cgiPath.substr(cgiPath.find_last_of(".")) == ".pl") {
+// 		return("/usr/bin/perl");
+// 	} else if (cgiPath.substr(cgiPath.find_last_of(".")) == ".py") {
+// 		return("/usr/bin/python3");
+// 	} else {
+// 		// Handle other cases, or default to shell script execution
+// 		return("/bin/bash"); // Assuming the default is shell scripts
+// 	}
+// }
 
 bool createPipes(int fd_pipe[2]) {
 	if (pipe(fd_pipe) == -1) {
@@ -603,7 +718,7 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 // HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>
 
 /*Display Corresponding Response To The Fd Is Passed.*/
-void HTTPResponse::displayResponse(int fd) {
+void HTTPResponse::printSocketResponse(int fd) {
 	std::cout << ORG "****Response for fd [" << fd << "] is:\n" << MAGENTA << _responses[fd] << RESET << std::endl;
 }
 
@@ -661,7 +776,7 @@ std::string HTTPResponse::getMimeType(const std::string& extension) const {
 	}
 }
 
-void HTTPResponse::displayRequestMap()
+void HTTPResponse::printRequestMap()
 {
 	std::cout << RED "****Request Map Inside HTTPResponse:\n";
 	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
@@ -669,7 +784,7 @@ void HTTPResponse::displayRequestMap()
 		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
 }
 
-void HTTPResponse::displayServerConfig()
+void HTTPResponse::printServerConfig()
 {
 	std::cout << RED "****The server config map Inside HTTPResponse:\n";
 	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();
@@ -695,7 +810,7 @@ void HTTPResponse::printData(void) {
 	}
 }
 
-void HTTPResponse::printResponses(void) {
+void HTTPResponse::printResponsesMap(void) {
 	if (!this->_responses.size())
 	{
 		std::cout << BLUE << "RESPONSES MAP IS EMPTY" << RESET << std::endl;
@@ -860,7 +975,7 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	if (connectedSocket.getCgiScriptExtension() == ".sh")
 		command = "/bin/bash";
 	else if (connectedSocket.getCgiScriptExtension() == ".py")
-		command = "/usr/bin/python";
+		command = "/usr/bin/python3";
 	else {
 		connectedSocket.setIsCgiChildProcessReturning(true);
 		return;
@@ -947,6 +1062,7 @@ void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t i
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
 	// std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
 	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
+	std::cout << "HIIIIIII:" << index << std::endl;
 	if (index == 0)
 		return true;
 	return false;
@@ -1018,7 +1134,7 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 			scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
 
 		this->_cgiFileName = scriptFile;
-		// std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
+		std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
 	}
 	if (this->_cgiFileName.empty())
 		return false;
@@ -1037,8 +1153,8 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 	if (connectedSocket.getRequestMap()["method"] == "POST")
 		file = "./www/farshad/cgi-post/" + this->_cgiFileName;
 	else if (connectedSocket.getRequestMap()["method"] == "GET")
-		file = "./www/farshad/cgi-get/" + this->_cgiFileName;
-
+		file = _serverConfig.at("root") + "/cgi-get/" + this->_cgiFileName;
+	std::cout << "file adress :" << file << std::endl;
 	int exist = 0;
 	int isReadable = 0;
 	if ((exist = access(file.c_str(), F_OK)) == 0)
@@ -1177,4 +1293,58 @@ void HTTPResponse::deleteChildProcessMemory(char **env) {
 		temp++;
 	}
 	delete []env;
+}
+
+void HTTPResponse::setMethods(void) {
+	std::vector<LocationConf>::iterator iterator;
+	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
+
+	for (iterator = this->_locations.begin(); iterator != iteratorEnd; iterator++) {
+		if ((iterator->getSettings().find("method") != iterator->getSettings().end()) && (iterator->getSettings().find("uri") != iterator->getSettings().end())) {
+			const std::string uri = iterator->getASettingValue("uri");
+			const std::string method = iterator->getASettingValue("method");
+			this->_methods[uri] = method;
+		}
+	}
+}
+
+void HTTPResponse::printMethods(void) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_methods.end();
+
+	std::cout << RED "****The location accepted methods:" RESET << std::endl;
+
+	for (iterator = this->_methods.begin(); iterator != iteratorEnd; iterator++) {
+		std::cout << GREEN << iterator->first << RESET  " = " ORG << iterator->second << RESET << std::endl;
+	}
+}
+
+std::string HTTPResponse::splitLocationFromUri(const std::string& path) {
+    // Check if the path is only "/"
+    if (path == "/") {
+        return path; // Return "/" as is if it's alone
+    }
+
+    // Find the first occurrence of "/" after the first one
+    size_t secondSlashPos = path.find('/', 1);
+
+    // If there's no other "/", return the entire path
+    if (secondSlashPos == std::string::npos) {
+        return "/";
+    }
+
+    // Otherwise, return the substring up to the second "/"
+    return path.substr(0, secondSlashPos);
+}
+
+std::string const HTTPResponse::getLocationMethod(std::string const & uri) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = _methods.end();
+	std::string location = splitLocationFromUri(uri);
+
+	for (iterator = _methods.begin(); iterator != iteratorEnd; iterator++) {
+		if (iterator->first == location)
+			return (iterator->second);
+	}
+	return ("");
 }

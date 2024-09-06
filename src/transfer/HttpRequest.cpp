@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/01 15:45:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 20:02:09 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,9 @@ bool HTTPRequest::parse(ConnectedSocket &connectedSocket)
     }
 
 	//****************print header map********************
-	// displayRequestMap();
+	// printRequestMap();
 	//****************print server config map**************
-	// displayServerConfig();
+	// printServerConfig();
 	//****************************************************
 
 	connectedSocket.setRequestMap(this->_requestMap);
@@ -138,7 +138,7 @@ std::map<std::string, std::string> &HTTPRequest::getServerConfig(void) {
 	return this->_serverConfig;
 }
 
-void HTTPRequest::displayRequestMap()
+void HTTPRequest::printRequestMap()
 {
 	std::cout << RED "****Request Map:\n";
 	std::map<std::string, std::string>::iterator itr = _requestMap.begin();
@@ -146,7 +146,7 @@ void HTTPRequest::displayRequestMap()
 		std::cout << ORG << itr->first << ":" MAGENTA << itr->second << RESET << std::endl;
 }
 
-void HTTPRequest::displayServerConfig()
+void HTTPRequest::printServerConfig()
 {
 	std::cout << RED "****The server config map:\n";
 	std::map<std::string, std::string>::iterator itr = _serverConfig.begin();

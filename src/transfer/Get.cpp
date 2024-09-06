@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   GetHandler.cpp                                     :+:      :+:    :+:   */
+/*   Get.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 22:41:26 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/03 09:32:37 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 19:20:37 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "GetHandler.hpp"
+#include "Get.hpp"
 
-GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
+Get::Get(const std::map<std::string, std::string>& requestMap,
 					   const std::map<std::string, std::string>& serverConfig, std::vector<LocationConf> const &locations) :
 	HTTPResponse(serverConfig, locations) {
 	setRequestMapInResponse(requestMap);
@@ -21,15 +21,15 @@ GetHandler::GetHandler(const std::map<std::string, std::string>& requestMap,
 	// this->printRedirections();
 }
 
-GetHandler::~GetHandler() {}
+Get::~Get() {}
 
 /*Generate the directory list inside the directory that is passed to it.*/
-std::string GetHandler::handleDirectoryListing(const std::string& dirPath) {
+std::string Get::handleDirectoryListing(const std::string& dirPath) {
 	Server::logMessage("INFO: Received GET request for " + dirPath);
     DIR* dir = opendir(dirPath.c_str());
     if (!dir) {
 		Server::logMessage("ERROR: Received GET request for '" + dirPath + "' But There Isn't This Directory!");
-        return generateErrorPage(500); // Internal Server Error
+        return generateErrorPage(404); // Internal Server Error
     }
 
     std::string content = "<html><head><title>Index of " + dirPath + 
@@ -62,16 +62,24 @@ std::string GetHandler::handleDirectoryListing(const std::string& dirPath) {
 
 /*Return the correct address of the index file inside the received directory address
 in case if its existence.*/
-std::string GetHandler::findIndexFile(const std::string& dirPath) {
+std::string Get::findIndexFile(const std::string& dirPath) {
+	std::string indexes = _serverConfig.at("index");
     std::vector<std::string> indexFiles;
-    indexFiles.push_back("index.html");
-    indexFiles.push_back("index.htm");
-    indexFiles.push_back("default.html");
+	std::istringstream iss(indexes);
+	std::string index;
+
+	while (iss >> index) {
+    	indexFiles.push_back(index);
+	}
+    // indexFiles.push_back("index.htm");
+    // indexFiles.push_back("default.html");
     struct stat st;
 
     for (std::vector<std::string>::iterator it = indexFiles.begin(); it != indexFiles.end(); ++it) {
         const std::string& indexFile = *it;
-        std::string fullPath = dirPath + "/" + indexFile;
+        // std::string fullPath = dirPath + "/" + indexFile;
+        std::string fullPath = dirPath  + indexFile;
+		std::cout << "fullPath: " << fullPath << std::endl;
         if (stat(fullPath.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
             Server::logMessage("INFO: Index File Found: " + fullPath);
             return fullPath;
@@ -81,7 +89,7 @@ std::string GetHandler::findIndexFile(const std::string& dirPath) {
     return ""; // Return empty string if no index file is found
 }
 
-std::string const GetHandler::setServerRoot(std::string const & filePath) {
+std::string const Get::setServerRoot(std::string const & filePath) {
     if (filePath == "./www//farshad/")
         return ("localhost:8080");
     if (filePath == "./www//navid/")
@@ -91,16 +99,8 @@ std::string const GetHandler::setServerRoot(std::string const & filePath) {
     return ("localhost:8080");
 }
 
-/*Check whether the passed file path is directory or not.*/
-bool isFile(std::string const & filePath) {
-    struct stat st;
-	if (stat(filePath.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
-		return (false);
-	return (true);
-}
 
-
-std::string GetHandler::GetMethod(ConnectedSocket &connectedSocket) {
+std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 	std::string content;
 	std::string date, lastMfd, eTag;
 	std::ostringstream responseHeaders;
@@ -112,12 +112,11 @@ std::string GetHandler::GetMethod(ConnectedSocket &connectedSocket) {
 		return response;
 	}
 
-
-	if (getRedirections(uri).length()) {
-		std::cout << GREEN << "Redirecting from " << uri << " to " << getRedirections(uri) << RESET << std::endl;
+	if (getRedirection(uri).length()) {
+		std::cout << GREEN << "Redirecting from " << uri << " to " << getRedirection(uri) << RESET << std::endl;
 		responseHeaders << httpStatusCode(302) << CRLF
-										<< "Location: " << getRedirections(uri) << CRLF
-										<< "Connection: keep-alive" << CRLF << CRLF;
+		<< "Location: " << getRedirection(uri) << CRLF
+		<< "Connection: keep-alive" << CRLF << CRLF;
 		return responseHeaders.str();
 	}	
 
@@ -128,9 +127,9 @@ std::string GetHandler::GetMethod(ConnectedSocket &connectedSocket) {
 
 			if (uri[uri.length() - 1] != '/') {
 				responseHeaders << httpStatusCode(302) << CRLF
-												<< "Location: " << uri << "/" << CRLF
-												<< "Connection: keep-alive" << CRLF << CRLF;
-												return responseHeaders.str();
+				<< "Location: " << uri << "/" << CRLF
+				<< "Connection: keep-alive" << CRLF << CRLF;
+				return responseHeaders.str();
 			}
 			
 			// Check for an index file in the directory
@@ -185,11 +184,13 @@ std::string GetHandler::GetMethod(ConnectedSocket &connectedSocket) {
 }
 
 
-std::string GetHandler::getRedirections(std::string const &uri) {
+std::string Get::getRedirection(std::string const &uri) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
+	// std::cout << "URI: " << uri << std::endl;
 
 	for (iterator = this->_redirections.begin(); iterator != iteratorEnd; iterator++) {
+			// std::cout << "location first: " << iterator->first << RED " location second: " CYAN << iterator->second << RESET << std::endl;
 		if (iterator->first == uri)
 			return iterator->second;
 	}
@@ -197,7 +198,7 @@ std::string GetHandler::getRedirections(std::string const &uri) {
 	return "";
 }
 
-void GetHandler::setRedirections(void) {
+void Get::setRedirections(void) {
 	std::vector<LocationConf>::iterator iterator;
 	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
 
@@ -210,7 +211,7 @@ void GetHandler::setRedirections(void) {
 	}
 }
 
-void GetHandler::printRedirections(void) {
+void Get::printRedirections(void) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
 

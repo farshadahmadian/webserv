@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AConf.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:24:02 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 14:52:10 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 16:14:22 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,10 @@ const std::string AConf::sharedSettings[N_SHARED_DIR] = {
 void AConf::setSharedSettingsDefaults( void ) {
 	if (_settings.find("keepalive_timeout") == _settings.end()) _settings["keepalive_timeout"] = DEFAULT_TIMEOUT;
 	if (_settings.find("client_body_buffer_size") == _settings.end()) _settings["client_body_buffer_size"] = DEFAULT_CLIENT_SIZE;
-	if (_settings.find("index") == _settings.end()) _settings["autoindex"] = DEFAULT_AUTOINDEX;
-	if (_settings.find("autoindex") == _settings.end()) _settings["root"] = DEFAULT_ROOT;
+	if (_settings.find("index") == _settings.end()) _settings["index"] = DEFAULT_INDEX;
+	if (_settings.find("autoindex") == _settings.end()) _settings["autoindex"] = DEFAULT_AUTOINDEX;
 	if (_settings.find("client_max_body_size") == _settings.end()) _settings["client_max_body_size"] = DEFAULT_MAX_BODY_SIZE;
+	if (_settings.find("method") == _settings.end()) _settings["method"] = DEFAULT_METHOD;
 };
 
 enum conf_err AConf::checkSharedSettings( void ) {

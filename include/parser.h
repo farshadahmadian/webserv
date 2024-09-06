@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 14:52:15 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 23:43:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 /* SHARED DIRECTIVE DEFAULTS */
 #define DEFAULT_TIMEOUT			"10"
 #define DEFAULT_CLIENT_SIZE		"80"
-#define DEFAULT_INDEX			"index index.html"
+#define DEFAULT_INDEX			"index index.htm index.html default.html"
 #define DEFAULT_AUTOINDEX		"on"
 #define DEFAULT_ROOT			"./www/"
 #define DEFAULT_MAX_BODY_SIZE "100000000"

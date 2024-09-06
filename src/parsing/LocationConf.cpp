@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConf.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 14:34:36 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 16:33:58 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ const std::string LocationConf::locationSettings[N_LOCATION_DIR] = {
 void LocationConf::setDefaults( void ) {
 	setSharedSettingsDefaults();
 	if (_settings.find("uri") == _settings.end()) _settings["uri"] = DEFAULT_URI;
-	if (_settings.find("methos") == _settings.end()) _settings["method"] = DEFAULT_METHOD;
+	if (_settings.find("method") == _settings.end()) _settings["method"] = DEFAULT_METHOD;
 	if (_settings.find("cgi") == _settings.end()) _settings["cgi"] = DEFAULT_CGI;
 	if (_settings.find("redirect") == _settings.end()) _settings["redirect"] = DEFAULT_REDIRECT;
 };

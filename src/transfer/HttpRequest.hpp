@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/02 20:11:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 14:06:35 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,8 @@ public:
 	std::map<std::string, std::string> &getServerConfig(void);
 
 	void displayRequestString() const;
-	void displayRequestMap();
-	void displayServerConfig();
+	void printRequestMap();
+	void printServerConfig();
 	bool receiveInChuncks(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i, std::ostringstream const &outputStringStream);
 	void readAllHeader(ConnectedSocket &connectedSocket, pollfd *pollFds, size_t i);
 	void storeHeader(ConnectedSocket &connectedSocket);

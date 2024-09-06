@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/04 08:13:12 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 20:21:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ enum POLLEvents {
 };
 
 
-class GetHandler; // Forward declaration
+class Get; // Forward declaration
 
 class HTTPResponse {
 public:
@@ -62,12 +62,16 @@ public:
 	virtual ~HTTPResponse();
 	 //---------------------------------------------------Return Error Or Call The Related HTTP Methods
 	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
-	void displayResponse(int fd);
+	void printSocketResponse(int fd);
 	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
 	void setRequestStringInResponse(std::string const & requestString);
-	void displayRequestMap();
-	void displayServerConfig();
+	void printRequestMap();
+	void printServerConfig();
 	bool isDirectory(const std::string& uri) const;
+	bool isFile(std::string const & filePath);
+	void fixUri(std::string const &filePath);
+
+
 	//-------------------------------MIME------------------------------
 	std::string getMimeType(const std::string& extension) const;
 	//-----------------------------------------------------------------
@@ -75,7 +79,7 @@ public:
 	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket);
 	std::string const &getSocketResponse(int connectedSocketFd);
 	void printData(void);
-	void printResponses(void);
+	void printResponsesMap(void);
 	void removeSocketResponse(int connectedSocketFd);
 	void clearData(void);
 	std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
@@ -145,20 +149,29 @@ protected:
 	std::map<std::string, std::string> _requestMap; //---------------------------------------------------Keep A Reference Of Request Map
 	std::string	_requestString; //-----------------------------------------------------------------------Keep A Reference Of Request String
 	std::map<int, std::string> _responses; //------------------------------------------------------------A Map Of Responses Corresponding To Their Sockets
+	
 	//-------------------------------MIME------------------------------
 	std::map<std::string, std::string> _mimeMap;
+	void loadMimeTypes(const std::string& filePath);
+	//-----------------------------------------------------------------
 
 	std::string _storageDirectory;
 	std::map<std::string, std::string> _data;
+	
+	std::string splitLocationFromUri(const std::string& path);
+	std::string const getLocationMethod(std::string const & uri);
+
 	std::vector<LocationConf> _locations;
+	void setMethods(void);
+	void printMethods(void);
+	std::map<std::string, std::string> _methods;
+	
 	std::string _cgiDirectory;
 	std::string _cgiFilePath;
 	std::string _cgiFileName;
 	std::string _queryString;
 	std::vector<std::string> _queryStringKeyValues;
 
-	void loadMimeTypes(const std::string& filePath);
-	//-----------------------------------------------------------------
 
 };
 

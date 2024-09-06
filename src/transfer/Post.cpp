@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:29:21 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 08:57:28 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/06 14:09:03 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -316,7 +316,7 @@ std::string Post::handlePost(int connectedSocketFd, ConnectedSocket &connectedSo
 // 	this->_responses[connectedSocketFd] = ostring.str();
 // 	// std::cout << CYAN << "POST RESPONSE:\n" << this->_responses[connectedSocketFd] << RESET << std::endl;
 // 	// this->printData();
-// 	// this->printResponses();
+// 	// this->printResponsesMap();
 // 	return;
 // }
 
