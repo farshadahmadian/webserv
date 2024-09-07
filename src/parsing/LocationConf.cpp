@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/07 09:15:49 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 11:09:48 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void LocationConf::setDefaults( void ) {
 	if (_settings.find("cgi") == _settings.end()) _settings["cgi"] = DEFAULT_CGI;
 	if (_settings.find("redirect") == _settings.end()) _settings["redirect"] = DEFAULT_REDIRECT;
 	if (_settings.find("index") == _settings.end()) _settings["index"] = DEFAULT_INDEX;
-	std::cout << "HIII im here in setDefault: " << _settings["index"] << std::endl;
 };
 
 void LocationConf::addNestedBlock( context type ) { (void)type; /* not implemented */}

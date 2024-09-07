@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/07 10:38:23 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 11:24:18 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ protected:
 
 	//-------------------------------CGI-------------------------------
 	// bool isCGI(std::string const & filePath);
-	// std::string const handleCGI(std::string & uri);
+	std::string const handleGETCgi(ConnectedSocket &connectedSocket);
 	// std::string cgi( std::string& uri );
 	// char** createEnv( std::string * uri );
 	// size_t acceptedCgiExtention(std::string const &filePath);

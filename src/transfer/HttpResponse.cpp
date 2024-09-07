@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/07 10:37:53 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 11:24:51 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	std::string filePath = _serverConfig.at("root") + uri;
 	
 	// printRequestMap();
-	printServerConfig();
+	// printServerConfig();
 	if (statusCode == 400) {
 		return generateErrorPage(400);
 	}
@@ -260,18 +260,18 @@ static void free_dptr( char** env ) {
 // }
 
 /*create body of the received cgi response.*/
-// std::string const HTTPResponse::handleCGI(std::string & uri) {
-// 	std::string cgiResult = cgi(uri);
+std::string const HTTPResponse::handleGETCgi(ConnectedSocket &connectedSocket) {
+	std::string cgiResult =  handleCgi(connectedSocket);
 
-// 	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
-// 	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
-// 	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
-// 	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
-// 	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
-// 	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
+	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
+	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
+	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
+	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
+	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
 	
-// 	return (content);
-// }
+	return (content);
+}
 
 // Helper function to check if the file exists and is executable
 bool isExecutable(const std::string& path) {
@@ -854,6 +854,7 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	else if (connectedSocket.getCgiScriptExtension() == ".py")
 		command = "/usr/bin/python3";
 	else {
+		std::cout <<RED "this the command: " RESET << command << std::endl;
 		connectedSocket.setIsCgiChildProcessReturning(true);
 		return;
 	}
@@ -1193,7 +1194,6 @@ void HTTPResponse::setIndexes(void) {
 		if ((iterator->getSettings().find("index") != iterator->getSettings().end()) && (iterator->getSettings().find("uri") != iterator->getSettings().end())) {
 			const std::string uri = iterator->getASettingValue("uri");
 			const std::string index = iterator->getASettingValue("index");
-			std::cout << "this is the uri: " RED << uri << RESET " this is index: " GREEN << index << RESET << std::endl;
 			this->_indexes[uri] = index;
 		}
 	}
