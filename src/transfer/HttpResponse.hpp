@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/06 20:21:06 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 10:38:23 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,11 +160,15 @@ protected:
 	
 	std::string splitLocationFromUri(const std::string& path);
 	std::string const getLocationMethod(std::string const & uri);
+	std::string const getLocationIndex(std::string const & uri);
 
 	std::vector<LocationConf> _locations;
 	void setMethods(void);
 	void printMethods(void);
+	void setIndexes(void);
+	void printIndexes(void);
 	std::map<std::string, std::string> _methods;
+	std::map<std::string, std::string> _indexes;
 	
 	std::string _cgiDirectory;
 	std::string _cgiFilePath;

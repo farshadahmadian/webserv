@@ -63,18 +63,19 @@ std::string Get::handleDirectoryListing(const std::string& dirPath) {
 /*Return the correct address of the index file inside the received directory address
 in case if its existence.*/
 std::string Get::findIndexFile(const std::string& dirPath) {
-	std::string indexes = _serverConfig.at("index");
+	std::string indexes = getLocationIndex(_requestMap["uri"]);
+	if (indexes == "")
+		indexes = _serverConfig.at("index");
+	std::cout << "HIIIIIIIIII" << indexes << std::endl;
     std::vector<std::string> indexFiles;
 	std::istringstream iss(indexes);
 	std::string index;
 
+	printIndexes();
 	while (iss >> index) {
     	indexFiles.push_back(index);
 	}
-    // indexFiles.push_back("index.htm");
-    // indexFiles.push_back("default.html");
     struct stat st;
-
     for (std::vector<std::string>::iterator it = indexFiles.begin(); it != indexFiles.end(); ++it) {
         const std::string& indexFile = *it;
         // std::string fullPath = dirPath + "/" + indexFile;
@@ -107,6 +108,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 	std::string uri = _requestMap["uri"];
 	std::string filePath = _serverConfig.at("root") + uri;
 
+
 	if (isCgiUri(connectedSocket)) {
 		std::string response = this->handleCgi(connectedSocket);
 		return response;
@@ -134,6 +136,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 			
 			// Check for an index file in the directory
 			std::string indexFilePath = findIndexFile(filePath);
+			std::cout << "fullPath outside of findIndexFile: " << indexFilePath << std::endl;
 			if (!indexFilePath.empty()) {
 					filePath = indexFilePath; // Update filePath to point to the index file
 			} else {
@@ -152,6 +155,9 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
     // Serve the file if it's not a directory or an index file was found
     if (!content.empty()){// || isCGI(filePath)) {
         std::string extension = filePath.substr(filePath.find_last_of("."));
+		if (extension[extension.size() - 4] != '.')
+			extension = HTML_EXTENSION;
+		std::cout << "extension: " << extension << std::endl;
 		// std::cout << "extension: " << extension << std::endl;
     //     if (isCGI(filePath)) {
 		// 	extension = HTML_EXTENSION;
@@ -187,12 +193,15 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 std::string Get::getRedirection(std::string const &uri) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
-	// std::cout << "URI: " << uri << std::endl;
+	std::string fixedURI = uri;
+	if (fixedURI[fixedURI.size() - 1] == '/')
+		fixedURI = fixedURI.erase(fixedURI.size() - 1);
 
 	for (iterator = this->_redirections.begin(); iterator != iteratorEnd; iterator++) {
-			// std::cout << "location first: " << iterator->first << RED " location second: " CYAN << iterator->second << RESET << std::endl;
-		if (iterator->first == uri)
+		if (iterator->first == fixedURI) {
+
 			return iterator->second;
+		}
 	}
 
 	return "";

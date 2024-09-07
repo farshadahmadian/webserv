@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/06 23:43:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 09:12:55 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 /* NUMBER OF DIRECTIVES */
 #define N_SHARED_DIR	6
 #define N_SERVER_DIR	3
-#define N_LOCATION_DIR	4
+#define N_LOCATION_DIR	5
 
 /* SHARED DIRECTIVE DEFAULTS */
 #define DEFAULT_TIMEOUT			"10"

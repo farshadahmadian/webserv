@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/07 00:36:23 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 10:37:53 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConf
 	_serverConfig(serverConfig), _locations(locations)  {
 	loadMimeTypes(MIME);
 	setMethods();
+	setIndexes();
 	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
@@ -383,69 +384,6 @@ void executeCGI(const std::string& path, char** env, const std::string& method, 
 	exit(1);
 }
 
-// std::string HTTPResponse::readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout) {
-// 	std::string responseBody;
-// 	close(fd_pipe[1]);
-
-// 	char buff[100];
-// 	int ret = 1;
-// 	fd_set readfds;
-// 	struct timeval tv;
-// 	int fd_max = fd_pipe[0];
-// 	time_t start_time = time(NULL);
-
-// 	while (true) {
-// 		FD_ZERO(&readfds);
-// 		FD_SET(fd_pipe[0], &readfds);
-
-// 		tv.tv_sec = timeout - (time(NULL) - start_time);
-// 		tv.tv_usec = 0;
-
-// 		if (tv.tv_sec <= 0) {
-// 			Server::logMessage("ERROR: CGI Timeout!");
-// 			kill(forked_ps, SIGKILL);
-// 			waitpid(forked_ps, NULL, 0);
-// 			close(fd_pipe[0]);
-// 			free_dptr(env);
-// 			return generateErrorPage(504);
-// 		}
-
-// 		int sel = select(fd_max + 1, &readfds, NULL, NULL, &tv);
-// 		if (sel > 0) {
-// 			if (FD_ISSET(fd_pipe[0], &readfds)) {
-// 				bzero(buff, sizeof(buff));
-// 				ret = read(fd_pipe[0], buff, sizeof(buff) - 1);
-// 				if (ret > 0) {
-// 					responseBody += buff;
-// 				} else if (ret == 0) {
-// 					break;
-// 				} else {
-// 					Server::logMessage("ERROR: Reading from CGI failed!");
-// 					close(fd_pipe[0]);
-// 					free_dptr(env);
-// 					return generateErrorPage(500);
-// 				}
-// 			}
-// 		} else if (sel == 0) {
-// 			Server::logMessage("ERROR: CGI Timeout!");
-// 			kill(forked_ps, SIGKILL);
-// 			waitpid(forked_ps, NULL, 0);
-// 			close(fd_pipe[0]);
-// 			free_dptr(env);
-// 			return generateErrorPage(504);
-// 		} else {
-// 			Server::logMessage("ERROR: select() failed!");
-// 			close(fd_pipe[0]);
-// 			free_dptr(env);
-// 			return generateErrorPage(500);
-// 		}
-// 	}
-
-// 	close(fd_pipe[0]);
-// 	free_dptr(env);
-// 	return responseBody;
-// }
-
 /*Check and retrieve the status code inside the error generated inside the readFromCGI.*/
 bool checkStatusCode(std::string & text, int *err = NULL) {
 	std::string code = text.substr(text.find("HTTP/1.1 ") + 9, 3);
@@ -457,67 +395,6 @@ bool checkStatusCode(std::string & text, int *err = NULL) {
 	return false;
 }
 
-// std::string HTTPResponse::cgi(std::string& uri) {
-// 	char** env = createEnv(&uri);    
-// 	std::string path = _serverConfig["root"] + uri;
-
-// 	if (!env) {
-// 		Server::logMessage("ERROR: Environment Variable Not Available!");
-// 		return generateErrorPage(500);
-// 	}
-
-// 	int fd_pipe[2];
-// 	if (!createPipes(fd_pipe)) {
-// 		free_dptr(env);
-// 		return generateErrorPage(500);
-// 	}
-
-// 	pid_t forked_ps = fork();
-// 	if (forked_ps == -1) {
-// 		free_dptr(env);
-// 		Server::logMessage("ERROR: Fork failed!");
-// 		return generateErrorPage(500);
-// 	} else if (forked_ps == 0) {
-// 		executeCGI(path, env, _requestMap["method"], _requestMap["body"], fd_pipe);
-// 	} else {
-// 		std::string responseBody = readFromCGI(fd_pipe, forked_ps, env, 5);
-// 		int status;
-// 		waitpid(forked_ps, &status, 0);
-// 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-// 			Server::logMessage("INFO: CGI Passed!");
-// 			return responseBody;
-// 		} else if (!responseBody.empty() && checkStatusCode(responseBody)) {
-// 			int err;
-// 			checkStatusCode(responseBody, &err);
-// 			Server::logMessage("ERROR: CGI Failed!");
-// 			return generateErrorPage(err);
-// 		}
-// 	}
-// 	return generateErrorPage(500);
-// }
-
-/*Check whether the accepted script format exists, returns its position,
-otherwise returns npos*/
-// size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
-// 	std::vector<std::string> cgiExtension;
-// 	size_t	pos;
-// 	size_t	extensionPos;
-// 	int		count = 0;
-// 	cgiExtension.push_back(".sh");
-// 	cgiExtension.push_back(".pl");
-// 	cgiExtension.push_back(".py");
-// 	for (std::vector<std::string>::iterator it = cgiExtension.begin(); it != cgiExtension.end(); ++it) {
-// 		pos = filePath.find(*it);
-// 		if (pos != std::string::npos)
-// 		{
-// 			extensionPos = pos;
-// 			count++;
-// 		}
-// 	}
-// 	if (count == 1)
-// 		return (extensionPos);
-// 	return (std::string::npos);
-// }
 
 void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable) {
     std::string query;
@@ -1062,7 +939,7 @@ void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t i
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
 	// std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
 	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
-	std::cout << "HIIIIIII:" << index << std::endl;
+	// std::cout << "IN isCgiUri index is:" << index << std::endl;
 	if (index == 0)
 		return true;
 	return false;
@@ -1308,6 +1185,20 @@ void HTTPResponse::setMethods(void) {
 	}
 }
 
+void HTTPResponse::setIndexes(void) {
+	std::vector<LocationConf>::iterator iterator;
+	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
+
+	for (iterator = this->_locations.begin(); iterator != iteratorEnd; iterator++) {
+		if ((iterator->getSettings().find("index") != iterator->getSettings().end()) && (iterator->getSettings().find("uri") != iterator->getSettings().end())) {
+			const std::string uri = iterator->getASettingValue("uri");
+			const std::string index = iterator->getASettingValue("index");
+			std::cout << "this is the uri: " RED << uri << RESET " this is index: " GREEN << index << RESET << std::endl;
+			this->_indexes[uri] = index;
+		}
+	}
+}
+
 void HTTPResponse::printMethods(void) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_methods.end();
@@ -1315,6 +1206,17 @@ void HTTPResponse::printMethods(void) {
 	std::cout << RED "****The location accepted methods:" RESET << std::endl;
 
 	for (iterator = this->_methods.begin(); iterator != iteratorEnd; iterator++) {
+		std::cout << GREEN << iterator->first << RESET  " = " ORG << iterator->second << RESET << std::endl;
+	}
+}
+
+void HTTPResponse::printIndexes(void) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_indexes.end();
+
+	std::cout << RED "****The location indexes:" RESET << std::endl;
+
+	for (iterator = this->_indexes.begin(); iterator != iteratorEnd; iterator++) {
 		std::cout << GREEN << iterator->first << RESET  " = " ORG << iterator->second << RESET << std::endl;
 	}
 }
@@ -1343,6 +1245,18 @@ std::string const HTTPResponse::getLocationMethod(std::string const & uri) {
 	std::string location = splitLocationFromUri(uri);
 
 	for (iterator = _methods.begin(); iterator != iteratorEnd; iterator++) {
+		if (iterator->first == location)
+			return (iterator->second);
+	}
+	return ("");
+}
+
+std::string const HTTPResponse::getLocationIndex(std::string const & uri) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = _indexes.end();
+	std::string location = splitLocationFromUri(uri);
+
+	for (iterator = _indexes.begin(); iterator != iteratorEnd; iterator++) {
 		if (iterator->first == location)
 			return (iterator->second);
 	}

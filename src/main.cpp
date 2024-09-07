@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/06 16:44:49 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/07 10:18:48 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ int main(int argc, char **argv)
 	try
 	{
 		Parser configuration(argc, argv);
-		// configuration.displayConf();
-		// std::cout << "---------------------------------------------------------" << std::endl;
+		configuration.displayConf();
+		std::cout << "---------------------------------------------------------" << std::endl;
 		// return (0);
 		Poll pollOfServers(configuration);
 		pollOfServers.init();
