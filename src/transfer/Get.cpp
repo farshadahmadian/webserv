@@ -135,7 +135,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 			
 			// Check for an index file in the directory
 			std::string indexFilePath = findIndexFile(filePath);
-			std::cout << "fullPath outside of findIndexFile: " << indexFilePath << std::endl;
+			// std::cout << "fullPath outside of findIndexFile: " << indexFilePath << std::endl;
 			if (!indexFilePath.empty()) {
 					filePath = indexFilePath; // Update filePath to point to the index file
 			} else {

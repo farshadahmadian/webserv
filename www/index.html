@@ -14,22 +14,22 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #ffc7a9;
+            background-color: #201e1e;
             color: #333;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
         }
 
-        .header {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-50%);
-            font-size: 8rem;
-            color: #826161;
+        header {
+            margin-bottom: 20px;
         }
 
         header h1 {
             font-size: 2.5rem;
+            color: #826161;
         }
 
         nav {
@@ -37,18 +37,19 @@
         }
 
         nav a {
-            color: rgb(255, 255, 255);
-            background-color: #ff5900;
+            color: white;
+            background-color: #826161;
             padding: 10px 20px;
             text-decoration: none;
             margin: 0 15px;
             font-size: 1.1rem;
             border-radius: 5px;
             display: inline-block;
+            transition: background-color 0.3s ease;
         }
 
         nav a:hover {
-            background-color: #e1b09e;
+            background-color: #9299a1;
         }
 
         section {
@@ -56,7 +57,7 @@
             max-width: 800px;
             text-align: left;
             padding: 20px;
-            background: rgb(208, 130, 82);
+            background: rgb(144, 132, 132);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
@@ -98,23 +99,20 @@
         <h1>Welcome</h1>
     </header>
 
-    <!-- <nav>
+    <nav>
+        <a href="http://localhost:8082">NICO</a>
         <a href="http://localhost:8080">FARSHAD</a>
         <a href="http://localhost:8081">NAVID</a>
-        <a href="http://localhost:8082">NICO</a>
-    </nav> -->
+    </nav>
 
     <section>
         <h2>Hello, guys!</h2>
         <p>
-			To test the indexing and directory listing parameters,
-			 you can specify the index file name of this page in the server 
-			 configuration to display it as is. Alternatively, 
-			 you can use the default index files defined by this web server, 
-			 such as index.html, index.htm, or default. By renaming the index file to one of these defaults,
-			  it will be accessible to you without the need to modify the configuration file.</p>
-			</p><span style="font-size:50px">😎</span> 
-			</p>
+			Welcome to the main page of our web server. 
+			This Webserv project consists of three different ports and hostnames, 
+			as indicated by the buttons above. You can click on each one to access various pages.
+			</p><span style="font-size:100px">😜</span>
+        </p>
     </section>
 
     <!-- <footer>
