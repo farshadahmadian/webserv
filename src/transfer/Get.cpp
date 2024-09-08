@@ -66,7 +66,6 @@ std::string Get::findIndexFile(const std::string& dirPath) {
 	std::string indexes = getLocationIndex(_requestMap["uri"]);
 	if (indexes == "")
 		indexes = _serverConfig.at("index");
-	// std::cout << "HIIIIIIIIII" << indexes << std::endl;
     std::vector<std::string> indexFiles;
 	std::istringstream iss(indexes);
 	std::string index;
@@ -80,12 +79,12 @@ std::string Get::findIndexFile(const std::string& dirPath) {
         const std::string& indexFile = *it;
         // std::string fullPath = dirPath + "/" + indexFile;
         std::string fullPath = dirPath  + indexFile;
-		// std::cout << "fullPath: " << fullPath << std::endl;
         if (stat(fullPath.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
             Server::logMessage("INFO: Index File Found: " + fullPath);
             return fullPath;
         }
     }
+    Server::logMessage("INFO: Index File Not Found For This Address: " + dirPath);
 
     return ""; // Return empty string if no index file is found
 }
@@ -110,8 +109,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 
 
 	if (isCgiUri(connectedSocket)) {
-		std::string response = this->handleGETCgi(connectedSocket);
-		std::cout << response << std::endl;
+		std::string response = this->handleCgi(connectedSocket);
 		return response;
 	}
 
@@ -158,7 +156,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
         std::string extension = filePath.substr(filePath.find_last_of("."));
 		if (extension[extension.size() - 4] != '.')
 			extension = HTML_EXTENSION;
-		std::cout << "extension: " << extension << std::endl;
+		// std::cout << "extension: " << extension << std::endl;
 		// std::cout << "extension: " << extension << std::endl;
     //     if (isCGI(filePath)) {
 		// 	extension = HTML_EXTENSION;

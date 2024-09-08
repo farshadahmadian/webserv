@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectedSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:13 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 20:39:23 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/08 23:56:06 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ typedef enum e_state {
 	WRITING,
 	KEEP_ALIVE,
 	DONE,
-	CLOSED
+	CLOSED,
+	ERROR
 }t_state;
 
 struct ChildProcessData {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/03 20:42:29 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/08 23:48:37 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -504,7 +504,7 @@ bool Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd, std::map<i
 	// std::cout << "RECEIVING THE REQUEST..." << std::endl;
 	if (s.getHttpReq().handleRequest(this->_totalFds[i].fd, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]))
 	{
-		if (!(this->_totalFds[i].revents & POLLHUP) && (*connectedSocketIt)->second.getState() == DONE) {
+		if (!(this->_totalFds[i].revents & POLLHUP) && ((*connectedSocketIt)->second.getState() == DONE || (*connectedSocketIt)->second.getState() == ERROR)) {
 			// this->_totalFds[i].events = POLLOUT;// | POLLIN;
 			s.getHttpResp().handleResponse(this->_totalFds[i].fd, POLLIN_TMP, this->_totalFds, i, s.getConnectedSockets()[connectedSocketFd]);
 		}
@@ -671,6 +671,17 @@ void Poll::finishCgi(ConnectedSocket &connectedSocket, Server &s, std::string co
 	return;
 }
 
+void makeCGIResultFormed(std::string *cgiResult) {
+	std::string html = *cgiResult;
+
+	*cgiResult = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
+	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
+	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
+	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
+	+ html + "\r\n</code></pre>\r\n</body>\r\n</html>";
+}
+
 std::string Poll::cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Server &s) {
 	connectedSocket.setIsCgiChildProcessSuccessful(true);
 
@@ -690,7 +701,9 @@ std::string Poll::cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Serve
 		connectedSocket.appendToCgiBuffer(temp);
 		return "";
 	}
-	std::string html = connectedSocket.getCgiBuffer();
+	std::string content = connectedSocket.getCgiBuffer();
+	makeCGIResultFormed(&content);
+
 	connectedSocket.setCgiBuffer("");
 
 	// std::cout << BLUE << "RESULT = " << result << RESET << std::endl;
@@ -699,8 +712,8 @@ std::string Poll::cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Serve
 	ostring << "HTTP/1.1 200 OK\r\n";
 	ostring << "Content-Type: text/html\r\n";
 	ostring << "Connection: close\r\n";
-	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-	ostring << html;
+	ostring << "Content-Length: " << content.length() << "\r\n\r\n";
+	ostring << content;
 
 	std::string response = ostring.str();
 	finishCgi(connectedSocket, s, response);

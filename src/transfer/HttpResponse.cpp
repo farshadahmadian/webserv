@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/07 11:24:51 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/08 23:55:15 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,7 @@ std::string HTTPResponse::httpStatusCode(int statusCode) {
 		case 405: return "HTTP/1.1 405 Method Not Allowed";
 		case 413: return "HTTP/1.1 413 Payload Too Large";
 		case 503: return "HTTP/1.1 503 Service Unavailable";
-		case 501: return "HTTP/1.1 504 Not Implemented";
+		case 501: return "HTTP/1.1 501 Not Implemented";
 		case 504: return "HTTP/1.1 504 Gateway Timeout";
 		default:  return "HTTP/1.1 500 Internal Server Error";
 	}
@@ -233,46 +233,6 @@ std::string HTTPResponse::readHtmlFile(const std::string &path) {
 	return ss.str();
 }
 
-static void free_dptr( char** env ) {
-	size_t i = 0;
-	if (!env)
-		return ;
-	while (env[i]) {
-		free(env[i]);
-		env[i] = NULL;
-		i++;
-	}
-	free(env);
-	env = NULL;
-}
-
-/*Check whether the accepted cgi extension exits or not.*/
-// bool HTTPResponse::isCGI(std::string const & filePath) {
-//     size_t pos = acceptedCgiExtention(filePath);
-//     // if (pos != std::string::npos && pos + 3 < filePath.length()) {
-// 		if (pos != std::string::npos) {
-//         // char charAfterExtension = filePath[pos + 3];
-//         // if (charAfterExtension == '/' || charAfterExtension == '\0' || charAfterExtension == '?') {
-//             return true;
-//         }
-//     // }
-//     return false;
-// }
-
-/*create body of the received cgi response.*/
-std::string const HTTPResponse::handleGETCgi(ConnectedSocket &connectedSocket) {
-	std::string cgiResult =  handleCgi(connectedSocket);
-
-	std::string content = "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n"
-	"<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
-	"<title>CGI Execution Result</title>\r\n<style>\r\nbody {font-family: Arial, sans-serif; margin: 20px;}\r\n"
-	"pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto;}\r\n</style>\r\n"
-	"</head>\r\n<body>\r\n<h1>CGI Execution Result</h1>\r\n<pre><code>\r\n"
-	+ cgiResult + "\r\n</code></pre>\r\n</body>\r\n</html>";
-	
-	return (content);
-}
-
 // Helper function to check if the file exists and is executable
 bool isExecutable(const std::string& path) {
     return (access(path.c_str(), X_OK) == 0);  // Check if executable
@@ -291,8 +251,7 @@ std::vector<std::string> splitPath(const std::string& path) {
 }
 
 // Main function to set the interpreter based on the file extension
-std::string setInterpreter(const std::string& cgiPath) {
-    std::string ext = cgiPath.substr(cgiPath.find_last_of("."));
+std::string setInterpreter(const std::string& ext) {
     const char* pathEnv = std::getenv("PATH");
 
     if (!pathEnv) {
@@ -303,10 +262,10 @@ std::string setInterpreter(const std::string& cgiPath) {
     std::vector<std::string> paths = splitPath(pathEnv);
 
     std::string interpreter;
-    if (ext == ".pl") {
-        interpreter = "perl";
-    } else if (ext == ".py") {
+    if (ext == ".py") {
         interpreter = "python3";
+    // } if (ext == ".pl") {
+    //     interpreter = "perl";
     } else {
         interpreter = "bash";  // Default interpreter
     }
@@ -320,187 +279,17 @@ std::string setInterpreter(const std::string& cgiPath) {
     }
 
     // If not found in PATH, fallback to default paths
-    if (ext == ".pl") {
-        return "/usr/bin/perl";
-    } else if (ext == ".py") {
-        return "/usr/bin/python3";
-    } else {
+	// here we can add new cgi command language
+    if (ext == ".py") {
+        return "/usr/bin/python";
+    // } else if (ext == ".pl") {
+    //     return "/usr/bin/perl";
+    } else if (ext == ".sh") {
         return "/bin/bash";  // Default to bash
-    }
+    } else
+		return "";
 }
 
-/*check the cgi extension, and return the corresponding interpreter.*/
-// std::string const setInterpreter(std::string const & cgiPath) {
-// 	if (cgiPath.substr(cgiPath.find_last_of(".")) == ".pl") {
-// 		return("/usr/bin/perl");
-// 	} else if (cgiPath.substr(cgiPath.find_last_of(".")) == ".py") {
-// 		return("/usr/bin/python3");
-// 	} else {
-// 		// Handle other cases, or default to shell script execution
-// 		return("/bin/bash"); // Assuming the default is shell scripts
-// 	}
-// }
-
-bool createPipes(int fd_pipe[2]) {
-	if (pipe(fd_pipe) == -1) {
-		Server::logMessage("ERROR: Pipe creation failed!");
-		return false;
-	}
-	return true;
-}
-
-void executeCGI(const std::string& path, char** env, const std::string& method, const std::string& body, int fd_pipe[2]) {
-	close(fd_pipe[0]);
-	dup2(fd_pipe[1], STDOUT_FILENO);
-
-	if (method == "POST") {
-		int input_fd[2];
-		if (pipe(input_fd) == -1) {
-			Server::logMessage("ERROR: Input pipe creation failed!");
-			exit(1);
-		}
-		pid_t input_fork = fork();
-		if (input_fork == 0) {
-			close(input_fd[0]);
-			write(input_fd[1], body.c_str(), body.length());
-			close(input_fd[1]);
-			exit(0);
-		} else {
-			close(input_fd[1]);
-			dup2(input_fd[0], STDIN_FILENO);
-			close(input_fd[0]);
-		}
-	}
-
-	std::string interpreter = setInterpreter(path);
-	std::cout << "<body><h2><center>Musketeers Group!</center></h2><hr></body></html>"<<std::endl; 
-
-	char *argv[] = {strdup(interpreter.c_str()), strdup(path.c_str()), NULL};
-	execve(interpreter.c_str(), argv, env);
-
-	Server::logMessage("ERROR: execve failed!");
-	close(fd_pipe[1]);
-	free(argv[0]);
-	exit(1);
-}
-
-/*Check and retrieve the status code inside the error generated inside the readFromCGI.*/
-bool checkStatusCode(std::string & text, int *err = NULL) {
-	std::string code = text.substr(text.find("HTTP/1.1 ") + 9, 3);
-	if (code[0] == '5') {
-		if (err != NULL)
-			*err = Server::stringToInt(code);
-		return true;
-	}
-	return false;
-}
-
-
-void parseQueryString(std::map<std::string, std::string>& additionalEnvVariable) {
-    std::string query;
-
-    // Retrieve the query string either from the URL or the POST body
-    if (!additionalEnvVariable["QUERY_STRING"].empty()) {
-        query = additionalEnvVariable["QUERY_STRING"];
-    } else if (additionalEnvVariable["REQUEST_METHOD"] == "POST" && !additionalEnvVariable["BODY"].empty()) {
-        query = additionalEnvVariable["BODY"];
-    }
-
-    if (!query.empty()) {
-        size_t pos = 0;
-        while ((pos = query.find('&')) != std::string::npos) {
-            std::string param = query.substr(0, pos);
-            size_t eq_pos = param.find('=');
-            if (eq_pos != std::string::npos) {
-                std::string key = param.substr(0, eq_pos);
-                std::string value = param.substr(eq_pos + 1);
-                additionalEnvVariable[key] = value;
-            }
-            query.erase(0, pos + 1);
-        }
-        // Handle the last key-value pair (or the only one if there's no '&')
-        size_t eq_pos = query.find('=');
-        if (eq_pos != std::string::npos) {
-            std::string key = query.substr(0, eq_pos);
-            std::string value = query.substr(eq_pos + 1);
-            additionalEnvVariable[key] = value;
-        }
-    }
-}
-
-std::string CutQueryString (std::string * uri, size_t extension, std::string * pathInfo) {
-	std::string queryString;
-	size_t queryStringPos = uri->find('?');
-	if (queryStringPos != std::string::npos) {
-		queryString = uri->substr(uri->find('?') + 1);
-		*pathInfo = "";
-		if (queryStringPos > extension + 3)
-			*pathInfo = uri->substr(extension + 3, (queryStringPos - (extension + 3)));
-		return (queryString);
-	} else if (queryStringPos == std::string::npos)
-		queryString = "";
-	*pathInfo = uri->substr(extension + 3);
-	return (queryString);
-}
-
-// std::map<std::string, std::string> HTTPResponse::addAdditionalEnvVariables(std::string * uri) {
-// 	std::map<std::string, std::string> additionalEnvVariable;
-// 	std::string pathInfo;
-// 	size_t extension = acceptedCgiExtention(*uri);
-// 	std::string queryString = CutQueryString(uri, extension, &pathInfo);
-// 	*uri = uri->substr(0,extension + 3);
-
-// 	// Add necessary CGI environment variables
-// 	additionalEnvVariable["PATH_INFO"] = pathInfo;
-// 	additionalEnvVariable["SCRIPT_NAME"] = *uri;
-// 	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
-// 	additionalEnvVariable["SERVER_NAME"] = _serverConfig["server_name"];
-// 	additionalEnvVariable["SERVER_PROTOCOL"] = _requestMap["version"];
-// 	additionalEnvVariable["SERVER_PORT"] = _serverConfig["port"];
-// 	additionalEnvVariable["HOST_NAME"] = _requestMap["Host"];
-// 	additionalEnvVariable["REQUEST_METHOD"] = _requestMap["method"];
-// 	if (_requestMap["method"] == "POST")
-// 		additionalEnvVariable["CONTENT_LENGTH"] = Server::intToString(_requestMap["body"].size());
-// 	additionalEnvVariable["QUERY_STRING"] = queryString;
-	
-// 	parseQueryString(additionalEnvVariable);
-// 	return (additionalEnvVariable);
-// }
-
-void feedEnv(char **env, std::map<std::string, std::string> & variableMap) {
-	size_t i = 0;
-
-	while (env[i] != NULL)
-		i++;
-	for (std::map<std::string, std::string>::iterator it = variableMap.begin(); it != variableMap.end(); ++it, ++i) {
-		std::string env_var = it->first;
-		std::transform(env_var.begin(), env_var.end(), env_var.begin(), ::toupper);
-		env_var += "=" + it->second;
-		env[i] = strdup(env_var.c_str());
-		if (!env[i]) {
-			free_dptr(env);
-			return;
-		}
-    }
-    env[i] = NULL; // Null-terminate the env array
-}
-
-/*Retrieve the position of script extension by calling acceptedCgiExtention(),
-create a sub string if the infoPath exists,
-create the env according to the variable are needed, and return it.*/
-// char** HTTPResponse::createEnv(std::string * uri) {
-// 	std::map<std::string, std::string> additionalEnvVariables = addAdditionalEnvVariables(uri);
-	
-// 	char** env = (char**)calloc(_requestMap.size() + additionalEnvVariables.size() + 1, sizeof(char*)); // Adjust size as needed
-// 	if (!env){
-// 		Server::logMessage("ERROR: Environment Variable Creation Failed!");
-// 		return NULL;
-// 	}
-// 	feedEnv(env, _requestMap);
-// 	feedEnv(env, additionalEnvVariables);
-// 	Server::logMessage("INFO: Environment Variable Created!");
-// 	return env;
-// }
 
 /*Return a String Of Current Time In a HTTP Header Format.*/
 std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
@@ -546,7 +335,10 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 		if (connectedSocket.getIsCgi() && this->_responses[clientSocket].empty()) {
 			return true;
 		}
-		_responses[clientSocket] = getResponse(clientSocket, connectedSocket);
+		if (connectedSocket.getState() == ERROR)
+			_responses[clientSocket] = generateErrorPage(400);
+		else
+			_responses[clientSocket] = getResponse(clientSocket, connectedSocket);
 		Server::logMessage("INFO: Response Generated for socket fd: " + Server::intToString(clientSocket));
 		return true;
 	}
@@ -848,17 +640,15 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 	// dup2(STDOUT_FILENO, stdOutCopy);
 	// dup2(STDIN_FILENO, stdInCopy);
 
-	std::string command = "";
-	if (connectedSocket.getCgiScriptExtension() == ".sh")
-		command = "/bin/bash";
-	else if (connectedSocket.getCgiScriptExtension() == ".py")
-		command = "/usr/bin/python3";
-	else {
-		std::cout <<RED "this the command: " RESET << command << std::endl;
+	std::string command = setInterpreter(connectedSocket.getCgiScriptExtension());
+	// if (connectedSocket.getCgiScriptExtension() == ".sh")
+	// 	command = "/bin/bash";
+	// else if (connectedSocket.getCgiScriptExtension() == ".py")
+	// 	command = "/usr/bin/python3";
+	if (command == "") {
 		connectedSocket.setIsCgiChildProcessReturning(true);
 		return;
 	}
-
 
 	if (connectedSocket.getRequestMap()["method"] == "POST") {
 		Post post;
@@ -980,8 +770,10 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		if (connectedSocket.getIsCgiChildProcessReturning() == true) {
 			return "";
 		}
-		if (connectedSocket.getChildProcessData().isError)
+		if (connectedSocket.getChildProcessData().isError) {
+
 			return this->_responses[connectedSocket.getSocketFd()];
+		}
 		else
 		{
 
@@ -1032,7 +824,7 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 		file = "./www/farshad/cgi-post/" + this->_cgiFileName;
 	else if (connectedSocket.getRequestMap()["method"] == "GET")
 		file = _serverConfig.at("root") + "/cgi-get/" + this->_cgiFileName;
-	std::cout << "file adress :" << file << std::endl;
+	std::cout << "file address :" << file << std::endl;
 	int exist = 0;
 	int isReadable = 0;
 	if ((exist = access(file.c_str(), F_OK)) == 0)
@@ -1076,7 +868,7 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 }
 
 void HTTPResponse::storeKeyValuePairsOfQueryString(void) {
-	// std::cerr << RED << "queryStrig = " << this->_queryString << RESET << std::endl;
+	// std::cerr << RED << "queryString = " << this->_queryString << RESET << std::endl;
 	// std::cerr << RED << "scriptFile = " << this->_cgiFileName << RESET << std::endl;
 
 	// std::vector<std::string> keyValues;
@@ -1118,6 +910,7 @@ void HTTPResponse::printQueryStringKeyValues(void) {
 char **HTTPResponse::getEnv(void) {
 	std::vector<std::string>::iterator iterator;
 	std::vector<std::string>::iterator iteratorEnd = this->_queryStringKeyValues.end();
+
 	// std::cerr << "???" << this->_queryStringKeyValues.size() << "--" << std::endl;
 	char **env = new char*[this->_queryStringKeyValues.size() + 1];
 	env[this->_queryStringKeyValues.size()] = NULL;
@@ -1159,6 +952,7 @@ std::string HTTPResponse::getScriptExtension(ConnectedSocket &connectedSocket) {
 	if (index == std::string::npos)
 		return "";
 	std::string scriptExtension = this->_cgiFileName.substr(index, std::string::npos);
+	std::cout << "EXTENSION: " << scriptExtension << std::endl;
 	connectedSocket.setCgiScriptExtension(scriptExtension);
 	std::cerr << "-----extension = " <<connectedSocket.getCgiScriptExtension() << std::endl;
 	return scriptExtension;

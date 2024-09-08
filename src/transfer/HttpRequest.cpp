@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/06 20:02:09 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 00:01:10 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,24 +38,6 @@ bool HTTPRequest::isValidMethod(const std::string &method)
 bool HTTPRequest::isValidHttpVersion(const std::string &ver)
 {
 	return (ver == "HTTP/1.1" || ver == "HTTP/1.0");
-}
-
-bool HTTPRequest::isCgiRequest( void ) {
-	const std::string validExt[3] = { ".sh", ".py", ".pl" };
-
-	if (_uri.find_last_of('.') == std::string::npos){
-		Server::logMessage("ERROR: Sig Request With No Extention!");
-		return (false);
-	}
-	std::string extension = _uri.substr(_uri.find_last_of('.'), _uri.length() - 1);
-	for (size_t i = 0; i < 3; i++) {
-		if (extension == validExt[i]){
-			Server::logMessage("INFO: Sig Request Received!");
-			return (true);
-		}
-	}
-	Server::logMessage("ERROR: Sig Request With Unsupported Extention!");
-	return (false);
 }
 
 /*Parse The Received Request And Creat a Map Of Its Headers*/
@@ -243,16 +225,7 @@ bool HTTPRequest::handleRequest(int connectedSocketFd, pollfd *pollFds, size_t i
 		return true;
 	
 	if (!parse(connectedSocket))
-	{
-		std::string response = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>Bad Request</h1></body></html>";
-		send(connectedSocketFd, response.c_str(), response.length(), 0);
-		// close(clientSocket);
-		return (false);
-	}
-
-	// std::cout << YELLOW << "Request header:\n" << connectedSocket.getRequestHeader() << RESET << std::endl;
-	// std::cout << BLUE << "Request body:\n" << connectedSocket.getRequestBody().str() << RESET << std::endl;
-
+		connectedSocket.setState(ERROR);
 	return (true);
 }
 
