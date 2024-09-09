@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConf.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:32:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:32 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:56:01 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ void ServerConf::setDefaults( void ) {
 	if (_settings.find("server_name") == _settings.end()) _settings["server_name"] = DEFAULT_SERVER_NAME;
 	if (_settings.find("port") == _settings.end()) _settings["port"] = DEFAULT_PORT;
 	if (_settings.find("cgi") == _settings.end()) _settings["cgi"] = DEFAULT_CGI;
+
 	std::vector<LocationConf>::iterator locationIt = _location.begin();
 	while (locationIt != _location.end()) {
 		(*locationIt).setDefaults();
@@ -67,24 +68,25 @@ void ServerConf::setSetting( std::string key, std::string value, context type ) 
 		_location.back().setSetting(key, value, type);
 }
 
+std::string ServerConf::getPort( void ) {
+	return _settings["port"];
+}
+
 enum conf_err ServerConf::checkSettings( void ) {
 	enum conf_err n = CONF_SUCCESS;
 
-	// n = checkSharedSettings();
-	// if (n) return (n);
+	n = checkSharedSettings();
+	if (n) return (n);
 
-	// // check specific
-	// // PORT			"8080"				: set limit?
-	// if (!isValidNumber(_settings["port"], "port")) return (E_PORT);
-	// // if (!isValidServerName(_settings["host"])) return (E_HOST);
+	if (!isValidNumber("port", _settings["port"])) return (E_PORT);
+	if (!isValidPort(_settings["port"])) return (E_PORTNUM);
 
-	// // iterate locations
-	// std::vector<LocationConf>::iterator locationIt = _location.begin();
-	// while (locationIt != _location.end()) {
-	// 	n = (*locationIt).checkSettings();
-	// 	if (n) return (n);
-	// 	locationIt++;
-	// }
+	std::vector<LocationConf>::iterator locationIt = _location.begin();
+	while (locationIt != _location.end()) {
+		n = (*locationIt).checkSettings();
+		if (n) return (n);
+		locationIt++;
+	}
 	return (n);
 }
 

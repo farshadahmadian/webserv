@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:03:53 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/09 00:12:03 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:52:45 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,14 @@
 #define DEFAULT_MAX_BODY_SIZE "100000000"
 
 /* SERVER DIRECTIVE DEFAULTS */
-#define DEFAULT_SERVER_NAME		"127.0.0.1" 	/* need to decide something */
+#define DEFAULT_SERVER_NAME		"127.0.0.1"
 #define DEFAULT_PORT			"8080"
 
 /* LOCATION DIRECTIVE DEFAULTS */
 #define DEFAULT_URI				"/"
 #define DEFAULT_METHOD			"GET"
-#define DEFAULT_CGI				"" 				/* need to decide something */
-#define DEFAULT_REDIRECT ""
+#define DEFAULT_CGI				""
+#define DEFAULT_REDIRECT		""
 
 #define	SPACES				" \t\v\f\r"
 #define	COMMENT(c)			((c) == '#')

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConf.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:34:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/07 11:09:48 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:54:52 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,18 +56,14 @@ void LocationConf::setSetting( std::string key, std::string value, context type 
 	}
 }
 
-
-
 enum conf_err LocationConf::checkSettings( void ) {
 	enum conf_err n = CONF_SUCCESS;
 
-	// check sshared
-	// n = checkSharedSettings();
+	// check shared
+	n = checkSharedSettings();
 
 	// // check specific
-	// // URI				""					: still to decide						-
-	// // CGI				""					: still to decide						-
-	// if (!isValidMethod(_settings["method"])) return (E_METHOD);
+	if (!isValidMethod(_settings["method"])) return (E_METHOD);
 
 	return (n);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConf.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:02:11 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/09 13:25:30 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:57:32 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class ServerConf: public AConf
 		void setDefaults( void );
 		void setSetting( std::string key, std::string value, context active );
 		void addNestedBlock( context type );
+		std::string getPort( void );
 		const std::vector<LocationConf>& getLocation( void ) const;
 
 		enum conf_err checkSettings( void );

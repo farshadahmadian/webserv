@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_utils.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 15:12:05 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/07/18 14:06:09 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:57:57 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ std::string& ltrim( std::string& s, const char* to_trim );
 std::string& rtrim( std::string& s, const char* to_trim );
 std::string& trim( std::string& s, const char* to_trim );
 
-bool isValidServerName( std::string value );
 bool isValidNumber( std::string key, std::string value );
 bool isValidMethod( std::string s );
+bool isValidPort( std::string port );
 
 #endif /* __UTILS_HPP__ */

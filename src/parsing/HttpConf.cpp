@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpConf.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 12:31:20 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/10 11:33:13 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:54:03 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpConf.hpp"
 #include "Exception.hpp"
+#include <cstdlib>
+#include <algorithm>
 
 HttpConf::HttpConf( void ): AConf(HTTP) {
 	_inheritedRoot = DEFAULT_ROOT;
@@ -53,6 +55,8 @@ void HttpConf::setSetting( std::string key, std::string value, context type ) {
 			else
 				_settings[key] = _inheritedRoot + "/" + value;
 		}
+		else
+			_settings[key] = value;
 	}
 	else
 		_server.back().setSetting(key, value, type);
@@ -73,13 +77,23 @@ void HttpConf::setDefaults( void ) {
 */
 enum conf_err HttpConf::checkSettings( void ) {
 	enum conf_err n = CONF_SUCCESS;
+	std::vector<int> ports;
+
 	n = checkSharedSettings();
 	if (n) return (n);
 	std::vector<ServerConf>::iterator serverIt = _server.begin();
 	while (serverIt != _server.end()) {
+		ports.push_back(std::atol((*serverIt).getPort().c_str()));
 		n = (*serverIt).checkSettings();
 		if (n) return (n);
 		serverIt++;
+	}
+
+	std::sort(ports.begin(), ports.end());
+	for (size_t i = 1; i < ports.size(); ++i) {
+		if (ports[i] == ports[i - 1]) {
+			n = E_DOUBLEPORT;
+		}
 	}
 	return (n);
 }

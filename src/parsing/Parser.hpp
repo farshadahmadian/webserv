@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 12:02:07 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/13 14:30:10 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:58:31 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,8 @@ class Parser::ConfExcept: public std::exception
 {
 	private:
 		int	_n;
-		int	_line_counter;
 	public:
-		ConfExcept( conf_err n, int	line_counter );
+		ConfExcept( conf_err n );
 		const char* what() const throw();
 };
 

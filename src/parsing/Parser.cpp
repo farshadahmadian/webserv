@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 14:53:33 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/08/28 09:08:03 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/09 13:59:15 by nico             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,16 +85,10 @@ void Parser::parse( std::ifstream& confFile ) {
 		value = extractValue(line);
 		_http.setSetting(directive, value, _activeContext);
 	}
-	/*
-		0) handle roots
-		1) Autocomplete with left settings
-		2) Check the configuration if something is wrong
-		3) clean the slashes ???
-	*/
 	if (_http.getServer().size() == 0) throw ParseExcept(E_NOSERVER, _line_counter);
 	_http.setDefaults();
-	// conf_err n = _http.checkSettings();
-	// if (n) throw ConfExcept(n, _line_counter);
+	conf_err n = _http.checkSettings();
+	if (n) throw ConfExcept(n);
 }
 
 /*	Get the number of tabs preceding the line and erase them. To detect some
@@ -241,6 +235,7 @@ void Parser::displayConf( void ) {
 // ----------------------------------------------------------------- EXCEPTIONS
 Parser::FileExcept::FileExcept( file_err n ): _n(n) {};
 const char* Parser::FileExcept::what() const throw() {
+	std::cerr << "file exception: ";
 	if (_n == E_TOOARGS) return ("too many args");
 	if (_n == E_INVFILE) return ("invalid file");
 	if (_n == E_ISDIR) return ("arg provided is a directory");
@@ -250,7 +245,7 @@ const char* Parser::FileExcept::what() const throw() {
 
 Parser::ParseExcept::ParseExcept( parse_err n, int line_counter ): _n(n), _line_counter(line_counter) {};
 const char* Parser::ParseExcept::what() const throw() {
-	std::cerr << "line (" << _line_counter << ") invalid conf: ";
+	std::cerr << "line (" << _line_counter << ") parse exception: ";
 	if (_n == E_INVDIR) return("directive doesn't exist, or wrong indented");
 	if (_n == E_CONTNAME) return("invalid context name");
 	if (_n == E_ONLYTABS) return("directive expected after tabs");
@@ -264,14 +259,16 @@ const char* Parser::ParseExcept::what() const throw() {
 	return ("Unknkow Parse exception");
 }
 
-Parser::ConfExcept::ConfExcept( conf_err n, int line_counter ): _n(n), _line_counter(line_counter) {};
+Parser::ConfExcept::ConfExcept( conf_err n ): _n(n) {};
 const char* Parser::ConfExcept::what() const throw() {
-	std::cerr << "line (" << _line_counter << ") invalid conf: ";
+	std::cerr << "conf exception: ";
 	if (_n == E_AUTOINDEX) return("autoindex can be only `on` or `off`");
-	if (_n == E_TIMEOUT) return("keepalive_timeout can only be a number between `???` and `???`");
-	if (_n == E_CLIENTSIZE) return("client_body_buffer_size can only be a number between `???` and `???`");
+	if (_n == E_TIMEOUT) return("keepalive_timeout can only be a number");
+	if (_n == E_CLIENTSIZE) return("client_body_buffer_size can only be a number");
 	if (_n == E_HOST) return("wrong ip format");
-	if (_n == E_PORT) return("port can only be a number between `???` and `???`");
-	if (_n == E_METHOD) return("only `GET` `POST` `DELETE` methods are allowed");
+	if (_n == E_PORT) return("port can only be a number");
+	if (_n == E_METHOD) return("only `GET` `POST` `DELETE` and `HEAD` methods are allowed");
+	if (_n == E_DOUBLEPORT) return("port already in use");
+	if (_n == E_PORTNUM) return("port available only between 1024 and 65535");
 	return ("Unknkow Conf exception");
 }
