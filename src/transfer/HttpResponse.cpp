@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/09 17:00:37 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 21:32:20 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -751,7 +751,6 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		return this->_responses[connectedSocket.getSocketFd()];
 	}
 
-
 	if(!isScriptExtensionValid(connectedSocket)) {
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(501);
 		return this->_responses[connectedSocket.getSocketFd()];
@@ -844,25 +843,10 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 	
 	if ((isReadable = access(file.c_str(), R_OK)) == 0)
 	{
-		std::cout << YELLOW << this->_cgiFileName << " is readable." << RESET << std::endl;
-
-		// DIR *directory = opendir(file.c_str());
-		// if (directory)
-		// {
-		// 	Server::logMessage("INFO: " + this->_cgiFileName + " is a directory, and not a file!");
-		// 	std::cout << YELLOW << this->_cgiFileName << " is a directory, and not a file!" << RESET << std::endl;
-		// 	closedir(directory);
-		// 	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400); 
-		// 	return false;
-		// }
-		// else
-		// {
-		// 	std::cout << YELLOW << this->_cgiFileName << " is a file, and not a directory." << RESET << std::endl;
-		// 	return true;
-		// }
+		Server::logMessage("INFO: " + this->_cgiFileName + " is readable.");
 	}
 	else {
-		std::cout << YELLOW << this->_cgiFileName << " is not readable" << RESET << std::endl;
+		Server::logMessage("INFO: " + this->_cgiFileName + " is not readable.");
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 		return false;
 	}
@@ -914,6 +898,8 @@ char **HTTPResponse::getEnv(void) {
 	std::vector<std::string>::iterator iterator;
 	std::vector<std::string>::iterator iteratorEnd = this->_queryStringKeyValues.end();
 
+	if (!_queryStringKeyValues.size())
+		return (NULL);
 	// std::cerr << "???" << this->_queryStringKeyValues.size() << "--" << std::endl;
 	char **env = new char*[this->_queryStringKeyValues.size() + 1];
 	env[this->_queryStringKeyValues.size()] = NULL;
@@ -921,8 +907,8 @@ char **HTTPResponse::getEnv(void) {
 	// std::cerr << RED << "_queryStringKeyValues.size() = " << _queryStringKeyValues.size() << RESET << std::endl;
 	int i = 0;
 	for (iterator = this->_queryStringKeyValues.begin(); iterator != iteratorEnd; iterator++) {
-		char *keyValue = new char[iterator->length() + 1];
-		keyValue[iterator->length()] = '\0';
+		// char *keyValue = new char[iterator->length() + 1];
+		// keyValue[iterator->length()] = '\0';
 		env[i] = const_cast<char *>(iterator->c_str());
 		// std::cerr << "*** i: " << i << " " << env[i] << std::endl;
 		i++;
@@ -962,11 +948,13 @@ std::string HTTPResponse::getScriptExtension(ConnectedSocket &connectedSocket) {
 }
 
 void HTTPResponse::deleteChildProcessMemory(char **env) {
-	char **temp = env;
-	while (*temp) {
-		delete[] *temp;
-		temp++;
-	}
+	// char **temp = env;
+	// while (*temp) {
+	// 	delete[] *temp;
+	// 	temp++;
+	// }
+	if (!env)
+		return;
 	delete []env;
 }
 

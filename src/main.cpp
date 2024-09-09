@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/09 15:57:36 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 20:32:11 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "./sockets/connected-socket/ConnectedSocket.hpp"
 #include "./parsing/Parser.hpp"
 #include "./server/Poll.hpp"
+
+extern bool stopServer;
 
 int main(int argc, char **argv)
 {
@@ -38,5 +40,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	// close listening socket fds
+	if (stopServer == true)
+		return (1);
 	return (0);
 }

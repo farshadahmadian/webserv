@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/08 23:48:37 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 20:45:07 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,9 +180,13 @@ void Poll::handleEvent(void)
 		// std::cout << serverIt->getListeningSocket().getSocketFd() << ": " << _totalFds[i].fd << std::endl;
 		if (_totalFds[i].fd == (*serverIt).getListeningSocket().getSocketFd())
 		{
-			handleListeningEvent(i, (*serverIt));
-			serverIt++;
-			i++;
+			try {
+				handleListeningEvent(i, (*serverIt));
+				serverIt++;
+				i++;
+			} catch(Exception const &exception) {
+				throw exception;
+			}
 			//  std::cout << RED << "Iteration count on servers: " << i << RESET << std::endl; 
 		}
 		else {
@@ -226,12 +230,15 @@ void Poll::handleListeningEvent(size_t i, Server &s)
 	// {
 		if ((this->_totalFds[i].revents & POLLERR) || (this->_totalFds[i].revents & POLLHUP) || (this->_totalFds[i].revents & POLLNVAL))
 		{
-			// Server::logMessage("POLLERR");
-			std::cout << PURPLE << "************** close fd, remove from pollFds list ***************" << RESET << std::endl;
-			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
-			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " <<(this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
-			std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
-			// exit(10);
+			// // Server::logMessage("POLLERR");
+			// std::cout << PURPLE << "************** close fd, remove from pollFds list ***************" << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLERR = " << (this->_totalFds[i].revents & POLLERR) << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLHUP = " <<(this->_totalFds[i].revents & POLLHUP) << RESET << std::endl;
+			// std::cout << PURPLE << "this->_totalFds[" << i << "].revents & POLLNVAL = " << (this->_totalFds[i].revents & POLLNVAL) << RESET << std::endl;
+			// // exit(10);
+			Server::logMessage("ERROR: Listening Socket Failed.");
+			Exception pollException("Listening Socket Failed.", LISTENING_FAILED);
+			throw pollException;
 		}
 		if ((_totalFds[i].revents & POLLIN))
 		{
