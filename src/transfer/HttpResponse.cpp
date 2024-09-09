@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/08 23:55:15 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 17:00:37 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConf
 	loadMimeTypes(MIME);
 	setMethods();
 	setIndexes();
+	setAutoindex();
 	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
@@ -62,26 +63,27 @@ int HTTPResponse::validate() {
 // }
 
 bool HTTPResponse::isDirectory(const std::string& uri) const {
-    std::string filePath = _serverConfig.at("root") + uri;
-    DIR* dir = opendir(filePath.c_str());
-    if (dir) {
-        closedir(dir);
-        return true;
-    }
-    return false;
+	std::string URI = splitLocationFromUri(uri);
+	std::string filePath = _serverConfig.at("root") + URI;
+	DIR* dir = opendir(filePath.c_str());
+	if (dir) {
+		closedir(dir);
+		return true;
+	}
+	return false;
 }
 
 /*Check whether the passed file path is directory or not.*/
 bool HTTPResponse::isFile(const std::string &filePath) {
-    int fd = open(filePath.c_str(), O_RDONLY | O_DIRECTORY);
-    if (fd == -1) {
-        // If errno is ENOTDIR, the path is a regular file
-        return (errno == ENOTDIR);
-    } else {
-        // It's a directory, close the file descriptor
-        close(fd);
-        return false;
-    }
+	int fd = open(filePath.c_str(), O_RDONLY | O_DIRECTORY);
+	if (fd == -1) {
+		// If errno is ENOTDIR, the path is a regular file
+		return (errno == ENOTDIR);
+	} else {
+		// It's a directory, close the file descriptor
+		close(fd);
+		return false;
+	}
 }
 
 // bool HTTPResponse::isFile(std::string const & filePath) {
@@ -93,19 +95,19 @@ bool HTTPResponse::isFile(const std::string &filePath) {
 
 /*Check the the uri, and add '/' at the end of directory uri that is received without it.*/
 void HTTPResponse::fixUri(std::string const &filePath) {
-    // If it's not a file, fix the URI
-    if (!isFile(filePath)) {
-        // Safely access the last character manually
-        if (_requestMap["uri"][_requestMap["uri"].size() - 1] != '/') {
-            _requestMap["uri"] += "/";
-        } else {
-            // If the URI ends with multiple '/', reduce it to just one
-            while (_requestMap["uri"][_requestMap["uri"].size() - 2] == '/') {
-                _requestMap["uri"].erase(_requestMap["uri"].size() - 1);  // Remove extra slashes
-            }
-        }
-    }
-    // std::cout << "uri2: " << _requestMap["uri"] << std::endl;
+	// If it's not a file, fix the URI
+	if (!isFile(filePath)) {
+		// Safely access the last character manually
+		if (_requestMap["uri"][_requestMap["uri"].size() - 1] != '/') {
+			_requestMap["uri"] += "/";
+		} else {
+			// If the URI ends with multiple '/', reduce it to just one
+			while (_requestMap["uri"][_requestMap["uri"].size() - 2] == '/') {
+				_requestMap["uri"].erase(_requestMap["uri"].size() - 1);  // Remove extra slashes
+			}
+		}
+	}
+	// std::cout << "uri2: " << _requestMap["uri"] << std::endl;
 }
 
 /*Return Corresponding Status Code Response Or In Case
@@ -120,6 +122,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	
 	// printRequestMap();
 	// printServerConfig();
+	
 	if (statusCode == 400) {
 		return generateErrorPage(400);
 	}
@@ -235,58 +238,58 @@ std::string HTTPResponse::readHtmlFile(const std::string &path) {
 
 // Helper function to check if the file exists and is executable
 bool isExecutable(const std::string& path) {
-    return (access(path.c_str(), X_OK) == 0);  // Check if executable
+	return (access(path.c_str(), X_OK) == 0);  // Check if executable
 }
 
 // Helper function to split PATH by ':'
 std::vector<std::string> splitPath(const std::string& path) {
-    std::vector<std::string> paths;
-    std::stringstream ss(path);
-    std::string directory;
+	std::vector<std::string> paths;
+	std::stringstream ss(path);
+	std::string directory;
 
-    while (std::getline(ss, directory, ':')) {
-        paths.push_back(directory);
-    }
-    return paths;
+	while (std::getline(ss, directory, ':')) {
+		paths.push_back(directory);
+	}
+	return paths;
 }
 
 // Main function to set the interpreter based on the file extension
 std::string setInterpreter(const std::string& ext) {
-    const char* pathEnv = std::getenv("PATH");
+	const char* pathEnv = std::getenv("PATH");
 
-    if (!pathEnv) {
-        std::cerr << "ERROR: PATH environment variable not found!" << std::endl;
-        return "";
-    }
+	if (!pathEnv) {
+		std::cerr << "ERROR: PATH environment variable not found!" << std::endl;
+		return "";
+	}
 
-    std::vector<std::string> paths = splitPath(pathEnv);
+	std::vector<std::string> paths = splitPath(pathEnv);
 
-    std::string interpreter;
-    if (ext == ".py") {
-        interpreter = "python3";
-    // } if (ext == ".pl") {
-    //     interpreter = "perl";
-    } else {
-        interpreter = "bash";  // Default interpreter
-    }
+	std::string interpreter;
+	if (ext == ".py") {
+		interpreter = "python3";
+	// } if (ext == ".pl") {
+	//     interpreter = "perl";
+	} else {
+		interpreter = "bash";  // Default interpreter
+	}
 
-    // Search in each directory in the PATH
-    for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it) {
-        std::string fullPath = *it + "/" + interpreter;
-        if (isExecutable(fullPath)) {
-            return fullPath;  // Found executable interpreter
-        }
-    }
+	// Search in each directory in the PATH
+	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it) {
+		std::string fullPath = *it + "/" + interpreter;
+		if (isExecutable(fullPath)) {
+			return fullPath;  // Found executable interpreter
+		}
+	}
 
-    // If not found in PATH, fallback to default paths
+	// If not found in PATH, fallback to default paths
 	// here we can add new cgi command language
-    if (ext == ".py") {
-        return "/usr/bin/python";
-    // } else if (ext == ".pl") {
-    //     return "/usr/bin/perl";
-    } else if (ext == ".sh") {
-        return "/bin/bash";  // Default to bash
-    } else
+	if (ext == ".py") {
+		return "/usr/bin/python";
+	// } else if (ext == ".pl") {
+	//     return "/usr/bin/perl";
+	} else if (ext == ".sh") {
+		return "/bin/bash";  // Default to bash
+	} else
 		return "";
 }
 
@@ -993,6 +996,19 @@ void HTTPResponse::setIndexes(void) {
 	}
 }
 
+void HTTPResponse::setAutoindex(void) {
+	std::vector<LocationConf>::iterator iterator;
+	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
+
+	for (iterator = this->_locations.begin(); iterator != iteratorEnd; iterator++) {
+		if ((iterator->getSettings().find("autoindex") != iterator->getSettings().end()) && (iterator->getSettings().find("uri") != iterator->getSettings().end())) {
+			const std::string uri = iterator->getASettingValue("uri");
+			const std::string autoIndex = iterator->getASettingValue("autoindex");
+			this->_autoindex[uri] = autoIndex;
+		}
+	}
+}
+
 void HTTPResponse::printMethods(void) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_methods.end();
@@ -1015,22 +1031,33 @@ void HTTPResponse::printIndexes(void) {
 	}
 }
 
-std::string HTTPResponse::splitLocationFromUri(const std::string& path) {
-    // Check if the path is only "/"
-    if (path == "/") {
-        return path; // Return "/" as is if it's alone
-    }
+void HTTPResponse::printAutoindex(void) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = this->_autoindex.end();
 
-    // Find the first occurrence of "/" after the first one
-    size_t secondSlashPos = path.find('/', 1);
+	std::cout << RED "****The location Autoindex:" RESET << std::endl;
 
-    // If there's no other "/", return the entire path
-    if (secondSlashPos == std::string::npos) {
-        return "/";
-    }
+	for (iterator = this->_autoindex.begin(); iterator != iteratorEnd; iterator++) {
+		std::cout << GREEN << iterator->first << RESET  " = " ORG << iterator->second << RESET << std::endl;
+	}
+}
 
-    // Otherwise, return the substring up to the second "/"
-    return path.substr(0, secondSlashPos);
+std::string HTTPResponse::splitLocationFromUri(const std::string& path) const {
+	// Check if the path is only "/"
+	if (path == "/") {
+		return path; // Return "/" as is if it's alone
+	}
+
+	// Find the first occurrence of "/" after the first one
+	size_t secondSlashPos = path.find('/', 1);
+
+	// If there's no other "/", return the entire path
+	if (secondSlashPos == std::string::npos) {
+		return "/";
+	}
+
+	// Otherwise, return the substring up to the second "/"
+	return path.substr(0, secondSlashPos);
 }
 
 std::string const HTTPResponse::getLocationMethod(std::string const & uri) {
@@ -1051,6 +1078,18 @@ std::string const HTTPResponse::getLocationIndex(std::string const & uri) {
 	std::string location = splitLocationFromUri(uri);
 
 	for (iterator = _indexes.begin(); iterator != iteratorEnd; iterator++) {
+		if (iterator->first == location)
+			return (iterator->second);
+	}
+	return ("");
+}
+
+std::string const HTTPResponse::getLocationAutoindex(std::string const & uri) {
+	std::map<std::string, std::string>::iterator iterator;
+	std::map<std::string, std::string>::iterator iteratorEnd = _autoindex.end();
+	std::string location = splitLocationFromUri(uri);
+
+	for (iterator = _autoindex.begin(); iterator != iteratorEnd; iterator++) {
 		if (iterator->first == location)
 			return (iterator->second);
 	}

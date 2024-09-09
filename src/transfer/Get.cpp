@@ -16,9 +16,9 @@ Get::Get(const std::map<std::string, std::string>& requestMap,
 					   const std::map<std::string, std::string>& serverConfig, std::vector<LocationConf> const &locations) :
 	HTTPResponse(serverConfig, locations) {
 	setRequestMapInResponse(requestMap);
-	this->setRedirections();
+	this->setRedirection();
 	this->_cgiDirectory = "/cgi-get/";
-	// this->printRedirections();
+	// this->printRedirection();
 }
 
 Get::~Get() {}
@@ -133,19 +133,28 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 				return responseHeaders.str();
 			}
 			
+			if (!isDirectory(uri))
+		        return generateErrorPage(404); // Internal Server Error
+
 			// Check for an index file in the directory
 			std::string indexFilePath = findIndexFile(filePath);
-			// std::cout << "fullPath outside of findIndexFile: " << indexFilePath << std::endl;
 			if (!indexFilePath.empty()) {
 					filePath = indexFilePath; // Update filePath to point to the index file
 			} else {
-					// If no index file is found and autoindex is enabled, generate directory listing
+				// If no index file is found and autoindex is enabled, generate directory listing
+				if (getLocationAutoindex(uri) == "") {
 					if (_serverConfig["autoindex"] == "on") {
-							return handleDirectoryListing(filePath);
+						return handleDirectoryListing(filePath);
 					} else {
-							Server::logMessage("WARNING: AutoIndex Is Off for " + filePath);
-							return generateErrorPage(403); // Forbidden
+						Server::logMessage("WARNING: AutoIndex Is Off for " + filePath);
+						return generateErrorPage(403); // Forbidden
 					}
+				} else if (getLocationAutoindex(uri) == "on") {
+					return handleDirectoryListing(filePath);
+				} else {
+					Server::logMessage("WARNING: AutoIndex Is Off for " + filePath);
+					return generateErrorPage(403); // Forbidden
+				}
 			}
 	}
     content = readBinaryFile(filePath);
@@ -206,7 +215,7 @@ std::string Get::getRedirection(std::string const &uri) {
 	return "";
 }
 
-void Get::setRedirections(void) {
+void Get::setRedirection(void) {
 	std::vector<LocationConf>::iterator iterator;
 	std::vector<LocationConf>::iterator iteratorEnd = this->_locations.end();
 
@@ -219,7 +228,7 @@ void Get::setRedirections(void) {
 	}
 }
 
-void Get::printRedirections(void) {
+void Get::printRedirection(void) {
 	std::map<std::string, std::string>::iterator iterator;
 	std::map<std::string, std::string>::iterator iteratorEnd = this->_redirections.end();
 

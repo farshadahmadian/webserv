@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/08 21:47:42 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/09 16:28:01 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,17 +158,21 @@ protected:
 	std::string _storageDirectory;
 	std::map<std::string, std::string> _data;
 	
-	std::string splitLocationFromUri(const std::string& path);
+	std::string splitLocationFromUri(const std::string& path) const;
 	std::string const getLocationMethod(std::string const & uri);
 	std::string const getLocationIndex(std::string const & uri);
+	std::string const getLocationAutoindex(std::string const & uri);
 
 	std::vector<LocationConf> _locations;
 	void setMethods(void);
 	void printMethods(void);
 	void setIndexes(void);
 	void printIndexes(void);
+	void setAutoindex(void);
+	void printAutoindex(void);
 	std::map<std::string, std::string> _methods;
 	std::map<std::string, std::string> _indexes;
+	std::map<std::string, std::string> _autoindex;
 	
 	std::string _cgiDirectory;
 	std::string _cgiFilePath;

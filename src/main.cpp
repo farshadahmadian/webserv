@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nico <nico@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 10:24:40 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/09 13:56:31 by nico             ###   ########.fr       */
+/*   Updated: 2024/09/09 15:57:36 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ int main(int argc, char **argv)
 	try
 	{
 		Parser configuration(argc, argv);
-		configuration.displayConf();
-		std::cout << "---------------------------------------------------------" << std::endl;
+		// configuration.displayConf();
+		// std::cout << "---------------------------------------------------------" << std::endl;
 		Poll pollOfServers(configuration);
 		pollOfServers.init();
 		pollOfServers.start();

@@ -36,8 +36,8 @@ class Get : public HTTPResponse {
 	std::string findIndexFile(std::string const & dirPath);
 	std::string const setServerRoot(std::string const & filePath);
 	std::string getRedirection(std::string const &uri);
-	void setRedirections(void);
-	void printRedirections(void);
+	void setRedirection(void);
+	void printRedirection(void);
 
 	// protected:
 	// 	std::string createHandleGet();
