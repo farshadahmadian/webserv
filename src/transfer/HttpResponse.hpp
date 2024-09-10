@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/10 12:00:08 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/10 15:59:09 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,130 +55,123 @@ enum POLLEvents {
 class Get; // Forward declaration
 
 class HTTPResponse {
-public:
-	HTTPResponse();
-	HTTPResponse(std::map<std::string, std::string> const & serverConfig);
-	HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations);
-	virtual ~HTTPResponse();
-	 //---------------------------------------------------Return Error Or Call The Related HTTP Methods
-	bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
-	void printSocketResponse(int fd);
-	void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
-	void setRequestStringInResponse(std::string const & requestString);
-	void printRequestMap();
-	void printServerConfig();
-	bool isDirectory(const std::string& uri) const;
-	bool isFile(std::string const & filePath);
-	void fixUri(std::string const &filePath);
+	public:
+		HTTPResponse();
+		HTTPResponse(std::map<std::string, std::string> const & serverConfig);
+		HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations);
+		virtual ~HTTPResponse();
+		
+		//---------------------------------------------------Return Error Or Call The Related HTTP Methods
+		bool handleResponse(int clientSocket, int const &pollEvent, pollfd *pollFds, size_t i, ConnectedSocket &connectedSocket); //
+		void printSocketResponse(int fd);
+		void setRequestMapInResponse(std::map<std::string, std::string> const & requestMap);
+		void setRequestStringInResponse(std::string const & requestString);
+		
+		void printRequestMap();
+		void printServerConfig();
+		void printResponsesMap(void);
+		void printData(void);
+		
+		bool isDirectory(const std::string& uri) const;
+		bool isFile(std::string const & filePath);
+		void fixUri(std::string const &filePath);
 
 
-	//-------------------------------MIME------------------------------
-	std::string getMimeType(const std::string& extension) const;
-	//-----------------------------------------------------------------
+		//-------------------------------MIME------------------------------
+		std::string getMimeType(const std::string& extension) const;
+		//-----------------------------------------------------------------
 
-	std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket);
-	std::string const &getSocketResponse(int connectedSocketFd);
-	void printData(void);
-	void printResponsesMap(void);
-	void removeSocketResponse(int connectedSocketFd);
-	void clearData(void);
-	std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
-	std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
+		std::string getResponse(int const clientSocket, ConnectedSocket &connectedSocket);
+		std::string const &getSocketResponse(int connectedSocketFd);
+		void removeSocketResponse(int connectedSocketFd);
+		void clearData(void);
+		std::string getSubStringFromMiddleToIndex(std::string &string, std::string const &toFind, size_t startOffset, size_t endIndex);
+		std::string getSubStringFromStartToIndex(std::string &string, std::string const &toFind);
+		void setResponseForAConnectedSocket(std::string const &response, int connectedSocketFd);
 
-	void setResponseForAConnectedSocket(std::string const &response, int connectedSocketFd);
-	//-------------------------------ERROR-----------------------------
-	std::string generateDefaultErrorPage(int statusCode, std::string const & message);
-	std::string generateErrorPage(int statusCode);
-	std::string generateErrorHeaders(int statusCode, size_t contentLength);
-	//-----------------------------------------------------------------
+		
+		//-------------------------------ERROR-----------------------------
+		std::string generateDefaultErrorPage(int statusCode, std::string const & message);
+		std::string generateErrorPage(int statusCode);
+		std::string generateErrorHeaders(int statusCode, size_t contentLength);
+		//-----------------------------------------------------------------
 
+		friend class HTTPRequest;
 
-	friend class HTTPRequest;
+	protected:
+		std::string const &getStorageDirectory(void) const;
+		std::string createHandleGet(ConnectedSocket &connectedSocket);
+		std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
+		std::string createHandleDelete(ConnectedSocket &connectedSocket);
+		std::string httpStatusCode(int statusCode);
+		std::string readBinaryFile(const std::string& path);
+		std::string readHtmlFile(const std::string& path);
+		std::string generateETag(const std::string& filePath, std::string& date, std::string& lastModified);
+		void printStringToFile(const std::string& string, const std::string& path);
+		int validate();
+		std::string generateGeneralHeaders(std::string & filePath);
 
-protected:
-	std::string const &getStorageDirectory(void) const;
+		//-------------------------------CGI-------------------------------
+		bool isCGI(std::string const & filePath);
+		size_t acceptedCgiExtention(std::string const &filePath);
+		std::string handleCgi(ConnectedSocket &connectedSocket);
+		ChildProcessData createPipeAndFork(ConnectedSocket &connectedSocket);
+		bool findScript(ConnectedSocket &connectedSocket, std::string &uri);
+		void cgiError(ConnectedSocket &connectedSocket);
+		void handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2]);
+		void handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id);
+		void UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError);
+		bool isCgiUri(ConnectedSocket &connectedSocket);
+		void storeKeyValuePairsOfQueryString(void);
+		void resetCgiProperties(void);
+		void printQueryStringKeyValues(void);
+		char **getEnv(void);
+		void printEnv(char **env);
+		bool isScriptExtensionValid(ConnectedSocket &connectedSocket);
+		std::string getScriptExtension(ConnectedSocket &connectedSocket);
+		void deleteChildProcessMemory(char **env);
+		//-----------------------------------------------------------------
 
-	std::string createHandleGet(ConnectedSocket &connectedSocket);
-	std::string createHandlePost(int const connectedSocketFd, ConnectedSocket &connectedSocket, std::map<std::string, std::string> &serverConfig);
-	std::string createHandleDelete(ConnectedSocket &connectedSocket);
-	std::string httpStatusCode(int statusCode);
-	std::string readBinaryFile(const std::string& path);
-	std::string readHtmlFile(const std::string& path);
-	std::string generateETag(const std::string& filePath, std::string& date, std::string& lastModified);
-	void printStringToFile(const std::string& string, const std::string& path);
-	int validate();
+		std::string getCurrentTime();
+		std::string formatTimeHTTP(std::time_t rawTime);
 
-	std::string generateGeneralHeaders(std::string & filePath);
+		
+		//-------------------------------MIME------------------------------
+		std::map<std::string, std::string> _mimeMap;
+		void loadMimeTypes(const std::string& filePath);
+		//-----------------------------------------------------------------
 
-	//-------------------------------CGI-------------------------------
-	bool isCGI(std::string const & filePath);
-	// std::string const handleGETCgi(ConnectedSocket &connectedSocket);
-	// std::string cgi( std::string& uri );
-	// char** createEnv( std::string * uri );
-	size_t acceptedCgiExtention(std::string const &filePath);
-	// std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
-	// std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
-	//-----------------------------------------------------------------
+		
+		std::string splitLocationFromUri(const std::string& path) const;
+		std::string const getLocationMethod(std::string const & uri);
+		std::string const getLocationIndex(std::string const & uri);
+		std::string const getLocationAutoindex(std::string const & uri);
 
+		void setMethods(void);
+		void printMethods(void);
+		void setIndexes(void);
+		void printIndexes(void);
+		void setAutoindex(void);
+		void printAutoindex(void);
 
-	std::string getCurrentTime();
-	std::string formatTimeHTTP(std::time_t rawTime);
+		std::string _storageDirectory; 
+		std::map<std::string, std::string> _data;
 
+		std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map
+		std::map<std::string, std::string> _requestMap; //---------------------------------------------------Keep A Reference Of Request Map
+		std::string	_requestString; //-----------------------------------------------------------------------Keep A Reference Of Request String
+		std::map<int, std::string> _responses; //------------------------------------------------------------A Map Of Responses Corresponding To Their Sockets
 
-
-	std::string handleCgi(ConnectedSocket &connectedSocket);
-	ChildProcessData createPipeAndFork(ConnectedSocket &connectedSocket);
-	bool findScript(ConnectedSocket &connectedSocket, std::string &uri);
-	// std::string findCommand(std::string const &command);
-	void cgiError(ConnectedSocket &connectedSocket);
-	void handleCgiChildProcess(ConnectedSocket &connectedSocket, int pipeFds[2]);
-	void handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id);
-	void UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError);
-	bool isCgiUri(ConnectedSocket &connectedSocket);
-	void storeKeyValuePairsOfQueryString(void);
-	void resetCgiProperties(void);
-	void printQueryStringKeyValues(void);
-	char **getEnv(void);
-	void printEnv(char **env);
-	bool isScriptExtensionValid(ConnectedSocket &connectedSocket);
-	std::string getScriptExtension(ConnectedSocket &connectedSocket);
-	void deleteChildProcessMemory(char **env);
-
-
-	std::map<std::string, std::string> _serverConfig; //-------------------------------------------------Keep A Reference Of Server Config Map
-	std::map<std::string, std::string> _requestMap; //---------------------------------------------------Keep A Reference Of Request Map
-	std::string	_requestString; //-----------------------------------------------------------------------Keep A Reference Of Request String
-	std::map<int, std::string> _responses; //------------------------------------------------------------A Map Of Responses Corresponding To Their Sockets
-	
-	//-------------------------------MIME------------------------------
-	std::map<std::string, std::string> _mimeMap;
-	void loadMimeTypes(const std::string& filePath);
-	//-----------------------------------------------------------------
-
-	std::string _storageDirectory;
-	std::map<std::string, std::string> _data;
-	
-	std::string splitLocationFromUri(const std::string& path) const;
-	std::string const getLocationMethod(std::string const & uri);
-	std::string const getLocationIndex(std::string const & uri);
-	std::string const getLocationAutoindex(std::string const & uri);
-
-	std::vector<LocationConf> _locations;
-	void setMethods(void);
-	void printMethods(void);
-	void setIndexes(void);
-	void printIndexes(void);
-	void setAutoindex(void);
-	void printAutoindex(void);
-	std::map<std::string, std::string> _methods;
-	std::map<std::string, std::string> _indexes;
-	std::map<std::string, std::string> _autoindex;
-	
-	std::string _cgiDirectory;
-	std::string _cgiFilePath;
-	std::string _cgiFileName;
-	std::string _queryString;
-	std::vector<std::string> _queryStringKeyValues;
+		std::vector<LocationConf> _locations; //-------------------------------------------------------------A Map Of Locations Of Each Server
+		std::map<std::string, std::string> _methods; //------------------------------------------------------A Map Of Method Of Each Location
+		std::map<std::string, std::string> _indexes; //------------------------------------------------------A Map Of Index Of Each Location
+		std::map<std::string, std::string> _autoindex; //----------------------------------------------------A Map Of AutoIndex Of Each Location
+		
+		std::string _cgiDirectory; //------------------------------------------------------------------------Directory Of Cgi Files
+		std::string _cgiFilePath; 
+		std::string _cgiFileName;
+		std::string _queryString;
+		std::vector<std::string> _queryStringKeyValues;
 
 
 };

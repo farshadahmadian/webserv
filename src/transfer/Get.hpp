@@ -30,17 +30,14 @@ class Get : public HTTPResponse {
 		std::string handleGet(ConnectedSocket &connectedSocket);
 	
 	private:
-	std::map<std::string, std::string> _redirections;
-	
-	std::string handleDirectoryListing(const std::string& dirPath);
-	std::string findIndexFile(std::string const & dirPath);
-	std::string const setServerRoot(std::string const & filePath);
-	std::string getRedirection(std::string const &uri);
-	void setRedirection(void);
-	void printRedirection(void);
-
-	// protected:
-	// 	std::string createHandleGet();
+		std::map<std::string, std::string> _redirection;
+		
+		std::string handleDirectoryListing(const std::string& dirPath);
+		std::string findIndexFile(std::string const & dirPath);
+		std::string const setServerRoot(std::string const & filePath);
+		std::string getRedirection(std::string const &uri);
+		void setRedirection(void);
+		void printRedirection(void);
 };
 
-#endif // GETHANDLER_HPP
+#endif // GET_HPP

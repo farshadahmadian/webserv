@@ -6,24 +6,22 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/10 12:29:37 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/10 16:09:54 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HttpResponse.hpp"
-#include "Get.hpp"
-#include "Exception.hpp"
-#include "Post.hpp"
-#include "Delete.hpp"
+# include "HttpResponse.hpp"
+# include "Get.hpp"
+# include "Exception.hpp"
+# include "Post.hpp"
+# include "Delete.hpp"
 
 HTTPResponse::HTTPResponse() : _storageDirectory("./www/farshad/cloudStorage"), _data(std::map<std::string, std::string>()), _cgiDirectory(""), _cgiFilePath(""), _cgiFileName(""), _queryString(""), _queryStringKeyValues(std::vector<std::string>()) {
-	// std::cout << CYAN "HTTPResponse constructor called\n" RESET;
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig) :
 	_serverConfig(serverConfig)  {
 	loadMimeTypes(MIME);
-	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
 HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConfig, std::vector<LocationConf> const &locations) :
@@ -32,12 +30,9 @@ HTTPResponse::HTTPResponse(std::map<std::string, std::string> const & serverConf
 	setMethods();
 	setIndexes();
 	setAutoindex();
-	// std::cout << CYAN "HTTPResponse args constructor called\n" RESET;
 }
 
-HTTPResponse::~HTTPResponse() {
-	// std::cout << CYAN "HTTPResponse destructor called\n" RESET;
-}
+HTTPResponse::~HTTPResponse() {}
 
 std::string const &HTTPResponse::getStorageDirectory(void) const {
 	return this->_storageDirectory;
@@ -106,8 +101,11 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	std::string uri = _requestMap["uri"];
 	std::string filePath = _serverConfig.at("root") + uri;
 	
+	//*********************PRINT_REQUEST_MAP***************************
 	// printRequestMap();
+	//******************PRINT_SERVER_CONFIG_MAP************************
 	// printServerConfig();
+	//*****************************************************************
 	
 	if (statusCode == 400) {
 		return generateErrorPage(400);
@@ -129,7 +127,7 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	}
 
 	// Then, check if the method is POST or DELETE and the URI is not a directory
-	if ((method == "POST" || method == "DELETE")) {// && !isDirectory(uri)) {
+	if ((method == "POST" || method == "DELETE")) {
 		if (method == "POST" && (this->_requestMap["uri"] == "/delete" || this->_requestMap["uri"] == "/delete/"))
 		{
 			return createHandleDelete(connectedSocket);
@@ -276,7 +274,6 @@ std::string setInterpreter(const std::string& ext) {
 		return "";
 }
 
-
 /*Return a String Of Current Time In a HTTP Header Format.*/
 std::string HTTPResponse::formatTimeHTTP(std::time_t rawTime) {
 	std::tm *gmTime = std::gmtime(&rawTime);
@@ -296,7 +293,6 @@ std::string HTTPResponse::generateETag(const std::string &filePath, std::string 
 
 	if (stat(filePath.c_str(), &fileInfo) != 0) {
 		Server::logMessage("Error: Getting File Information In generateETag function Failed: " + filePath);
-		// std::cerr << "Error getting file information: " << filePath << std::endl;
 		return "";
 	}
 
@@ -497,6 +493,7 @@ std::string HTTPResponse::getSubStringFromStartToIndex(std::string &string, std:
 	std::string result = string.substr(0, foundIndex);
 	return result;
 }
+
 std::string HTTPResponse::generateErrorHeaders(int statusCode, size_t contentLength) {
 	std::ostringstream headers;
 	headers << httpStatusCode(statusCode) << CRLF // Status line
@@ -514,7 +511,7 @@ std::string HTTPResponse::generateErrorHeaders(int statusCode, size_t contentLen
 /*Generate the default error the corresponding error page doesn't exist.*/
 std::string HTTPResponse::generateDefaultErrorPage(int statusCode, std::string const & message) {
 	Server::logMessage("INFO: Default Error Body Dynamically Generated, StatusCode: " + Server::intToString(statusCode));
-	// Replace with your custom error page logic
+
 	std::string content = "<html>\r\n<head><title>" + Server::intToString(statusCode) + " " + message + 
 		"</title></head>\r\n<body>\r\n<center><h2>" + Server::intToString(statusCode) + " "	+ message +
 		"</h2></center>\r\n<hr><center>Musketeers Group!</center>\r\n</body>\r\n</html>";
@@ -575,11 +572,11 @@ size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
 }
 
 bool HTTPResponse::isCGI(std::string const & filePath) {
-    size_t pos = acceptedCgiExtention(filePath);
+	size_t pos = acceptedCgiExtention(filePath);
 		if (pos != std::string::npos) {
-            return true;
-        }
-    return false;
+			return true;
+		}
+	return false;
 }
 
 ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocket) {

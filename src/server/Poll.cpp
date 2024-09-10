@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Poll.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:55:19 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/10 11:00:05 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 15:07:01 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -427,6 +427,8 @@ bool Poll::receiveRequest(Server &s, size_t i, int connectedSocketFd, std::map<i
 		int closeResult = 0;
 		if (this->_totalFds[i].fd >= 0)
 			closeResult = close(this->_totalFds[i].fd);
+		if (closeResult == -1)
+			Server::logMessage("ERROR: Socket Close Failed.");
 		s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 		std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
 		temp++;
@@ -451,6 +453,8 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int
 		int closeResult = 0;
 		if (this->_totalFds[i].fd >= 0)
 			closeResult = close(this->_totalFds[i].fd);
+		if (closeResult == -1)
+			Server::logMessage("ERROR: Socket Close Failed.");
 		s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 		std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
 		temp++;
@@ -472,6 +476,8 @@ void Poll::sendResponse(Server &s, size_t i, int connectedSocketFd, std::map<int
 	int closeResult = 0;
 	if (this->_totalFds[i].fd >= 0)
 		closeResult = close(this->_totalFds[i].fd);
+	if (closeResult == -1)
+		Server::logMessage("ERROR: Socket Close Failed.");
 	s.getConnectedSockets()[connectedSocketFd].setIsConnected(false);
 	std::map<int, ConnectedSocket>::iterator temp = *connectedSocketIt;
 	temp++;

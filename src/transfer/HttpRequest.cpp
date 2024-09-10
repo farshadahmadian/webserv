@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 10:39:02 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/10 09:26:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 15:47:10 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 HTTPRequest::HTTPRequest( void ) {}
 
 HTTPRequest::~HTTPRequest( void ) {
-	//  std::cout << BLUE "HTTPRequest destructor called\n" RESET;
 }
 
 HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig) :
@@ -26,7 +25,6 @@ HTTPRequest::HTTPRequest(std::map<std::string, std::string> const & serverConfig
 	_uri(""),
 	_version(""),
 	_serverConfig(serverConfig) {
-		// std::cout << BLUE "HTTPRequest constructor called\n" RESET;
 }
 
 bool HTTPRequest::isValidMethod(const std::string &method)
@@ -56,16 +54,10 @@ bool HTTPRequest::parse(ConnectedSocket &connectedSocket)
 	if (!isValidMethod(_method) || !isValidHttpVersion(_version))
 		return (false);
 
-	// if (isCgiRequest()) {  //---- means: if it is folder for bins OR has extension (need to take decision)
-	// 	if (_serverConfig.find("cgi") == _serverConfig.end()) // --- if the server configuration not allows it
-	// 		return (false); // which error should be ?
-	// }
-
 	// Parse headers
 	_requestMap["version"] = _version;
 	_requestMap["uri"] = _uri;
 	_requestMap["method"] = _method;
-
 
 	while (std::getline(requestStream, line) && line != "\r")
 	{
