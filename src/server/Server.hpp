@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/10 10:09:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 19:53:25 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 #include "HttpRequest.hpp"
 
 #define MAX_CONNECTIONS 130
-#define CGI_TIMEOUT 100
+#define CGI_TIMEOUT 10
 #define MAX_CGI_CHILD_PROCESSES 5
 
 class Server
