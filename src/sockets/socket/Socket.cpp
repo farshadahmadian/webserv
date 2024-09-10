@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:26:30 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/04 17:55:30 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:20:10 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ Socket &Socket::operator=(Socket const &rhs) {
 }
 
 Socket::~Socket(void) {
-	// close(this->_socketFd);
 	return;
 }
 

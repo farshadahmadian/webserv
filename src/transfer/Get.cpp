@@ -99,14 +99,12 @@ std::string const Get::setServerRoot(std::string const & filePath) {
     return ("localhost:8080");
 }
 
-
 std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 	std::string content;
 	std::string date, lastMfd, eTag;
 	std::ostringstream responseHeaders;
 	std::string uri = _requestMap["uri"];
 	std::string filePath = _serverConfig.at("root") + uri;
-
 
 	if (isCgiUri(connectedSocket)) {
 		std::string response = this->handleCgi(connectedSocket);

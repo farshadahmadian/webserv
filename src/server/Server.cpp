@@ -6,13 +6,12 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:23 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/08/31 19:44:58 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 11:00:58 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-// new constructor to create the vectors
 Server::Server(std::map<std::string, std::string> settings, std::vector<LocationConf> const &locations) :
 	_port(settings["port"]),
 	_listeningSocket(ListeningSocket(MAX_CONNECTIONS, settings["server_name"], settings["port"])),
@@ -26,12 +25,6 @@ Server::Server(std::map<std::string, std::string> settings, std::vector<Location
 	_keepAliveTimeout = stringToInt(settings["keepalive_timeout"]);
 	if (_keepAliveTimeout == 0)
 		logMessage("Warning: KeepAlive Is Wrong Or Zero!, And Default Is Set.");
-	// std::cout << "keep alive time: " << _keepAliveTimeout << std::endl;
-	// _keepaliveTimeouts.push_back(settings["keepalive_timeout"]);
-	// _autoindexes.push_back(settings["autoindex"]);
-	// _clientSizes.push_back(settings["client_body_buffer_size"]);
-
-	// std::cout << GREEN << "* Server [ " << settings["server_name"] << " ] created successfully." << RESET << std::endl;
 }
 
 Server::Server(const Server &other) :
@@ -40,8 +33,6 @@ Server::Server(const Server &other) :
 	_roots(other._roots),
 	_indexes(other._indexes),
 	_keepAliveTimeout(other._keepAliveTimeout),
-	// _autoindexes(other._autoindexes),
-	// _clientSizes(other._clientSizes),
 	_listeningSocket(other._listeningSocket),
 	_connectedSockets(other._connectedSockets),
 	_httpReq(other._httpReq),
@@ -52,15 +43,6 @@ Server::Server(const Server &other) :
 
 Server::~Server(void)
 {
-	// close(this->_listeningSocket.getSocketFd());
-
-	// std::map<int, ConnectedSocket>::iterator iterator;
-	// std::map<int, ConnectedSocket>::iterator iteratorEnd = this->_connectedSockets.end();
-
-	// for (iterator = this->_connectedSockets.begin(); iterator != iteratorEnd; iterator++)
-	// 	close(iterator->second.getSocketFd());
-
-	// delete this->_monitoredFds;
 	return;
 }
 
@@ -107,7 +89,6 @@ void Server::setPortAvailable(void)
 		Exception exception("Setting socket options failed!", SOCKET_OPTIONS_FAILED);
 		throw exception;
 	}
-	// std::cout << GREEN << "Listening Socket with fd(" << this->_listeningSocket.getSocketFd() << ") of type " << (this->_listeningSocket.getAddressInfo()->ai_socktype == SOCK_STREAM ? "TCP Socket" : "UNKNOWN SOCKET!!!!") << " created" << RESET << std::endl;
 	return;
 }
 
@@ -120,9 +101,6 @@ void Server::bindSocket(void) const
 		Exception exception("Binding the socket to the address failed!", BIND_SOCKET_FAILED);
 		throw exception;
 	}
-
-	// std::string ip = static_cast<std::string>(inet_ntoa(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_addr)); // REMOVE
-	// std::cout << GREEN << "Listening Socket " << this->_listeningSocket.getSocketFd() << " is bound to " << ip.c_str() << ":" << ntohs(reinterpret_cast<sockaddr_in *>(this->_listeningSocket.getAddressInfo()->ai_addr)->sin_port) << RESET << std::endl;
 
 	return;
 }
@@ -149,15 +127,11 @@ int Server::acceptFirstRequestInQueue(bool addToConnectedSocketsList)
 	int connectedSocketFd = accept(this->_listeningSocket.getSocketFd(), reinterpret_cast<sockaddr *>(&incomingConnectionAddress), &incomingConnectionAddressSize);
 
 	if (fcntl(connectedSocketFd, F_SETFL, O_NONBLOCK) == -1)
-	{
-		perror("fcntl F_SETFL");
-	}
+		Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
 	if (connectedSocketFd < 0)
 	{
-		// Exception exception("Accepting the request failed", ACCEPTING_FAILED);
 		Server::logMessage("ERROR: Accepting the request failed");
 		return (ACCEPTING_FAILED);
-		// throw exception;
 	}
 
 	if (addToConnectedSocketsList) {
@@ -166,21 +140,12 @@ int Server::acceptFirstRequestInQueue(bool addToConnectedSocketsList)
 		this->_connectedSockets[connectedSocketFd].setConnectionStartTime();
 		this->_connectedSockets[connectedSocketFd].setState(this->_keepAliveTimeout ? KEEP_ALIVE : CLOSED);
 	}
-
-
-	// std::cout << YELLOW << "***********Incoming Connection Address***********:" << RESET << std::endl;
-	// std::string clientIp =  inet_ntoa(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_addr); //remove
-	// std::cout << "Client address is " << clientIp << ":" << ntohs(reinterpret_cast<sockaddr_in *>(&incomingConnectionAddress)->sin_port) << std::endl; //remove
-	// std::cout << YELLOW << "*************************************************:" << RESET << std::endl;
-	// std::cout << GREEN << "Connected socket with fd(" << connectedSocket.getSocketFd() << ") is created" << RESET << std::endl;
-
 	return (connectedSocketFd);
 }
 
 std::string Server::readHtmlFile(std::string path)
 {
 	std::ifstream fileStream(path.c_str());
-	// fileStream.open(path.c_str());
 	if (fileStream.is_open())
 		std::cout << "file is open\n";
 	else
@@ -190,7 +155,6 @@ std::string Server::readHtmlFile(std::string path)
 	}
 	std::ostringstream ss;
 	ss << fileStream.rdbuf();
-	// std::cout << ss.str() << std::endl;
 	fileStream.close();
 	return ss.str();
 }
@@ -228,10 +192,8 @@ int Server::stringToInt(const std::string &str) {
     std::stringstream ss(str);
     int value;
     ss >> value;
-    if (ss.fail()) {
-			std::cout << "*****************FAILED TO CONVERT*****************" << value << std::endl;
+    if (ss.fail())
 			return 0;
-    }
     return value;
 }
 
@@ -239,10 +201,8 @@ int Server::stringToInt(const std::string &str) {
 void Server::logMessage(const std::string &message) {
     const std::string logFileName = "./src/server.log";
 
-    // Check if the log file exists
     struct stat buffer;
     if (stat(logFileName.c_str(), &buffer) != 0) {
-        // Log file doesn't exist, create it
         std::ofstream createLogFile(logFileName.c_str());
         if (!createLogFile.is_open()) {
             std::cerr << "Error: Unable to create log file!" << std::endl;
@@ -250,16 +210,12 @@ void Server::logMessage(const std::string &message) {
         }
     }
 
-    // Open the log file in append mode
     std::ofstream logFile(logFileName.c_str(), std::ios_base::app);
     if (logFile.is_open()) {
-        // Get the current time
-        std::time_t now = std::time(NULL);
-        char timeBuffer[80];
-        std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
-
-        // Write the timestamp and message to the log file
-        logFile << "[" << timeBuffer << "] " << message << std::endl;
+			std::time_t now = std::time(NULL);
+			char timeBuffer[80];
+			std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+			logFile << "[" << timeBuffer << "] " << message << std::endl;
     } else {
         std::cerr << "Error: Unable to open log file!" << std::endl;
     }

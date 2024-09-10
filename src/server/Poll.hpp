@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 10:54:45 by ncasteln          #+#    #+#             */
-/*   Updated: 2024/09/03 18:37:03 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:37:28 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,11 @@ private:
 	nfds_t _currentMonitored;
 	size_t _totalMonitored;
 	struct pollfd *_totalFds;
-
-	std::map<int, int> _POLLINCheck; //navid_check
+	std::map<int, int> _POLLINCheck;
 
 	void createServers(const Parser &configuration);
 	bool mergeServerWithSamePort(std::map<std::string, std::string> serverConf);
 	void initFds(void);
-
 	void handleEvent(void);
 	void handleListeningEvent(size_t i, Server &s);
 	void handleConnectedEvent(int i, Server &s, std::map<int, ConnectedSocket>::iterator *connectedSocketIt);
@@ -59,10 +57,8 @@ private:
 	std::string cgiChildProcessSuccess(ConnectedSocket &connectedSocket, Server &s);
 	std::string cgiChildProcessFail(ConnectedSocket &connectedSocket, Server &s);
 
-	// UN-USED CONSTRUCTORS
 	Poll(void);
 	Poll(const Poll &);
-	Poll &operator=(const Poll &);
 };
 
-#endif /* __POLL_HPP__ */
+#endif

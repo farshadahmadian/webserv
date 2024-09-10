@@ -15,8 +15,6 @@
 #include "Server.hpp"
 #include "ListeningSocket.hpp"
 
-// change default values
-// should not be used
 ListeningSocket::ListeningSocket(void):
 	Socket(),
 	_maxIncomingConnections(10),
@@ -28,7 +26,7 @@ ListeningSocket::ListeningSocket(void):
 		this->_addressInfo = this->allocateAddrInfo();
 		int socketFd = this->createSocket();
 		this->setSocketFd(socketFd);
-	} catch(Exception const &exception) { // if an Exception instance were thrown, catch it, and again throw and then in the main function it will be caught in the try-catch block
+	} catch(Exception const &exception) {
 		throw exception;
 	}
 	return;
@@ -44,9 +42,8 @@ ListeningSocket::ListeningSocket( unsigned int maxIncomingConnections, std::stri
 	try {
 		this->_addressInfo = this->allocateAddrInfo();
 		int socketFd = this->createSocket();
-		if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1) {
-	      perror("fcntl F_SETFL");
-		}
+		if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1)
+			Server::logMessage("ERROR: The fcntl F_SETFL Error Set!");
 		this->setSocketFd(socketFd);
 	} catch (Exception const &exception) {
 		Server::logMessage("ERROR: " + std::string(exception.what()));
@@ -94,7 +91,6 @@ struct addrinfo *ListeningSocket::allocateAddrInfo( void ) const {
 	if (getAddrResult != 0)
 	{
 		std::string errMsg = static_cast<std::string>(gai_strerror(getAddrResult));
-		// Server::logMessage("ERROR: " + errMsg);
 		Exception exception(errMsg, GET_ADDR_INFO_FAILED);
 		throw exception;
 	}
@@ -105,22 +101,13 @@ int ListeningSocket::createSocket(void) const {
 	struct addrinfo *temp;
 	int socketFd = -1;
 
-	// std::cout << "this->_addressInfo->ai_family = " << this->_addressInfo->ai_family << std::endl;
-	// std::cout << "this->_addressInfo->ai_socktype = " << this->_addressInfo->ai_socktype << std::endl;
-	// std::cout << "this->_addressInfo->ai_protocol =" << this->_addressInfo->ai_protocol << std::endl;
-
 	for (temp = this->_addressInfo; temp != NULL; temp = temp->ai_next)
 	{
 		socketFd = socket(temp->ai_family, temp->ai_socktype, temp->ai_protocol);
 		if (socketFd == -1)
-		{
-			// Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILED);
-			// throw exception;
 			continue;
-		}
 		else
 			break;
-
 	}
 
 	if (socketFd == -1)
@@ -128,7 +115,6 @@ int ListeningSocket::createSocket(void) const {
 			Exception exception("Socket creation faild!", GET_ADDR_INFO_FAILED);
 			throw exception;
 		}
-	// freeaddrinfo(this->_addressInfo);
 	return socketFd;
 }
 

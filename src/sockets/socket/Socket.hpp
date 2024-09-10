@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:25:55 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/12 11:38:31 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:20:17 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Socket {
 		Socket(void);
 		Socket(Socket const &other);
 		Socket(int socketFd);
-		Socket &operator=(Socket const &rhs);	// unused
+		Socket &operator=(Socket const &rhs);
 		virtual ~Socket(void);
 
 		int getSocketFd(void) const;

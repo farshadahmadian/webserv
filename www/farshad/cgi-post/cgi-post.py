@@ -1,9 +1,6 @@
 import os
 from datetime import datetime
 
-# while True:
-# 	pass
-
 name = os.getenv('NAME', 'Guest') 
 
 current_time = datetime.now().strftime('%H:%M:%S')

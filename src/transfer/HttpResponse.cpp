@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/09 21:32:20 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/10 12:02:34 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ void HTTPResponse::fixUri(std::string const &filePath) {
 Of Responding With An Specific Method Is Required,
 It Invokes Corresponding Method.*/
 std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &connectedSocket) {
+	
 	int statusCode = validate();
 
 	std::string method = _requestMap["method"];
@@ -140,7 +141,6 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 			return (generateErrorPage(405));
 	}
 		// std::cout << MAGENTA <<getLocationMethod(uri)<< RESET << std::endl;
-
 	// First, check if the method is GET or HEAD
 	if (method == "GET" || method == "HEAD") {
 		return createHandleGet(connectedSocket);
@@ -148,8 +148,10 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 
 	// Then, check if the method is POST or DELETE and the URI is not a directory
 	if ((method == "POST" || method == "DELETE")) {// && !isDirectory(uri)) {
-		if (method == "POST" && this->_requestMap["uri"] == "/delete")
+		if (method == "POST" && (this->_requestMap["uri"] == "/delete" || this->_requestMap["uri"] == "/delete/"))
+		{
 			return createHandleDelete(connectedSocket);
+		}
 		else if (method == "POST")
 			return createHandlePost(clientSocket, connectedSocket, this->_serverConfig);
 		else if (method == "DELETE")
@@ -180,7 +182,6 @@ std::string HTTPResponse::createHandlePost(int const connectedSocketFd, Connecte
 }
 
 std::string HTTPResponse::createHandleDelete(ConnectedSocket &connectedSocket) {
-	// std::string responseBody = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n<html><body><h1>DELETE Request Received</h1></body></html>";
 	Delete deleteResponse;
 	deleteResponse.handleDelete(connectedSocket);
 	std::string response = deleteResponse.getSocketResponse(connectedSocket.getSocketFd());
@@ -352,23 +353,15 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 			return false;
 		}
 		std::string response = iter->second;
-		// printStringToFile(response, "./src/request/response.txt");
-
-		// std::cout << CYAN << "Connected socket " << clientSocket << " is sending the response ..." << RESET << std::endl;
-
 		ssize_t bytesSent = send(clientSocket, this->_responses[clientSocket].c_str(), this->_responses[clientSocket].size(), 0);
 
-		// std::cout <<  "******" << bytesSent << "******" << std::endl;
 		if (bytesSent == -1) {
 			Server::logMessage("Error: No Byte Sent for socket fd: " + Server::intToString(clientSocket));
 			return false;
 		}
-		// std::cout << CYAN << "Bytes sent: " << bytesSent << RESET << std::endl;
-		// std::cout << CYAN << "Response size: " << this->_responses[clientSocket].size() << RESET << std::endl;
 
 		connectedSocket.setConnectionStartTime();
 
-		// if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size()) || (connectedSocket.getRequestMap()["uri"] == "/cgi-post")) {
 		if (bytesSent < static_cast<ssize_t>(this->_responses[clientSocket].size())) {
 			Server::logMessage("WARNING: Sent Byte Less Than The Response for socket fd: " + Server::intToString(clientSocket));
 			pollFds[i].events = POLLOUT;
@@ -387,7 +380,6 @@ bool HTTPResponse::handleResponse(int clientSocket, int const &pollEvent, pollfd
 	Server::logMessage("ERROR: Response Function Failed for socket fd: " + Server::intToString(clientSocket));
 	return false;
 }
-// HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>
 
 /*Display Corresponding Response To The Fd Is Passed.*/
 void HTTPResponse::printSocketResponse(int fd) {
@@ -575,16 +567,8 @@ void HTTPResponse::setResponseForAConnectedSocket(std::string const &response, i
 	this->_responses[connectedSocketFd] = response;
 }
 
-
-
-//////////////////////// CGI ////////////////////////
-
-
-
 ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocket) {
 	int pipeFds[2];
-	// int stdInCopy = dup(STDIN_FILENO);
-	// int stdOutCopy = dup(STDOUT_FILENO);
 
 	if (pipe(pipeFds) == -1) {
 		cgiError(connectedSocket);
@@ -601,9 +585,7 @@ ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocke
 		this->cgiError(connectedSocket);
 		return connectedSocket.getChildProcessData();
 	}
-
 	Poll::cgiChildProcessNum++;
-	std::cout << "Poll::cgiChildProcessNum = " << Poll::cgiChildProcessNum << std::endl;
 
 	if (id == 0) {		
 		this->handleCgiChildProcess(connectedSocket, pipeFds);
@@ -640,14 +622,9 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 		Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in child process");
 	}
 	pipeFds[1] = -1;
-	// dup2(STDOUT_FILENO, stdOutCopy);
-	// dup2(STDIN_FILENO, stdInCopy);
 
 	std::string command = setInterpreter(connectedSocket.getCgiScriptExtension());
-	// if (connectedSocket.getCgiScriptExtension() == ".sh")
-	// 	command = "/bin/bash";
-	// else if (connectedSocket.getCgiScriptExtension() == ".py")
-	// 	command = "/usr/bin/python3";
+
 	if (command == "") {
 		connectedSocket.setIsCgiChildProcessReturning(true);
 		return;
@@ -658,53 +635,31 @@ void HTTPResponse::handleCgiChildProcess(ConnectedSocket &connectedSocket, int p
 		post.parsePostRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 		std::string requestData = post._data["name"];
 		std::string keyValue = "NAME=" + requestData;
-		// std::cerr << "keyValue = " << keyValue << std::endl;
 		char *name = const_cast<char *>(keyValue.c_str());
 		char *const env[] = {name, NULL};
-
-		// std::string command = this->findCommand("node");
-
-		// std::string command = "/Users/fahmadia/.nvm/versions/node/v20.15.0/bin/node";
-		// std::string command = "/usr/bin/python";
 		char *cmd = const_cast<char *>(command.c_str());
-
-		// std::string file = "./www/farshad/form/cgi.js";
 		std::string file = this->_cgiFilePath;
 		char *filePath = const_cast<char *>(file.c_str());
-
 		char *const argv[] = {cmd, filePath, NULL};
-
 		execve(cmd, argv, env);
 	}
 	else if (connectedSocket.getRequestMap()["method"] == "GET") {
 		this->storeKeyValuePairsOfQueryString();
-		// this->printQueryStringKeyValues();
 		char **env = this->getEnv();
-		// printEnv(env);
-
-		// std::string command = "/usr/bin/python";
 		char *cmd = const_cast<char *>(command.c_str());
-
 		std::string file = this->_cgiFilePath;
 		char *filePath = const_cast<char *>(file.c_str());
-
 		char *const argv[] = {cmd, filePath, NULL};
-		std::cerr << "cmd = " << cmd << std::endl;
-		std::cerr << "argv[1] = " << argv[1] << std::endl;
 		this->resetCgiProperties();
 		execve(cmd, argv, env);
 		this->deleteChildProcessMemory(env);
 	}
 
-
-	// std::cerr << RED << "cmd or argv are wrong => execve failed. execve() returned: " << result << RESET << std::endl;
 	connectedSocket.setIsCgiChildProcessReturning(true);
 	return;
-
 }
 
 void HTTPResponse::handleCgiMainProcess(ConnectedSocket &connectedSocket, int pipeFds[2], pid_t id) {
-	// dup2(pipeFds[0], STDIN_FILENO);
 	this->UpdateCgiProperties(connectedSocket, id, pipeFds, false);
 
 	if (connectedSocket.getChildProcessData().pipeFds[1] != -1)
@@ -717,10 +672,6 @@ void HTTPResponse::handleCgiMainProcess(ConnectedSocket &connectedSocket, int pi
 		Server::logMessage(Server::intToString(pipeFds[1]) + "is closed in parent process");
 		}
 	}
-			// close(pipeFds[1]);
-		// dup2(STDOUT_FILENO, stdOutCopy);
-		// dup2(STDIN_FILENO, stdInCopy);
-		// close(connectedSocket._childProcessData.pipeFds[1]);
 }
 
 void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t id, int pipeFds[2], bool isError) {
@@ -731,16 +682,13 @@ void HTTPResponse::UpdateCgiProperties(ConnectedSocket &connectedSocket, pid_t i
 }
 
 bool HTTPResponse::isCgiUri(ConnectedSocket &connectedSocket) {
-	// std::cout << "uri = " << connectedSocket.getRequestMap()["uri"] << std::endl;
 	int index = connectedSocket.getRequestMap()["uri"].find(this->_cgiDirectory);
-	// std::cout << "IN isCgiUri index is:" << index << std::endl;
 	if (index == 0)
 		return true;
 	return false;
 }
 
 std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
-
 	if (!findScript(connectedSocket, connectedSocket.getRequestMap()["uri"])) {
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(404);
 		return this->_responses[connectedSocket.getSocketFd()];
@@ -756,29 +704,24 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 		return this->_responses[connectedSocket.getSocketFd()];
 	}
 
-	// if (connectedSocket.getRequestMap()["uri"] == (_cgiDirectory + this->_cgiFileName)) {
 	if (connectedSocket.getRequestMap()["uri"].find(_cgiDirectory + this->_cgiFileName) != std::string::npos) {
 		if (Poll::cgiChildProcessNum >= MAX_CGI_CHILD_PROCESSES)
 		{
 			this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(503);
 			return this->_responses[connectedSocket.getSocketFd()];
 		}
-		// std::cout << "****cgi*****" << std::endl;
 		connectedSocket.setIsCgi(true);
 		connectedSocket.setCgiStartTime();
-		// this->_responses[connectedSocket.getSocketFd()] = handlePostCgi(connectedSocket.getSocketFd(), connectedSocket);
 		ChildProcessData childProcessData = createPipeAndFork(connectedSocket);
 		connectedSocket.setChildProcessData(childProcessData);
 		if (connectedSocket.getIsCgiChildProcessReturning() == true) {
 			return "";
 		}
 		if (connectedSocket.getChildProcessData().isError) {
-
 			return this->_responses[connectedSocket.getSocketFd()];
 		}
 		else
 		{
-
 			this->_responses[connectedSocket.getSocketFd()] = "";
 			return this->_responses[connectedSocket.getSocketFd()];
 		}
@@ -787,11 +730,9 @@ std::string HTTPResponse::handleCgi(ConnectedSocket &connectedSocket) {
 }
 
 bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri) {
-	// std::cout << "uri = " << uri << std::endl;
 	if (connectedSocket.getRequestMap()["method"] == "POST") {
 		std::string scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
 		this->_cgiFileName = scriptFile;
-		// std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
 	} else if (connectedSocket.getRequestMap()["method"] == "GET") {
 		std::string scriptFile = "";
 		size_t queryStringStartIndex = uri.find_first_of("?");
@@ -800,41 +741,24 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 			std::string temp = uri.substr(this->_cgiDirectory.length(), std::string::npos);
 			scriptFile = this->getSubStringFromStartToIndex(temp, "?");
 			this->_queryString = uri.substr(queryStringStartIndex + 1, std::string::npos);
-			// std::cout << "queryStrig = " << this->_queryString << std::endl;
 		}
 		else
 			scriptFile = uri.substr(this->_cgiDirectory.length(), std::string::npos);
 
 		this->_cgiFileName = scriptFile;
-		std::cout << "scriptFile = " << this->_cgiFileName << std::endl;
 	}
 	if (this->_cgiFileName.empty())
 		return false;
-
-	// DIR *directory = opendir(this->getStorageDirectory().c_str());
-	// if (!directory) {
-	// 	this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(500);
-	// 	return false;
-	// }
-	// // std::cout << directory << std::endl;
-	// closedir(directory);
-	// std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
-	// std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
 
 	std::string file = "";
 	if (connectedSocket.getRequestMap()["method"] == "POST")
 		file = "./www/farshad/cgi-post/" + this->_cgiFileName;
 	else if (connectedSocket.getRequestMap()["method"] == "GET")
 		file = _serverConfig.at("root") + "/cgi-get/" + this->_cgiFileName;
-	std::cout << "file address :" << file << std::endl;
 	int exist = 0;
 	int isReadable = 0;
 	if ((exist = access(file.c_str(), F_OK)) == 0)
-	{
-		std::cout << YELLOW << this->_cgiFileName << " exists. " << RESET << std::endl;
 		this->_cgiFilePath = file;
-		std::cout << "this->_cgiFile = " << this->_cgiFilePath << std::endl;
-	}
 	else
 	{
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(404); 
@@ -855,25 +779,19 @@ bool HTTPResponse::findScript(ConnectedSocket &connectedSocket, std::string &uri
 }
 
 void HTTPResponse::storeKeyValuePairsOfQueryString(void) {
-	// std::cerr << RED << "queryString = " << this->_queryString << RESET << std::endl;
-	// std::cerr << RED << "scriptFile = " << this->_cgiFileName << RESET << std::endl;
 
-	// std::vector<std::string> keyValues;
 	std::string queryString = this->_queryString;
 	while (!queryString.empty())
 	{
 		if (queryString.find("&") == std::string::npos) {
-			// std::cerr << "*** " << queryString << std::endl;
 			this->_queryStringKeyValues.push_back(queryString);
 		} else {
 			std::string keyValue = this->getSubStringFromStartToIndex(queryString, "&");
 			if (!keyValue.empty()) {
-				// std::cerr << BLUE << keyValue << RESET << std::endl;
 				this->_queryStringKeyValues.push_back(keyValue);
 			}
 		}
 		queryString = this->getSubStringFromMiddleToIndex(queryString, "&", 1, std::string::npos);
-		// std::cerr << YELLOW << queryString << RESET << std::endl;
 	}
 }
 
@@ -900,17 +818,11 @@ char **HTTPResponse::getEnv(void) {
 
 	if (!_queryStringKeyValues.size())
 		return (NULL);
-	// std::cerr << "???" << this->_queryStringKeyValues.size() << "--" << std::endl;
 	char **env = new char*[this->_queryStringKeyValues.size() + 1];
 	env[this->_queryStringKeyValues.size()] = NULL;
-	// std::cerr << BLUE << "** == " << env[3] << RESET << std::endl;
-	// std::cerr << RED << "_queryStringKeyValues.size() = " << _queryStringKeyValues.size() << RESET << std::endl;
 	int i = 0;
 	for (iterator = this->_queryStringKeyValues.begin(); iterator != iteratorEnd; iterator++) {
-		// char *keyValue = new char[iterator->length() + 1];
-		// keyValue[iterator->length()] = '\0';
 		env[i] = const_cast<char *>(iterator->c_str());
-		// std::cerr << "*** i: " << i << " " << env[i] << std::endl;
 		i++;
 	}
 	return env;
@@ -941,18 +853,11 @@ std::string HTTPResponse::getScriptExtension(ConnectedSocket &connectedSocket) {
 	if (index == std::string::npos)
 		return "";
 	std::string scriptExtension = this->_cgiFileName.substr(index, std::string::npos);
-	std::cout << "EXTENSION: " << scriptExtension << std::endl;
 	connectedSocket.setCgiScriptExtension(scriptExtension);
-	std::cerr << "-----extension = " <<connectedSocket.getCgiScriptExtension() << std::endl;
 	return scriptExtension;
 }
 
 void HTTPResponse::deleteChildProcessMemory(char **env) {
-	// char **temp = env;
-	// while (*temp) {
-	// 	delete[] *temp;
-	// 	temp++;
-	// }
 	if (!env)
 		return;
 	delete []env;

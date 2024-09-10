@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 11:55:10 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 20:41:06 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:19:09 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ ConnectedSocket::ConnectedSocket(int socketFd, sockaddr_storage const &incomingR
 		this->_childProcessData.pipeFds[1] = -1;
 		this->_childProcessData.isError = false;
 
-		// this->_isCgiChildProcessReturning = false;
 	return;
 }
 
@@ -101,10 +100,6 @@ ConnectedSocket &ConnectedSocket::operator=(ConnectedSocket const &rhs) {
 }
 
 ConnectedSocket::~ConnectedSocket(void) {
-	// if (this->_requestBody.is_open()) {
-	// 	this->_requestBody.clear();
-	// 	this->_requestBody.close();
-	// }
 	return;
 }
 
@@ -127,10 +122,6 @@ void ConnectedSocket::setIsConnected(bool isConnected) {
 time_t const &ConnectedSocket::getConnectionStartTime(void) const {
 	return this->_connectionStartTime;
 }
-
-// int ConnectedSocket::getIterationNum() {
-// 	return this->_iterationNum;
-// }
 
 t_state ConnectedSocket::getState(void) {
 	return this->_state;
@@ -285,11 +276,3 @@ void ConnectedSocket::clearRequestProperties(void) {
 	this->_isHeaderComplete = false;
 	this->_requestMap.clear();
 }
-
-// void ConnectedSocket::setIterationNum(int iterationNum) {
-// 	this->_iterationNum = iterationNum;
-// 	return;
-// }
-
-
-

@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:10:43 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 19:04:16 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 10:09:47 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 #include "HttpRequest.hpp"
 
 #define MAX_CONNECTIONS 130
-#define CGI_TIMEOUT 10
+#define CGI_TIMEOUT 100
 #define MAX_CGI_CHILD_PROCESSES 5
 
 class Server
@@ -47,13 +47,10 @@ private:
 	std::vector<std::string> _roots;
 	std::vector<std::string> _indexes;
 	int _keepAliveTimeout;
-	// std::vector<std::string> _keepaliveTimeouts;
-	// std::vector<std::string> _autoindexes;
-	// std::vector<std::string> _clientSizes;
 	ListeningSocket _listeningSocket;
 	std::map<int, ConnectedSocket> _connectedSockets;
-	HTTPRequest _httpReq; // Navid_code
-	HTTPResponse _httpResp; // Navid_code
+	HTTPRequest _httpReq; 
+	HTTPResponse _httpResp; 
 
 	Server(void);
 	Server &operator=(Server const &rhs);
@@ -68,10 +65,8 @@ public:
 	ListeningSocket const &getListeningSocket(void) const;
 	const std::string getPort(void) const;
 	std::map<int, ConnectedSocket> &getConnectedSockets(void);
-	HTTPRequest & getHttpReq(); // Navid_code
-	HTTPResponse & getHttpResp(); // Navid_code
-	static void logMessage(const std::string &message); // Navid_code
-
+	HTTPRequest & getHttpReq(); 
+	HTTPResponse & getHttpResp(); 
 	int getKeepAliveTimeout(void) const;
 
 	void setKeepAliveTimeout(int keepAliveTimeout);
@@ -86,6 +81,7 @@ public:
 	void printConnectedSockets(void);
 	static int stringToInt(const std::string &str);
 	static std::string intToString(int const i);
+	static void logMessage(const std::string &message); 
 
 };
 

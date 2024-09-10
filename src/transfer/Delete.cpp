@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 09:06:15 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/01 18:55:33 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 10:04:04 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ void Delete::getSubmittedFormInputs(std::string body, std::string formFieldsDeli
 		std::string toFind = "name=";
 		std::string fileName = getSubStringFromMiddleToIndex(body, toFind, toFind.size(), std::string::npos);
 		this->_data["filename"] = fileName;
-		std::cout << RED << "*** file name = " << fileName <<  RESET << std::endl;
 		return;
 	}
 
@@ -105,8 +104,6 @@ std::string Delete::getDelimiter(std::string request) {
 
 void Delete::parseDeleteRequest(std::string const &requestHeader, std::ostringstream const &requestBody) {
 	std::string formFieldsDelimiter = this->getDelimiter(requestHeader);
-	// if (formFieldsDelimiter.empty())
-	// 	return;
 	std::string body = requestBody.str();
 	this->getSubmittedFormInputs(body, formFieldsDelimiter);
 }
@@ -119,10 +116,8 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(500);
 		return false;
 	}
-	// std::cout << directory << std::endl;
 	closedir(directory);
 	std::string fileToDelete = this->getStorageDirectory() + "/" + this->_data["filename"];
-	std::cout << YELLOW << "To delete: " << fileToDelete << RESET << std::endl;
 
 	int isWritable = 0;
 	int exist = 0;
@@ -139,67 +134,33 @@ bool Delete::deleteFile(ConnectedSocket &connectedSocket) {
 	
 	if ((isWritable = access(fileToDelete.c_str(), W_OK)) == 0)
 	{
-		std::cout << YELLOW << fileToDelete << " is writable." << RESET << std::endl;
-
 		directory = opendir(fileToDelete.c_str());
 		if (directory)
 		{
 			Server::logMessage("INFO: " + fileToDelete + " is a directory, and not a file!");
-			std::cout << YELLOW << fileToDelete << " is a directory, and not a file!" << RESET << std::endl;
 			closedir(directory);
 			this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 			return false;
 		}
 		else
 		{
-			std::cout << YELLOW << fileToDelete << " is a file, and not a directory." << RESET << std::endl;
 			std::remove(fileToDelete.c_str());
-			std::cout << YELLOW << fileToDelete << " is deleted" << RESET << std::endl;
 			return true;
 		}
 	}
 	else {
-		std::cout << YELLOW << fileToDelete << " is not writable" << RESET << std::endl;
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(403); 
 		return false;
 	}
-	
-	
-
-	
 
 	return true;
 }
 
 std::string const & Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	
-	// if (connectedSocket.getRequestMap()["uri"] != "/delete") {
-	// 	std::string html = "<html><body><h1>Bad Request</h1></body></html>";
-	// 	std::ostringstream ostring;
-	// 	ostring << "HTTP/1.1 400 Bad Request\r\n";
-	// 	ostring << "Content-Type: text/html\r\n";
-	// 	ostring << "Connection: close\r\n";
-	// 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-	// 	ostring << html;
-	// 	this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-	// 	std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
-	// 	return;
-	// }
-
 	this->parseDeleteRequest(connectedSocket.getRequestHeader(), connectedSocket.getRequestBody());
 
-	// std::cout << RED << this->_data["filename"] << RESET << std::endl;
-
 	if (this->_data["filename"].empty()) {
-		// std::string html = "<html><body><h1>Something went wrong</h1></body></html>";
-		// std::ostringstream ostring;
-		// ostring << "HTTP/1.1 400 Bad Request\r\n";
-		// ostring << "Content-Type: text/html\r\n";
-		// ostring << "Connection: close\r\n";
-		// ostring << "Content-Length: " << html.length() << "\r\n\r\n";
-		// ostring << html;
-		// this->_responses[connectedSocket.getSocketFd()] = ostring.str(); 
-		// std::cout << RED << "RESPONSE:\n" << ostring.str() << RESET << std::endl;
 		this->_responses[connectedSocket.getSocketFd()] = generateErrorPage(400); 
 		return (this->_responses[connectedSocket.getSocketFd()]);
 }
@@ -216,6 +177,6 @@ std::string const & Delete::handleDelete(ConnectedSocket &connectedSocket) {
 	ostring << "Content-Length: " << html.length() << "\r\n\r\n";
 	ostring << html;
 	this->_responses[connectedSocket.getSocketFd()] = ostring.str();
-	// std::cout << CYAN << "DELETE RESPONSE:\n" << this->_responses[connectedSocket.getSocketFd()] << RESET << std::endl;
+
 	return (this->_responses[connectedSocket.getSocketFd()]);
 }

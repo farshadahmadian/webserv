@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Exception.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncasteln <ncasteln@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 13:25:05 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/07/16 15:56:34 by ncasteln         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:07:12 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,4 @@ class Exception : public std::exception {
 		enum server_err _error;
 };
 
-#endif /* __EXCEPTION_HPP__ */
+#endif

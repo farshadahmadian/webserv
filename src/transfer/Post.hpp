@@ -6,7 +6,7 @@
 /*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 08:28:20 by fahmadia          #+#    #+#             */
-/*   Updated: 2024/09/03 08:44:47 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:32:20 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,11 @@ class Post : public HTTPResponse {
 		bool _isFileSaved;
 
 		std::string getDelimiter(std::string request);
-		// std::string getBody(std::string request);
 		void getSubmittedFormInputs(std::string body, std::string formFieldsDelimiter);
 		void getSubmitedData(std::string &contentDisposition);
 		std::string getName(std::string string);
 		std::string getFileName(std::string string);
 		void saveFile(std::string string);
-		
 };
-
-
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 02:33:30 by nnabaeei          #+#    #+#             */
-/*   Updated: 2024/09/06 14:06:35 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/10 09:26:53 by fahmadia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # define LF	"\n"
 # define CRLF "\r\n"
 
-// # include "../../include/colors.h"
 # include "../../include/errors.h"
 # include "../exception/Exception.hpp"
 # include "../parsing/HttpConf.hpp"
