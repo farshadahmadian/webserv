@@ -106,7 +106,7 @@ std::string Get::handleGet(ConnectedSocket &connectedSocket) {
 	std::string uri = _requestMap["uri"];
 	std::string filePath = _serverConfig.at("root") + uri;
 
-	if (isCgiUri(connectedSocket)) {
+	if (isCGI(filePath) && isCgiUri(connectedSocket)) {
 		std::string response = this->handleCgi(connectedSocket);
 		return response;
 	}

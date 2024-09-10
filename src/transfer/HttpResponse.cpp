@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fahmadia <fahmadia@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:46:45 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/10 12:02:34 by fahmadia         ###   ########.fr       */
+/*   Updated: 2024/09/10 12:29:37 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,15 +53,6 @@ int HTTPResponse::validate() {
 	return (200);
 }
 
-// bool HTTPResponse::isDirectory(const std::string& uri) const {
-// 	std::string filePath = _serverConfig.at("root") + uri;
-// 	struct stat st;
-// 	if (stat(filePath.c_str(), &st) != 0) {
-// 		return false; // Error in accessing the path or path does not exist
-// 	}
-// 	return S_ISDIR(st.st_mode);
-// }
-
 bool HTTPResponse::isDirectory(const std::string& uri) const {
 	std::string URI = splitLocationFromUri(uri);
 	std::string filePath = _serverConfig.at("root") + URI;
@@ -86,13 +77,6 @@ bool HTTPResponse::isFile(const std::string &filePath) {
 	}
 }
 
-// bool HTTPResponse::isFile(std::string const & filePath) {
-//     struct stat st;
-// 	if (stat(filePath.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
-// 		return (false);
-// 	return (true);
-// }
-
 /*Check the the uri, and add '/' at the end of directory uri that is received without it.*/
 void HTTPResponse::fixUri(std::string const &filePath) {
 	// If it's not a file, fix the URI
@@ -100,14 +84,15 @@ void HTTPResponse::fixUri(std::string const &filePath) {
 		// Safely access the last character manually
 		if (_requestMap["uri"][_requestMap["uri"].size() - 1] != '/') {
 			_requestMap["uri"] += "/";
+			Server::logMessage("INFO: Received URI With No '/' At The End!");
 		} else {
 			// If the URI ends with multiple '/', reduce it to just one
 			while (_requestMap["uri"][_requestMap["uri"].size() - 2] == '/') {
 				_requestMap["uri"].erase(_requestMap["uri"].size() - 1);  // Remove extra slashes
 			}
+			Server::logMessage("INFO: Received URI With Some '/' At The End!");
 		}
 	}
-	// std::cout << "uri2: " << _requestMap["uri"] << std::endl;
 }
 
 /*Return Corresponding Status Code Response Or In Case
@@ -130,17 +115,14 @@ std::string HTTPResponse::getResponse(int const clientSocket, ConnectedSocket &c
 	if (statusCode == 304) {
 		return generateErrorPage(304);
 	}
-	// std::cout << "URI1: " << uri << std::endl;
+
 	fixUri(filePath);
 	uri = _requestMap["uri"];
-	// printMethods();
-	// std::cout << "URI3: " << uri << std::endl;
-	// std::cout << BLUE << splitLocationFromUri(uri) << RESET << std::endl;
+
 	if (getLocationMethod(uri) != "") {
 		if (getLocationMethod(uri).find(method) == std::string::npos)
 			return (generateErrorPage(405));
 	}
-		// std::cout << MAGENTA <<getLocationMethod(uri)<< RESET << std::endl;
 	// First, check if the method is GET or HEAD
 	if (method == "GET" || method == "HEAD") {
 		return createHandleGet(connectedSocket);
@@ -565,6 +547,39 @@ std::string HTTPResponse::generateErrorPage(int statusCode) {
 
 void HTTPResponse::setResponseForAConnectedSocket(std::string const &response, int connectedSocketFd) {
 	this->_responses[connectedSocketFd] = response;
+}
+
+
+
+//////////////////////// CGI ////////////////////////
+
+size_t HTTPResponse::acceptedCgiExtention(std::string const &filePath) {
+	std::vector<std::string> cgiExtension;
+	size_t	pos;
+	size_t	extensionPos;
+	int		count = 0;
+	cgiExtension.push_back(".sh");
+	cgiExtension.push_back(".pl");
+	cgiExtension.push_back(".py");
+	for (std::vector<std::string>::iterator it = cgiExtension.begin(); it != cgiExtension.end(); ++it) {
+		pos = filePath.find(*it);
+		if (pos != std::string::npos)
+		{
+			extensionPos = pos;
+			count++;
+		}
+	}
+	if (count == 1)
+		return (extensionPos);
+	return (std::string::npos);
+}
+
+bool HTTPResponse::isCGI(std::string const & filePath) {
+    size_t pos = acceptedCgiExtention(filePath);
+		if (pos != std::string::npos) {
+            return true;
+        }
+    return false;
 }
 
 ChildProcessData HTTPResponse::createPipeAndFork(ConnectedSocket &connectedSocket) {

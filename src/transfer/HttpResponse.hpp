@@ -6,7 +6,7 @@
 /*   By: nnabaeei <nnabaeei@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 00:45:08 by nnavidd           #+#    #+#             */
-/*   Updated: 2024/09/09 16:28:01 by nnabaeei         ###   ########.fr       */
+/*   Updated: 2024/09/10 12:00:08 by nnabaeei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,11 +111,11 @@ protected:
 	std::string generateGeneralHeaders(std::string & filePath);
 
 	//-------------------------------CGI-------------------------------
-	// bool isCGI(std::string const & filePath);
+	bool isCGI(std::string const & filePath);
 	// std::string const handleGETCgi(ConnectedSocket &connectedSocket);
 	// std::string cgi( std::string& uri );
 	// char** createEnv( std::string * uri );
-	// size_t acceptedCgiExtention(std::string const &filePath);
+	size_t acceptedCgiExtention(std::string const &filePath);
 	// std::string readFromCGI(int fd_pipe[2], pid_t forked_ps, char** env, int timeout);
 	// std::map<std::string, std::string> addAdditionalEnvVariables(std::string * uri);
 	//-----------------------------------------------------------------
